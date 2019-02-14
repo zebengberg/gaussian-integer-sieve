@@ -51,7 +51,7 @@ The goal of this project is to build an efficient implementation of a prime-gene
 >>>  P = simple_sieve(x)
 >>>  visualize(P, x)
 ```
-![](first_quadrant.png)
+![First Quadrant](https://github.com/zebengberg/gaussian-prime-sieve/blob/master/images/first_quadrant.png)
 
 ```python
 # Plot the Gaussian primes in the full complex plane with norm up to 1000.
