@@ -59,7 +59,7 @@ The goal of this project is to build an efficient implementation of a prime-gene
 >>>  P = simple_sieve(x)
 >>>  visualize(P, x, full=True)
 ```
-![](full_plane.png)
+![Full Plane](https://github.com/zebengberg/gaussian-prime-sieve/blob/master/images/full_plane.png)
 
 
 
