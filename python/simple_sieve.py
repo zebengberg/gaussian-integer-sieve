@@ -1,26 +1,62 @@
-###############################################################################
-"""Simple sieve of Eratosthenes in the Gaussian integers.
-    
-    This module implements a simple sieve of Eratosthenes in the Gaussian integers.
-    Methods here do not include any arithmetic statistics and only basic
-    visualization.  Code is written in native python as opposed to numpy or pandas.
-    Avoiding use of classes, and taking a purely functional approach.
-    
-    Purpose of this simple sieve is two-fold.  This sieve will be used to generate
-    an initial sifting set of primes which will be used in more complex sieves.
-    Sieve will also be used as a benchmark for comparing more involved
-    implementations such as a donut sieve (2-dimensional wheel sieve) or wheel
-    sieve and a segmented sieve.  Will also compare this implementation to sieves
-    written in C or C++.
-    
+from tqdm import tqdm
+import math
+import matplotlib.pyplot as plt
+import sys
+
+
+def simple_sieve(x, display=True):
+    """Simple sieve of Eratosthenes in the Gaussian integers.
+
+    This function implements a simple sieve of Eratosthenes in the Gaussian
+    integers. Returns a list of Gaussian primes a + bi as tuples (a, b) with
+    norm less than or equal to x.  Here a > 0 and b >= 0, and so the returned
+    list contains exactly one copy of each Gaussian prime a + b up to action
+    of the unit group. This choice of a and b includes the positive real-axis
+    and excludes the positive imaginary-axis.
+
+    The primes used to sieve the sieve array G is generated dynamically. With
+    the most basic version of the sieve of Erathosthenes, the smallest uncrossed
+    number from the sieve array is deemed prime, then progress continues as its
+    multiples are crossed off. The same approach is taken here.
+
+    Written in native python and taking a purely functional approach.
+    """
+    if display:
+        print('Initializing...')
+    G = initialize_sieve(x)
+    N = sort_by_norm(isqrt(x))
+    if display:
+        print('Done initializing sieve array.')
+        print('Sieve array uses {} bytes of memory.'.format(sys.getsizeof(G)))
+        print('Starting to sieve...')
+
+    with tqdm(total=.8 * x * math.log(math.log(x))) as pbar:  # .8 seemed right
+        for a, b in N:
+            if G[a][b]:  # so a + bi is actually prime
+                p = a * a + b * b
+                cross_off_multiples(x, G, a, b)
+                # We just crossed off a + bi, but we want it to be marked prime.
+                G[a][b] = True
+                pbar.update(x / p)  # updating the crude progress bar
+
+    if display:
+        print('Done sieving.')
+        print('Gathering primes...')
+    P = gather_primes(G)
+    return P
+
+
+def isqrt(n):
+    """Integer square root based on Babylonian method.
+
+    Returns largest integer m such that m * m <= n.
     """
 
-from matplotlib import pyplot as plt
+    if not isinstance(n, int):
+        raise TypeError('Method requires integer input.')
+    if n < 0:
+        raise ValueError('Method requires non-negative input.')
 
-
-###############################################################################
-def isqrt(n):
-    """Integer square root based on Babylonian method."""
     x = n
     y = (x + 1) // 2
     while y < x:
@@ -29,222 +65,157 @@ def isqrt(n):
     return x
 
 
-###############################################################################
 def initialize_sieve(x):
-    """Create empty array corresponding to Gaussian integers with norm up to x.
-        
-        Returns G, a list of lists with boolean values initialized to True.  The
-        entry G[a][b] corresponds to a Gaussian integer a + bi in the first
-        quadrant.  Both indices a and b start at 0 and run up to a^2 + b^2 <= x.
-        Set the elements of G corresponding to 0, 1, and i to False, because these
-        are neither prime nor composite.
-        
-        """
+    """Create boolean array indexed by Gaussian integers in the first quadrant.
+
+    Returns G, a list of lists with boolean values initialized to True. The
+    index of G[a][b] corresponds to a Gaussian integer a + bi. Both indices a
+    and b start at 0 and run up to a^2 + b^2 <= x. We initialize the entries of
+    G corresponding to the Gaussian integers 0, 1, and i to False because these
+    are neither prime nor composite.
+    """
+
     G = []
     for a in range(isqrt(x) + 1):
-        G.append([True for b in range(isqrt(x - a**2) + 1)])
+        G.append([True] * (isqrt(x - a * a) + 1))  # 0 <= b <= sqrt(x - a^2)
     G[0][0] = G[0][1] = G[1][0] = False
     return G
 
 
-###############################################################################
-def sorted_by_norm(x):
-    """Gaussian integers sorted by norm with norm up to x.
-        
-        Returns a list N of pairs (a, b) corresponding to Gaussian integers a + bi
-        sorted according to norm.  Here a > 0, b >= 0, and a^2 + b^2 <= x.  The
-        choice of starting value of a and b makes the Gaussian integer a + bi
-        unique up to action of the unit group.
-        
-        """
-    N = []
+def sort_by_norm(x):
+    """Sort Gaussian integers by norm up to x.
+
+    Returns a list N of pairs (a, b) corresponding to Gaussian integers a + bi
+    sorted according to norm. Using the same convention as in the function
+    simple_sieve, we constrain a > 0 and b >= 0.
+    """
+
+    N = []  # holds tuples (a, b)
     for a in range(1, isqrt(x) + 1):
-        column = [(a, b) for b in range(0, isqrt(x - a ** 2) + 1)]
-        N += column
-    N.sort(key=lambda x: x[0] ** 2 + x[1] ** 2)
+        for b in range(isqrt(x - a * a) + 1):
+            N.append((a, b))
+    # Sorting this list according to norm.
+    N.sort(key=lambda ab: ab[0] ** 2 + ab[1] ** 2)
+    print(N)
     return N
 
 
-###############################################################################
-def get_next_prime_index(G, N, prime_index):
-    """Get the next prime index from list of sorted Gaussian integers.
-        
-        Here G is the array of Gaussian integers to be sieved, N is a list of
-        sorted Gaussian integers with small norm, and prime_index is the index of
-        the current prime used in sieving.
-        
-        In the rational integers, once sieving by a particular prime is over, the
-        next prime is found by moving to the right along the number line.  In the
-        Gaussian integers, once sieving is over, one must look outward from the
-        origin to find the next prime lattice point of smallest norm.
-        
-        The list N tracks Gaussian primes of small norm, and this function finds
-        the next element of N after sieving by the previous prime is complete.
-        
-        """
-    is_prime = False
-    while not is_prime:
-        prime_index += 1
-        try:
-            a, b = N[prime_index]
-        except IndexError:  # Beyond any pair from N.
-            return False
-        # Checking to see if a + bi has already been crossed from G.
-        is_prime = G[a][b]
-    return prime_index
+def cross_off_multiples(x, G, a, b):
+    """Cross off multiples of a + bi in the sieve array.
 
+    The Z[i]-lattice generated by a + bi is equivalent to the Z-lattice
+    generated by the points (a, b) and (-b, a). Thinking of Gaussian integers
+    as points, we let
+                    (u, v) = c(a, b) + d(-b, a),
+    so that
+                    u = ac - bd and v = ad + bc.
 
-###############################################################################
-def cross_off_multiples(G, a, b):
-    """Cross off multiples of a + bi in the sieve array G.
-        
-        Here, a > 0 and b >= 0 are the components of a Gaussian prime a + bi.  This
-        prime a + bi sits above a rational prime p which can either split, ramify,
-        or remain inert in Z[i].
-        
-        If b > 0, then p has degree 1, so either p = 2 or p = 1 mod 4.  In this
-        case, a + bi generates an additive subgroup of order p in the additive
-        group Z[i] / pZ[i].  To cross off multiples of a + bi, we will construct
-        elements of this subgroup and translate them by multiples of p.
-        
-        If b = 0, then p has degree 2, so p = 3 mod 4.  In this case, a + bi = p is
-        a rational integer.  There is no subgroup to consider, and we translate p
-        by multiples of p.
-        
-        Remark 1: The theorem that makes this algorithm succeed when a + bi has
-        degree 1 can be stated as follows.  If alpha is a Gaussian integer
-        divisible by a + bi, then there exists a Gaussian integer delta and
-        rational integer d such that alpha = p * delta + (a + bi) * d.
-        
-        To sketch a proof, consider the additive group (a + bi)Z[i] / pZ[i], and
-        view alpha as an element of this group.  Because this group has order p, it
-        is cyclic, and a + bi generates this group additively.  Therefore we have
-        alpha = (a + bi) * d mod pZ[i] for some rational integer d.
-        
-        Remark 2: In the usual sieve of Eratosthenes for rational integers, because
-        any multiple of p less than p^2 is divisible by some other smaller prime
-        factor, we can cross off multiples of p starting at p^2.  One might ask if
-        there is some version of this phenomenon in the Gaussian integers.
-        
-        If s + ti is in the subgroup generated by a split Gaussian prime a + bi,
-        then N(s + ti) is a multiple of p.  If s and t are reduced mod p as in the
-        loop below, then N(s + ti) < 2*p^2.  Instead, s and t could be reduced to
-        lie between -p/2 and p/2.  In this case, N(s + ti) < 0.5*p^2.
-        
-        Implementing this would allow us to avoid running the loop to cross off
-        the entry (s + u*p) + (t + v*p)i when both u = v = 0.  This slight
-        improvement would give a negligable performance increase, and render the
-        program more difficult to understand.  We avoid it.
-        
-        """
-    
-    if b:
-        p = a ** 2 + b ** 2
-        
-        # Building additive subgroup generated by a + bi in Z[i]/pZ[i].
-        s, t = 0, 0
-        for _ in range(p):
-            s += a
-            s %= p
-            t += b
-            t %= p
-            
-            # Now translating elements of this subgroup by multiples of p.
-            u = s
-            for _ in range(0, len(G) - s, p):
-                v = t
-                for _ in range(0, len(G[u]) - t, p):
-                    G[u][v] = False
-                    v += p
-                u += p
+    With N(a + bi) = p, then we must have N(c + di) <= x / p in order to
+    remain within the sieve array. To avoid computing many multiplications
+    in determining u and v, we additively step through various u and v for
+    each choice of c and d.
+    """
 
-else:  # So b = 0.
-    u = a
-        for _ in range(0, len(G) - a, a):
-            v = 0
-            for _ in range(0, len(G[u]), a):
+    p = a * a + b * b
+
+    outer_u, outer_v = 0, 0  # these will hold the products ac and ad respectively
+    for c in range(isqrt(x // p) + 1):
+        u, v = outer_u, outer_v
+        for d in range(isqrt(x // p - c * c) + 1):
+            if u > 0:
                 G[u][v] = False
-                v += a
-            u += a
+            else:
+                # u + vi is in second quadrant; multiplication by -i brings it back
+                G[v][-u] = False
+
+            u -= b
+            v += a
+        outer_u += a
+        outer_v += b
 
 
-###############################################################################
-def get_primes_after_sieve(G, sort=False):
-    """Get primes after sieving."""
-    
+def cross_off_multiples2(x, G, a, b):
+    """Cross off multiples of a + bi in the sieve array.
+
+    This algorithm works in the case that a + bi is a Gaussian prime. Suppose
+    a + bi sits above a rational prime p which can either split, ramify,
+    or remain inert in Z[i].
+
+    If b > 0, then p has degree 1. In this case, a + bi generates an additive
+    subgroup of order p inside of the quotient group Z[i] / pZ[i]. To cross off
+    multiples of a + bi, we  construct elements of this subgroup and translate
+    them by multiples of p. In this way, each for-loop translates in parallel with
+    the coordinate axes, and so we never leave the first quadrant (unlike our other
+    method cross_off_multiples.)
+
+    If b = 0, then p has degree 2, and so a + bi is a rational integer.  To cross
+    off multiples of a + bi, we translate it by multiples of p.
+
+    The theorem that makes this algorithm succeed when a + bi has
+    degree 1 can be stated as follows: If alpha is a Gaussian integer
+    divisible by a + bi, then there exists a Gaussian integer delta and
+    rational integer d such that alpha = p * delta + (a + bi) * d. The proof boils
+    down to generators of cyclic subgroups.
+    """
+
+    if b:  # degree 1 prime
+        p = a * a + b * b
+        subgroup_size = p
+    else:  # degree 2 prime
+        p = a
+        subgroup_size = 1
+
+    # Building additive subgroup generated by a + bi in Z[i]/pZ[i].
+    s, t = a, b
+    for _ in range(subgroup_size):
+        u = s
+        # Using that (s + kp)^2 + (t + jp)^2 <= x then solving for k, j
+        # u = s + kp and v = t + jp
+        for k in range((isqrt(x - t * t) - s) // p + 1):
+            v = t
+            for j in range((isqrt(x - u * u) - t) // p + 1):
+                G[u][v] = False
+                if subgroup_size == 1:
+                    print(p, u, v)
+                v += p
+            u += p
+
+        s = (s + a) % p
+        t = (t + b) % p
+
+
+def gather_primes(G):
+    """Gather Gaussian primes as pairs from sieve array."""
+
     P = []
     for a in range(1, len(G)):
         for b in range(len(G[a])):
             if G[a][b]:
                 P.append((a, b))
-    if sort:
-        P.sort(key=lambda x: x[0] ** 2 + x[1] ** 2)
+    P.sort(key=lambda ab: ab[0] ** 2 + ab[1] ** 2)  # extraneous for visualizing
     return P
 
 
-###############################################################################
-def simple_sieve(x, display=False, sort=False):
-    """Sieve to get Gaussian primes with norm up to x."""
-    
-    if display:
-        print('Initializing.')
-    
-    G = initialize_sieve(x)
-    N = sorted_by_norm(isqrt(x))
-    prime_index = 1  # N[0] is the pair (1, 0), which is not prime.
-    
-    if display:
-        print('Starting sieve.  Each dot represents a single prime.')
-        display_count = 0
+def visualize(P, x, full_disk=False):
+    """Plot Gaussian primes with Matplotlib."""
 
-    while prime_index:
-        if display:
-            display_count += 1
-            if display_count < 100:
-                print('.', end='')
-            elif display_count == 100:
-                print('\nNow each dot represents 10 primes.')
-            elif 100 < display_count < 1000 and display_count % 10 == 0:
-                print('.', end='')
-            elif display_count == 1000:
-                print('\nNow each dot represents 100 primes.')
-            elif display_count > 1000 and display_count % 100 == 0:
-                print('.', end='')
-
-a, b = N[prime_index]
-    cross_off_multiples(G, a, b)
-        # Because we just crossed off a + bi, and it should stay prime.
-        G[a][b] = True
-        prime_index = get_next_prime_index(G, N, prime_index)
-    
-    if display:
-        print('\nFinishing sieve.')
-        if sort:
-            print('Sorting primes.')
-
-P = get_primes_after_sieve(G, sort)
-    return P
-
-
-###############################################################################
-def visualize(P, x, full=False):
-    """Plot Gaussian primes with matplotlib."""
-    
     X = [p[0] for p in P]
     Y = [p[1] for p in P]
-    fig, ax = plt.subplots(figsize=(10, 10))
+    plt.subplots(figsize=(8, 8))
     plt.axhline(0, color='red')
     plt.axvline(0, color='red')
-    if full:
+    if full_disk:
+        # Appending integers on positive real-axis to positive imaginary-axis.
         real_axis = [p[0] for p in P if p[1] == 0]
-        X += [0]*len(real_axis)
+        X += [0] * len(real_axis)
         Y += real_axis
+
         neg_X = [-t for t in X]
         neg_Y = [-t for t in Y]
-        plt.plot(X, Y, 'bo', markersize=100/isqrt(x))
-        plt.plot(neg_X, Y, 'bo', markersize=100/isqrt(x))
-        plt.plot(X, neg_Y, 'bo', markersize=100/isqrt(x))
-        plt.plot(neg_X, neg_Y, 'bo', markersize=100/isqrt(x))
+        plt.plot(X, Y, 'bo', markersize=100 / isqrt(x))
+        plt.plot(neg_X, Y, 'bo', markersize=100 / isqrt(x))
+        plt.plot(X, neg_Y, 'bo', markersize=100 / isqrt(x))
+        plt.plot(neg_X, neg_Y, 'bo', markersize=100 / isqrt(x))
     else:
-        plt.plot(X, Y, 'bo', markersize=200/isqrt(x))
+        plt.plot(X, Y, 'bo', markersize=200 / isqrt(x))
     plt.show()
