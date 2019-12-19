@@ -14,18 +14,18 @@
 
 ## Background
 
-The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit** with the property that i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the set of rational integers, denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is the absolute value function. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
+The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit** with the property that i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the rational integers, denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
 
-This project is an implementation of the *Sieve of Eratosthenes* to generate primes in the Gaussian integers. While the Gaussian integers present some difficulties that are far more benign in the context of the rational integers, nearly all of the basic computational sieve ideas can be extended to Z[i]. In particular, both the wheel sieve and the segmented can be extended to the Gaussian integers.
+This project is an implementation of the *Sieve of Eratosthenes* to generate primes in the Gaussian integers. While the Gaussian integers present some difficulties that mostly nonexistent in the context of the rational integers, nearly all of the basic computational sieve ideas can be extended to Z[i]. In particular, both the wheel sieve and the segmented sieve can be extended to the Gaussian integers.
 
-The goal of this project is to build an efficient implementation of a prime-generating sieve in the Gaussian integers in both Python and C++, and to provide a library for deeper exploration. The [*primesieve*](https://github.com/kimwalisch/primesieve) project implement the current state of the art prime generator for rational integers. *primesieve* deeply includes both algorithmic optimizations as well as hardware infrastructure considerations needed in order to maximize runtime performance. In this repository, I hope to extend some of the more accessible algorithmic and hardware-optimization ideas from *primesieve*.
+The goal of this project is to build an efficient implementation of a prime generating sieve in the Gaussian integers in both Python and C++, and to provide a library for deeper exploration. The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as hardware considerations needed in order to improve runtime performance. In this repository, I hope to extend some of the more accessible algorithmic and hardware-optimization ideas from *primesieve*.
 
 
 ## Install
 
 This entire repository can be cloned or downloaded for use.
 
-The python module `simple_sieve.py` can be imported into python or run directly from the command line. After an initial list of "small" primes is generated and stored to file, the C++ file `simple_sieve.cpp` can be compiled and run. See the first example below for details.
+The python module `simple_sieve.py` can be imported into a python console or run directly from the command line. After an initial list of "small" primes is generated and stored to file, the C++ file `simple_sieve.cpp` can be compiled and run. See the first example below for details.
 
 ## Examples
 
@@ -33,7 +33,7 @@ To generate all Gaussian integer primes with norm up to 10000, enter
 ```shell script
 $ python simple_sieve.py 10000
 ```
-into the command line from within the `python` folder of this repository. This command will write these primes as ordered pairs to file which can then be accessed by the C++ implementation `simple_sieve.cpp`. A file containing a list of primes with norm up to sqrt(x) is needed in order to use `simple_sieve.cpp` to generate primes with norm up to x. 
+into the command line from within the `python` folder of this repository. This command will write the primes generated to a text file which can then be read by the C++ program `simple_sieve.cpp`. A text file containing a list of primes with norm up to sqrt(x) is needed in order to use `simple_sieve.cpp` to generate primes with norm up to x. 
 
 The python module `simple_sieve.py` can also be imported into a python script as seen in the examples below.
 
@@ -93,15 +93,17 @@ The python module `simple_sieve.py` can also be imported into a python script as
 
 ## Implementation
 
-With prime generating sieves, we usually work with a *sieve array* A and a set of primes P. For each prime p in P, the sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an array of booleans indexed by elements of A. The state of each boolean tracks if the element has already been crossed off by some prime p in P.
+With prime generating sieves, we often work with a *sieve array* A and a set of primes P. For each prime p in P, the sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an array of booleans indexed by elements of A. The state of each boolean tracks if the element has yet been crossed off by some prime p in P.
 
-Working within the Gaussian integers, our sieve array A is be a 2-dimensional object index by Gaussian integers. In native python, this can be achieved with a list of lists. We can also use a 2-dimensional *numpy* array. In C++, we can use the built-in array, or vectors, or another class of container.
+Working within the Gaussian integers, our sieve array A is a 2-dimensional object indexed by Gaussian integers. In native python, this can be implemented with a list of lists. We can also use a 2-dimensional *numpy* array. In C++, we can use the built-in array, or vector, or another class of container.
 
-In python 3.7, the boolean `True` takes up 28 bytes of memory storage. The vast majority of this is overhead; in theory, a boolean value should only occupy a single bit. Even in C++, a single boolean value takes up a full byte of memory space. One issue involved with storing a boolean value into a smaller storage space is that modern computers do not allow pointers to individual bits in memory. In C++, there are various ways around this issue such as a `bitset` object.
+In python 3.7, the boolean `True` takes up 28 bytes of memory storage. The vast majority of this is overhead; in theory, a boolean value should only occupy a single bit of space. Even in C++, a single boolean value requires a full byte of memory. One issue involved with storing a boolean value into a smaller storage space is that modern computers do not allow pointers to individual bits in memory. In C++, there are various ways around this issue such as the `bitset` object.
 
-One way to resolve this issue is to include some of the ideas of the wheel sieve. Primes other than 2, 3, and 5 must lie in one of 8 different residue classes 1, 7, 11, 13, 17, 19, 23, 29 mod 30. In light of this observation, the wheel sieve reduces both the memory and complexity of sieving by only tracking these 8 distinguished residue classes. If implemented carefully, a wheel sieve should not add significant overhead to the actual sieving process. Moreover, this approach dovetails nicely with modern computer architecture: a single byte can track the state of 30 consecutive integers from an integer sieve array, allowing for a 30-fold reduction in memory usage. Extending the wheel sieve to the Gaussian integers, both the memory and complexity of the sieve can be greatly reduced.
+A different way to resolve this issue is to include some of the ideas of the wheel sieve. Primes other than 2, 3, and 5 must lie in one of the 8 distinct residue classes 1, 7, 11, 13, 17, 19, 23, 29 mod 30. In light of this observation, the wheel sieve reduces both the memory and complexity of sieving by only tracking these 8 distinguished residue classes. If implemented carefully, a wheel sieve should not add significant overhead to the actual sieving process. Moreover, this approach dovetails nicely with modern computer architecture: a single byte can track the state of 30 consecutive integers from an integer sieve array, allowing for a 30-fold reduction in memory usage (in a C++ implementation). Extending this wheel sieve to the Gaussian integers, both the memory and complexity of the sieve can be greatly reduced.
 
-In `simple_sieve.py` and `simple_sieve.cpp`, I use native booleans to track the state of each Gaussian integer in the sieve array. This will create significant wasted memory in python (up to 28 * 8 = 224-fold waste) and C++ (8-fold).  In our donut sieve (TODO: implement this), I use the aforementioned ideas to reduce memory usage.
+In `simple_sieve.py` and `simple_sieve.cpp`, I use native booleans to track the state of each Gaussian integer in the sieve array. This will create significant overhead in both python (up to 28 * 8 = 224-fold waste) and C++ (8-fold).  In our donut sieve (TODO: implement this), I use the aforementioned ideas to reduce and align the storage requirements of the sieve to modern hardware architecture.
+
+Results of this repository can be verified with [http://oeis.org/A091134](http://oeis.org/A091134) to check for accuracy.
 
 
 ## Simple sieving algorithm
@@ -119,7 +121,7 @@ Compared with the usual sieve of Eratosthenes in the rational integers, step 2 i
 
 - In the case that a + bi is a degree 1 prime lying over p, multiples of a + bi form a subgroup of order p in the quotient group Z[i] / pZ[i]. Starting with representatives of this subgroup, we can then translate these representatives in the real and imaginary directions by multiples of p. Because this subgroup has order p, it is cyclic, and representative can be attained by taking Z-multiples of a + bi (instead of Z[i]-multiples). This approach is implemented in the function `cross_off_multiples2()`.
 
-These two approaches have trade-offs. The first approach can be implemented with two nested for-loops, whereas three such for-loops are needed in the second approach. In the first approach, translating through the sieve array is not done parallel to the coordinate axes, and so more care must be exercised to determine when the index is out of bounds. In the second approach, translation is always occuring within a particular row or column of the sieve array. Generally, the second approach is faster for small primes whereas the first approach is faster for large primes.
+These two approaches have trade-offs. The first approach can be implemented with two nested for-loops, whereas three such for-loops are needed in the second approach. In the first approach, translating through the sieve array is not done parallel to the coordinate axes, and so more care must be exercised to determine when the index is out of bounds. In the second approach, translation is always occuring within a particular row or column of the sieve array. Generally, the second approach is faster for small primes whereas the first approach is faster for large primes. The choice is which of these two functions to use is not currently optimized.
 
 
 

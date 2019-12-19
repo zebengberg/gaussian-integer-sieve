@@ -1,0 +1,9 @@
+# Overhead
+DS_Store/
+.idea/
+
+# In progress
+c++/
+
+# Generated files with primes
+data/

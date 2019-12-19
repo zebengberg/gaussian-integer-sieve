@@ -2,24 +2,23 @@ from tqdm import tqdm
 import math
 import matplotlib.pyplot as plt
 import sys
+import os
 
 
-def simple_sieve(x, display=True):
+def simple_sieve(x, display=False, sort=False):
     """Simple sieve of Eratosthenes in the Gaussian integers.
 
-    This function implements a simple sieve of Eratosthenes in the Gaussian
+    This function implements the basic sieve of Eratosthenes in the Gaussian
     integers. Returns a list of Gaussian primes a + bi as tuples (a, b) with
     norm less than or equal to x.  Here a > 0 and b >= 0, and so the returned
-    list contains exactly one copy of each Gaussian prime a + b up to action
-    of the unit group. This choice of a and b includes the positive real-axis
-    and excludes the positive imaginary-axis.
+    list contains exactly one copy of each Gaussian prime a + bi up to the
+    action of the unit group. This choice of a and b includes the positive
+    real-axis and excludes the positive imaginary-axis.
 
-    The primes used to sieve the sieve array G is generated dynamically. With
-    the most basic version of the sieve of Erathosthenes, the smallest uncrossed
+    The primes used to sieve the sieve array G are generated dynamically. As in
+    the most basic version of the sieve of Eratosthenes, the smallest uncrossed
     number from the sieve array is deemed prime, then progress continues as its
-    multiples are crossed off. The same approach is taken here.
-
-    Written in native python and taking a purely functional approach.
+    multiples are crossed off. This approach is taken here.
     """
     if display:
         print('Initializing...')
@@ -27,22 +26,34 @@ def simple_sieve(x, display=True):
     N = sort_by_norm(isqrt(x))
     if display:
         print('Done initializing sieve array.')
-        print('Sieve array uses {} bytes of memory.'.format(sys.getsizeof(G)))
+        mem_size = sys.getsizeof(G)  # tons of overhead in native python
+        for g in G:
+            mem_size += sys.getsizeof(g)
+            mem_size += sum(sys.getsizeof(v) for v in g)  # True takes 28 bytes to store in memory
+        print('Sieve array uses {} GB of memory.'.format(mem_size / 10**9))
+        print('Sieve array has {} M total entries'.format(sum([len(g) for g in G]) / 10**6))
         print('Starting to sieve...')
 
-    with tqdm(total=.8 * x * math.log(math.log(x))) as pbar:  # .8 seemed right
+    # Using PNT to make crude progress bar. The constant 0.8 seemed somewhat accurate.
+    with tqdm(total=.8 * x * math.log(math.log(x))) as pbar:
         for a, b in N:
             if G[a][b]:  # so a + bi is actually prime
                 p = a * a + b * b
-                cross_off_multiples(x, G, a, b)
+                cross_off_multiples2(x, G, a, b)
                 # We just crossed off a + bi, but we want it to be marked prime.
                 G[a][b] = True
-                pbar.update(x / p)  # updating the crude progress bar
+                pbar.update(x / p)  # updating the progress bar
 
     if display:
         print('Done sieving.')
         print('Gathering primes...')
     P = gather_primes(G)
+    if display and sort:
+        print('Sorting primes...')
+    if sort:
+        P.sort(key=lambda ab: ab[0] ** 2 + ab[1] ** 2)
+    if display:
+        print('Finished!')
     return P
 
 
@@ -87,7 +98,7 @@ def sort_by_norm(x):
 
     Returns a list N of pairs (a, b) corresponding to Gaussian integers a + bi
     sorted according to norm. Using the same convention as in the function
-    simple_sieve, we constrain a > 0 and b >= 0.
+    simple_sieve(), we constrain a > 0 and b >= 0.
     """
 
     N = []  # holds tuples (a, b)
@@ -137,25 +148,14 @@ def cross_off_multiples(x, G, a, b):
 def cross_off_multiples2(x, G, a, b):
     """Cross off multiples of a + bi in the sieve array.
 
-    This algorithm works in the case that a + bi is a Gaussian prime. Suppose
-    a + bi sits above a rational prime p which can either split, ramify,
-    or remain inert in Z[i].
-
-    If b > 0, then p has degree 1. In this case, a + bi generates an additive
-    subgroup of order p inside of the quotient group Z[i] / pZ[i]. To cross off
-    multiples of a + bi, we  construct elements of this subgroup and translate
-    them by multiples of p. In this way, each for-loop translates in parallel with
-    the coordinate axes, and so we never leave the first quadrant (unlike our other
-    method cross_off_multiples.)
-
-    If b = 0, then p has degree 2, and so a + bi is a rational integer.  To cross
-    off multiples of a + bi, we translate it by multiples of p.
-
-    The theorem that makes this algorithm succeed when a + bi has
-    degree 1 can be stated as follows: If alpha is a Gaussian integer
-    divisible by a + bi, then there exists a Gaussian integer delta and
-    rational integer d such that alpha = p * delta + (a + bi) * d. The proof boils
-    down to generators of cyclic subgroups.
+    This algorithm is only guaranteed to workin the case that a + bi is prime.
+    If a + bi is a degree 1 prime over a rational prime p, multiples of a + bi
+    form a subgroup of order p in the quotient group Z[i] / pZ[i]. We construct
+    elements of this subgroup and translate them by multiples of p. In the code
+    below, s + it is a reduced representative in this subgroup. We let
+                    u = s + kp and v = t + jp
+    be the real and imaginary parts of the translates of s + it. We loop over k
+    and j to obtain all possible u and v.
     """
 
     if b:  # degree 1 prime
@@ -175,11 +175,8 @@ def cross_off_multiples2(x, G, a, b):
             v = t
             for j in range((isqrt(x - u * u) - t) // p + 1):
                 G[u][v] = False
-                if subgroup_size == 1:
-                    print(p, u, v)
                 v += p
             u += p
-
         s = (s + a) % p
         t = (t + b) % p
 
@@ -192,11 +189,10 @@ def gather_primes(G):
         for b in range(len(G[a])):
             if G[a][b]:
                 P.append((a, b))
-    P.sort(key=lambda ab: ab[0] ** 2 + ab[1] ** 2)  # extraneous for visualizing
     return P
 
 
-def visualize(P, x, full_disk=False):
+def visualize(x, P, full_disk=False):
     """Plot Gaussian primes with Matplotlib."""
 
     X = [p[0] for p in P]
@@ -219,3 +215,14 @@ def visualize(P, x, full_disk=False):
     else:
         plt.plot(X, Y, 'bo', markersize=200 / isqrt(x))
     plt.show()
+
+
+# To run from command line and save list of "small" primes to a file.
+if __name__ == "__main__":
+    if not os.path.exists('../data/'):
+        os.mkdir('../data/')
+    P = simple_sieve(int(sys.argv[1]))
+    with open('../data/small_primes.txt', 'w') as f:
+        for p in P:
+            f.write(str(p) + '\n')
+
