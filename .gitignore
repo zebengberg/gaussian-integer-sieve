@@ -1,13 +1,14 @@
-# Overhead
-.DS_Store/
+# OS and editor overhead
+.DS_Store
 .idea/
 images/.DS_Store
 python/.DS_Store
 python/__pycache__/
+c++/.idea/
+c++/cmake-build-debug/
+c++/CMakeLists.txt
+c++/.DS_Store
 
-
-# In progress
-c++/
 
 # Generated files with list of primes
 data/
