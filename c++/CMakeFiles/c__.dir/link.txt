@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/c++  -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/c__.dir/simple_sieve.cpp.o  -o c__ 
