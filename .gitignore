@@ -5,9 +5,15 @@ images/.DS_Store
 python/.DS_Store
 python/__pycache__/
 c++/.idea/
-c++/cmake-build-debug/
-c++/CMakeLists.txt
 c++/.DS_Store
+c++/c__
+c++/c__.cbp
+c++/cmake_install.cmake
+c++/CMakeCache.txt
+c++/CMakeLists.txt
+c++/Makefile
+
+
 
 
 # Generated files with list of primes

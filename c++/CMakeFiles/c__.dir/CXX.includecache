@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/robotics/drive/git/gaussian-prime-sieve/c++/simple_sieve.cpp
+iostream
+-
+fstream
+-
+vector
+-
+

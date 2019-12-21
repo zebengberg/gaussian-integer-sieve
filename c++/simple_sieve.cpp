@@ -19,8 +19,8 @@ vector<point> readPrimesFromFile(int x) {
     }
     // small_primes.txt contains a list of Gaussian primes sorted by norm.
     ifstream f;
-    f.open("/Users/robotics/drive/git/gaussian-prime-sieve/data/small_primes.txt");
-    if (!f) {  //TODO: try to make this a relative path
+    f.open("../data/small_primes.txt");
+    if (!f) {
         cerr << "Unable to open file small_primes.txt";
         exit(1);   // call system to stop
     } else {
@@ -126,8 +126,7 @@ void SieveArray::printPrimes() {
 
 void SieveArray::writePrimesToFile() {
     ofstream f;
-    // TODO: make this path relative
-    f.open("/Users/robotics/drive/git/gaussian-prime-sieve/data/cpp_primes.csv");
+    f.open("../data/cpp_primes.csv");
     for (point p : primes) {
         f << p.a << "," << p.b << "," << p.norm << endl;
     }
@@ -148,7 +147,7 @@ int main(int argc, const char* argv[]){
         sieveArray.crossOffMultiples(p);
     }
     sieveArray.getPrimes();
-    //sieveArray.printPrimes();
-    //sieveArray.writePrimesToFile();
+    sieveArray.printPrimes();
+    sieveArray.writePrimesToFile();
     return 0;
 }
