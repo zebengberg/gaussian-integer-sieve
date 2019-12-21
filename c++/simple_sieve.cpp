@@ -66,6 +66,7 @@ class SieveArray{
         void crossOffMultiples(point);
         void getPrimes();
         void printPrimes();
+        void writePrimesToFile();
 };
 
 void SieveArray::initializeSieveArray(int x) {
@@ -78,6 +79,9 @@ void SieveArray::initializeSieveArray(int x) {
         vector<bool> row(b, true);  // Create a vector of size b with all values true.
         sieveArray.push_back(row);
     }
+    sieveArray[0][0] = false;  // 0 is not prime
+    sieveArray[1][0] = false;  // 1 is not prime
+    sieveArray[0][1] = false;  // i is not prime
 }
 
 void SieveArray::crossOffMultiples(point p) {
@@ -98,11 +102,12 @@ void SieveArray::crossOffMultiples(point p) {
         outer_u += p.a;
         outer_v += p.b;
     }
+    sieveArray[p.a][p.b] = true;  // Crossed this off; need to remark it as prime
 }
 
 
 void SieveArray::getPrimes() {
-    for (int a = 0; a <= isqrt(x); a++) {
+    for (int a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
         for (int b = 0; b <= isqrt(x - a * a); b++) {
             if (sieveArray[a][b]) {
                 point p(a, b);
@@ -119,16 +124,31 @@ void SieveArray::printPrimes() {
     cout << "Total number of primes: " << primes.size() << endl;
 }
 
+void SieveArray::writePrimesToFile() {
+    ofstream f;
+    // TODO: make this path relative
+    f.open("/Users/robotics/drive/git/gaussian-prime-sieve/data/cpp_primes.csv");
+    for (point p : primes) {
+        f << p.a << "," << p.b << "," << p.norm << endl;
+    }
+    f.close();
+}
 
-int main(){
+
+int main(int argc, const char* argv[]){
+    if (argc != 2) {
+        cerr << "Specify the sieve array norm bound." << endl;
+        return 1;
+    }
+    int x = atoi(argv[1]);  // convert command line input to int
     SieveArray sieveArray;
-    sieveArray.initializeSieveArray(10000);
-    vector<point> smallPrimes = readPrimesFromFile(100);
+    sieveArray.initializeSieveArray(x);
+    vector<point> smallPrimes = readPrimesFromFile(isqrt(x));
     for (point p : smallPrimes) {
         sieveArray.crossOffMultiples(p);
     }
     sieveArray.getPrimes();
-    sieveArray.printPrimes();
+    //sieveArray.printPrimes();
+    //sieveArray.writePrimesToFile();
+    return 0;
 }
-
-// TODO: something wrong with small primes read from file. Should get 1232 for count with norm <= 10000,
