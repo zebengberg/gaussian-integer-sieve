@@ -74,6 +74,7 @@ void SieveArray::initializeSieveArray(int x) {
     // See https://stackoverflow.com/questions/17794569/why-is-vectorbool-not-a-stl-container
     // Each boolean value is stored as a single bit but pointers are not available.
     this->x = x;
+    cout << "Building sieve array..." << endl;
     for (int a = 0; a <= isqrt(x); a++) {
         int b = isqrt(x - a * a) + 1;
         vector<bool> row(b, true);  // Create a vector of size b with all values true.
@@ -82,6 +83,11 @@ void SieveArray::initializeSieveArray(int x) {
     sieveArray[0][0] = false;  // 0 is not prime
     sieveArray[1][0] = false;  // 1 is not prime
     sieveArray[0][1] = false;  // i is not prime
+
+    float size = 3.1415 * x / 4;  // area of the quarter circle
+    size /= 8;  // 8 bits per byte
+    size /= 1000000000;  // convert to GB
+    cout << "Sieve array approximate memory use: " << size  << "GB" << endl;
 }
 
 void SieveArray::crossOffMultiples(point p) {
@@ -105,8 +111,8 @@ void SieveArray::crossOffMultiples(point p) {
     sieveArray[p.a][p.b] = true;  // Crossed this off; need to remark it as prime
 }
 
-
 void SieveArray::getPrimes() {
+    cout << "Gathering primes after sieve..." << endl;
     for (int a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
         for (int b = 0; b <= isqrt(x - a * a); b++) {
             if (sieveArray[a][b]) {
@@ -133,7 +139,6 @@ void SieveArray::writePrimesToFile() {
     f.close();
 }
 
-
 int main(int argc, const char* argv[]){
     if (argc != 2) {
         cerr << "Specify the sieve array norm bound." << endl;
@@ -143,11 +148,12 @@ int main(int argc, const char* argv[]){
     SieveArray sieveArray;
     sieveArray.initializeSieveArray(x);
     vector<point> smallPrimes = readPrimesFromFile(isqrt(x));
+    cout << "Starting to sieve..." << endl;
     for (point p : smallPrimes) {
         sieveArray.crossOffMultiples(p);
     }
     sieveArray.getPrimes();
-    sieveArray.printPrimes();
-    sieveArray.writePrimesToFile();
+    //sieveArray.printPrimes();
+    //sieveArray.writePrimesToFile();
     return 0;
 }

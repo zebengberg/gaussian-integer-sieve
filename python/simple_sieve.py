@@ -107,7 +107,6 @@ def sort_by_norm(x):
             N.append((a, b))
     # Sorting this list according to norm.
     N.sort(key=lambda ab: ab[0] ** 2 + ab[1] ** 2)
-    print(N)
     return N
 
 
@@ -221,7 +220,7 @@ def visualize(x, P, full_disk=False):
 if __name__ == "__main__":
     if not os.path.exists('../data/'):
         os.mkdir('../data/')
-    P = simple_sieve(int(sys.argv[1]), sort=True)
+    P = simple_sieve(int(sys.argv[1]), sort=True, display=True)
     with open('../data/small_primes.txt', 'w') as f:
         for p in P:
             f.write('{} {}\n'.format(p[0], p[1]))
