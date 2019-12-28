@@ -4,14 +4,23 @@
 
 using namespace std;
 
-struct point {
-    int a, b, norm;
-    point(int a, int b) {this->a = a; this->b = b; this->norm = a * a + b * b;}
+// Gaussian integer class.
+class Gint {
+private:
+    int real, imag;
+public:
+    Gint(int a, int b) {
+        real = a;
+        imag = b;
+    }
+    int a() { return real; }
+    int b() { return imag; }
+    int norm() { return real * real + imag * imag; }
 };
 
 // Read small primes to be used for sieving from existing file.
 // Getting all primes from file small_primes.txt with norm up to x.
-vector<point> readPrimesFromFile(int x) {
+vector<Gint> readPrimesFromFile(int x) {
     // If x is too small, then we are not actually taking any primes.
     if (x < 2) {
         cerr << "No primes read and no sieving needed.";
@@ -29,15 +38,16 @@ vector<point> readPrimesFromFile(int x) {
 
     int a, b;
     f >> a >> b;  // token-based parsing
-    vector<point> smallPrimes;  // the list of small primes to be populated
+    vector<Gint> smallPrimes;  // the list of small primes to be populated
     while (a * a + b * b <= x) {
-        point p(a, b);  // creating prime struct
+        Gint p(a, b);  // creating prime struct
         smallPrimes.push_back(p);  // putting it into vector P
 
         f >> a >> b;  // reading next pair a, b from file f
         // If we've gotten to the end of the file, then we don't have enough precomputed primes.
         if (f.eof()) {
             cerr << "Not enough primes in small_primes.txt";
+            f.close();
             exit(1);
         }
     }
@@ -58,15 +68,16 @@ int isqrt(int n) {
 }
 
 class SieveArray{
-        int x;
-        vector<vector<bool>> sieveArray;
-        vector<point> primes;
-    public:
-        void initializeSieveArray(int);
-        void crossOffMultiples(point);
-        void getPrimes();
-        void printPrimes();
-        void writePrimesToFile();
+private:
+    int x;
+    vector<vector<bool>> sieveArray;
+    vector<Gint> primes;
+public:
+    void initializeSieveArray(int);
+    void crossOffMultiples(Gint);
+    void getPrimes();
+    void printPrimes();
+    void writePrimesToFile();
 };
 
 void SieveArray::initializeSieveArray(int x) {
@@ -90,25 +101,25 @@ void SieveArray::initializeSieveArray(int x) {
     cout << "Sieve array approximate memory use: " << size  << "GB" << endl;
 }
 
-void SieveArray::crossOffMultiples(point p) {
+void SieveArray::crossOffMultiples(Gint g) {
     int outer_u = 0;
     int outer_v = 0;
     for (int c = 0; c <= isqrt(x); c++) {
         int u = outer_u;
         int v = outer_v;
-        for (int d = 0; d <= isqrt(x / p.norm - c * c); d++) {
+        for (int d = 0; d <= isqrt(x / g.norm() - c * c); d++) {
             if (u > 0) {
                 sieveArray[u][v] = false;
             } else {
                 sieveArray[v][-u] = false;
             }
-            u -= p.b;
-            v += p.a;
+            u -= g.b();
+            v += g.a();
         }
-        outer_u += p.a;
-        outer_v += p.b;
+        outer_u += g.a();
+        outer_v += g.b();
     }
-    sieveArray[p.a][p.b] = true;  // Crossed this off; need to remark it as prime
+    sieveArray[g.a()][g.b()] = true;  // Crossed this off; need to remark it as prime
 }
 
 void SieveArray::getPrimes() {
@@ -116,7 +127,7 @@ void SieveArray::getPrimes() {
     for (int a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
         for (int b = 0; b <= isqrt(x - a * a); b++) {
             if (sieveArray[a][b]) {
-                point p(a, b);
+                Gint p(a, b);
                 primes.push_back(p);
             }
         }
@@ -124,8 +135,8 @@ void SieveArray::getPrimes() {
 }
 
 void SieveArray::printPrimes() {
-    for (point p : primes) {
-        cout << p.a << "  " << p.b << "  " << p.norm << endl;
+    for (Gint p : primes) {
+        cout << p.a() << "  " << p.b() << "  " << p.norm() << endl;
     }
     cout << "Total number of primes: " << primes.size() << endl;
 }
@@ -133,8 +144,8 @@ void SieveArray::printPrimes() {
 void SieveArray::writePrimesToFile() {
     ofstream f;
     f.open("../data/cpp_primes.csv");
-    for (point p : primes) {
-        f << p.a << "," << p.b << "," << p.norm << endl;
+    for (Gint p : primes) {
+        f << p.a() << "," << p.b() << "," << p.norm() << endl;
     }
     f.close();
 }
@@ -147,13 +158,13 @@ int main(int argc, const char* argv[]){
     int x = atoi(argv[1]);  // convert command line input to int
     SieveArray sieveArray;
     sieveArray.initializeSieveArray(x);
-    vector<point> smallPrimes = readPrimesFromFile(isqrt(x));
+    vector<Gint> smallPrimes = readPrimesFromFile(isqrt(x));
     cout << "Starting to sieve..." << endl;
-    for (point p : smallPrimes) {
+    for (Gint p : smallPrimes) {
         sieveArray.crossOffMultiples(p);
     }
     sieveArray.getPrimes();
-    //sieveArray.printPrimes();
+    sieveArray.printPrimes();
     //sieveArray.writePrimesToFile();
     return 0;
 }
