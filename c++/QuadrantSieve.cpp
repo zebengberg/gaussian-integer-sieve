@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <chrono>
+#include <cmath>
 
 using namespace std;
 
@@ -10,14 +11,13 @@ class Gint {
 private:
     int real, imag;
 public:
-    Gint(int a, int b) {
+    Gint(int a, int b) {  // constructor
         real = a;
         imag = b;
     }
     int a() { return real; }
     int b() { return imag; }
     int norm() { return real * real + imag * imag; }
-    Gint ibar() { return Gint(imag, real); }
 };
 
 // Read small primes to be used for sieving from existing file.
@@ -69,24 +69,34 @@ int isqrt(int n) {
     return x;
 }
 
-class SieveArray{
+class QuadrantSieveArray{
 private:
     int x;
+    double progress;
+    double totalProgress;
     vector<vector<bool>> sieveArray;
     vector<Gint> primes;
+
 public:
-    void initializeSieveArray(int);
+    QuadrantSieveArray(int);  // constructor
+    void initializeSieveArray();
     void crossOffMultiplesSkew(Gint);
     void crossOffMultiplesRect(Gint);
     void getPrimes();
     void printPrimes();
     void writePrimesToFile();
+    void printProgress(Gint);  // update after each sieved prime
 };
 
-void SieveArray::initializeSieveArray(int x) {
+QuadrantSieveArray::QuadrantSieveArray(int x) {
+    this->x = x;
+    progress = 0;
+    totalProgress = log(log(x)) - log(2.0);
+}
+
+void QuadrantSieveArray::initializeSieveArray() {
     // Lots of controversy about vector<bool>.
     // Each boolean value is stored as a single bit but pointers are not available.
-    this->x = x;
     cout << "Building sieve array..." << endl;
     for (int a = 0; a <= isqrt(x); a++) {
         int b = isqrt(x - a * a) + 1;
@@ -103,7 +113,7 @@ void SieveArray::initializeSieveArray(int x) {
     cout << "Sieve array approximate memory use: " << size  << "GB" << endl;
 }
 
-void SieveArray::crossOffMultiplesSkew(Gint g) {
+void QuadrantSieveArray::crossOffMultiplesSkew(Gint g) {
     for (int c = 1; c <= isqrt(x); c++) {
         int u = c * g.a();
         int v = c * g.b();
@@ -120,7 +130,7 @@ void SieveArray::crossOffMultiplesSkew(Gint g) {
     sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
 }
 
-void SieveArray::crossOffMultiplesRect(Gint g) {
+void QuadrantSieveArray::crossOffMultiplesRect(Gint g) {
     int p, subgroupSize;
     if (g.b()) {  // degree 1 primes
         p = g.norm();
@@ -142,7 +152,7 @@ void SieveArray::crossOffMultiplesRect(Gint g) {
     sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
 }
 
-void SieveArray::getPrimes() {
+void QuadrantSieveArray::getPrimes() {
     cout << "Gathering primes after sieve..." << endl;
     for (int a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
         for (int b = 0; b <= isqrt(x - a * a); b++) {
@@ -154,14 +164,14 @@ void SieveArray::getPrimes() {
     }
 }
 
-void SieveArray::printPrimes() {
+void QuadrantSieveArray::printPrimes() {
     for (Gint p : primes) {
         cout << p.a() << "  " << p.b() << "  " << p.norm() << endl;
     }
     cout << "Total number of primes: " << primes.size() << endl;
 }
 
-void SieveArray::writePrimesToFile() {
+void QuadrantSieveArray::writePrimesToFile() {
     ofstream f;
     f.open("../data/cpp_primes.csv");
     for (Gint p : primes) {
@@ -170,21 +180,37 @@ void SieveArray::writePrimesToFile() {
     f.close();
 }
 
+void QuadrantSieveArray::printProgress(Gint g) {
+    progress += 1.0 / g.norm();
+    int barPos = 70 * progress / totalProgress;
+    cout << "[";
+    for (int i = 0; i < barPos; i++) { cout << "|"; }
+    for (int i = barPos; i <= 70; i++) { cout << " "; }
+    cout << "]\r";
+    cout.flush();
+}
+
+
 int main(int argc, const char* argv[]){
     if (argc != 2) {
         cerr << "Specify the sieve array norm bound." << endl;
         return 1;
     }
     int x = atoi(argv[1]);  // convert command line input to int
-    SieveArray sieveArray;
-    sieveArray.initializeSieveArray(x);
+    QuadrantSieveArray sieveArray(x);
+    sieveArray.initializeSieveArray();
     vector<Gint> smallPrimes = readPrimesFromFile(isqrt(x));
     cout << "Starting to sieve..." << endl;
+    auto startTime = chrono::high_resolution_clock::now();
     for (Gint p : smallPrimes) {
         sieveArray.crossOffMultiplesRect(p);
+        sieveArray.printProgress(p);
     }
+    auto endTime = chrono::high_resolution_clock::now();
+    auto totalTime = chrono::duration_cast<chrono::seconds>(endTime - startTime);
+    cout << "Total time for sieving: " << totalTime.count() << " seconds" << endl;
     sieveArray.getPrimes();
-    sieveArray.printPrimes();
+    //sieveArray.printPrimes();
     //sieveArray.writePrimesToFile();
     return 0;
 }
