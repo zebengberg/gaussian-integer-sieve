@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ public:
     int a() { return real; }
     int b() { return imag; }
     int norm() { return real * real + imag * imag; }
+    Gint ibar() { return Gint(imag, real); }
 };
 
 // Read small primes to be used for sieving from existing file.
@@ -74,7 +76,8 @@ private:
     vector<Gint> primes;
 public:
     void initializeSieveArray(int);
-    void crossOffMultiples(Gint);
+    void crossOffMultiplesSkew(Gint);
+    void crossOffMultiplesRect(Gint);
     void getPrimes();
     void printPrimes();
     void writePrimesToFile();
@@ -82,7 +85,6 @@ public:
 
 void SieveArray::initializeSieveArray(int x) {
     // Lots of controversy about vector<bool>.
-    // See https://stackoverflow.com/questions/17794569/why-is-vectorbool-not-a-stl-container
     // Each boolean value is stored as a single bit but pointers are not available.
     this->x = x;
     cout << "Building sieve array..." << endl;
@@ -95,31 +97,49 @@ void SieveArray::initializeSieveArray(int x) {
     sieveArray[1][0] = false;  // 1 is not prime
     sieveArray[0][1] = false;  // i is not prime
 
-    float size = 3.1415 * x / 4;  // area of the quarter circle
+    auto size = 3.1415 * x / 4;  // area of the quarter circle
     size /= 8;  // 8 bits per byte
     size /= 1000000000;  // convert to GB
     cout << "Sieve array approximate memory use: " << size  << "GB" << endl;
 }
 
-void SieveArray::crossOffMultiples(Gint g) {
-    int outer_u = 0;
-    int outer_v = 0;
-    for (int c = 0; c <= isqrt(x); c++) {
-        int u = outer_u;
-        int v = outer_v;
+void SieveArray::crossOffMultiplesSkew(Gint g) {
+    for (int c = 1; c <= isqrt(x); c++) {
+        int u = c * g.a();
+        int v = c * g.b();
         for (int d = 0; d <= isqrt(x / g.norm() - c * c); d++) {
             if (u > 0) {
                 sieveArray[u][v] = false;
-            } else {
+            } else {  // multiply u + vi by -i to bring it back to the first quadrant
                 sieveArray[v][-u] = false;
             }
             u -= g.b();
             v += g.a();
         }
-        outer_u += g.a();
-        outer_v += g.b();
     }
-    sieveArray[g.a()][g.b()] = true;  // Crossed this off; need to remark it as prime
+    sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
+}
+
+void SieveArray::crossOffMultiplesRect(Gint g) {
+    int p, subgroupSize;
+    if (g.b()) {  // degree 1 primes
+        p = g.norm();
+        subgroupSize = p;
+    } else {  // degree 2 primes
+        p = g.a();
+        subgroupSize = 1;  // trivial subgroup
+    }
+    for (int i = 0; i < subgroupSize; i++) {
+        // s + it is an element of the additive subgroup < a + bi > in Z[i] / pZ[i]
+        int s = i * g.a() % p;
+        int t = i * g.b() % p;
+        for (int u = s; u <= isqrt(x); u += p) {
+            for (int v = t; v <= isqrt(x - u * u); v += p) {
+                sieveArray[u][v] = false;
+            }
+        }
+    }
+    sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
 }
 
 void SieveArray::getPrimes() {
@@ -161,7 +181,7 @@ int main(int argc, const char* argv[]){
     vector<Gint> smallPrimes = readPrimesFromFile(isqrt(x));
     cout << "Starting to sieve..." << endl;
     for (Gint p : smallPrimes) {
-        sieveArray.crossOffMultiples(p);
+        sieveArray.crossOffMultiplesRect(p);
     }
     sieveArray.getPrimes();
     sieveArray.printPrimes();
