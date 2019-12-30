@@ -54,7 +54,7 @@ long isqrt(long n) {
     return x;
 }
 
-class QuadrantSieve{
+class QuadrantSieve {
 private:
     long x;
     double progress;
@@ -69,6 +69,7 @@ public:
     void crossOffMultiplesRect(Gint);
     void getPrimes();
     void printPrimes();
+    void countPrimes();
     void writePrimesToFile();
     void printProgress(Gint);  // update after each sieved prime
 };
@@ -100,20 +101,22 @@ void QuadrantSieve::initializeSieveArray() {
 }
 
 void QuadrantSieve::crossOffMultiplesSkew(Gint g) {
-    for (long c = 1; c <= isqrt(x); c++) {
-        long u = c * g.a();  // will become negative
-        long v = c * g.b();
+    // c + di should range over a full quadrant and satisfy N(c + di)N(a + bi) <= x
+    for (long c = 1; c <= isqrt(x / g.norm()); c++) {  //ignoring c, d = 0, 0
+        long u = c * g.a();  // u = ac - bd
+        long v = c * g.b();  // v = bc + ad
         for (long d = 0; d <= isqrt(x / g.norm() - c * c); d++) {
-            if (u > 0) {  // inexpensive; could rewrite to avoid this, but would be less understandable
+            // inexpensive to check this; could avoid this, but would be less understandable
+            if (u > 0) {
                 sieveArray[u][v] = false;
-            } else {  // multiply u + vi by -i to bring it back to the first quadrant
+            } else {  // u + vi in second quadrant; multiplication by -i brings it to first.
                 sieveArray[v][-u] = false;
             }
             u -= g.b();
             v += g.a();
         }
     }
-    sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
+    sieveArray[g.a()][g.b()] = true;  // crossed this off; need to re-mark it as prime
 }
 
 void QuadrantSieve::crossOffMultiplesRect(Gint g) {
@@ -154,8 +157,13 @@ void QuadrantSieve::printPrimes() {
     for (Gint p : primes) {
         cout << p.a() << "  " << p.b() << "  " << p.norm() << endl;
     }
-    cout << "Total number of primes: " << primes.size() << endl;
+    QuadrantSieve::countPrimes();
 }
+
+void QuadrantSieve::countPrimes() {
+    cout << "Total number of primes, including associates: " << 4 * primes.size() << endl;
+}
+
 
 void QuadrantSieve::writePrimesToFile() {
     ofstream f;

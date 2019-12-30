@@ -103,7 +103,7 @@ A different way to resolve this issue is to include some of the ideas of the whe
 
 In `simple_sieve.py` and `simple_sieve.cpp`, I use native booleans to track the state of each Gaussian integer in the sieve array. This will create significant overhead in both python (up to 28 * 8 = 224-fold waste) and C++ (8-fold).  In our donut sieve (TODO: implement this), I use the aforementioned ideas to reduce and align the storage requirements of the sieve to modern hardware architecture.
 
-Results of this repository can be verified with [http://oeis.org/A091134](http://oeis.org/A091134) to check for accuracy.
+Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy.
 
 
 ## Simple sieving algorithm
