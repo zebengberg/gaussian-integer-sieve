@@ -94,7 +94,7 @@ void OctantSieve::countPrimes() {
 
 
 
-int main() {
+int main3() {
     long x = 100000000;
     OctantSieve os(x);
     os.initializeSieveArray();
