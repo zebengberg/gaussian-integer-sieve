@@ -45,28 +45,28 @@ void QuadrantSieve::crossOffMultiples(gint g) {
     sieveArray[g.a][g.b] = true;  // crossed this off; need to re-mark it as prime
 }
 
-// Old method -- may be useful at some point.
-//void QuadrantSieve::crossOffMultiplesRect(Gint g) {
-//    long p, subgroupSize;
-//    if (g.b()) {  // degree 1 primes
-//        p = g.norm();
-//        subgroupSize = p;
-//    } else {  // degree 2 primes
-//        p = g.a();
-//        subgroupSize = 1;  // trivial subgroup
-//    }
-//    for (long i = 0; i < subgroupSize; i++) {
-//        // s + it is an element of the additive subgroup < a + bi > in Z[i] / pZ[i]
-//        long s = i * g.a() % p;
-//        long t = i * g.b() % p;
-//        for (long u = s; u <= isqrt(x); u += p) {
-//            for (long v = t; v <= isqrt(x - u * u); v += p) {
-//                sieveArray[u][v] = false;
-//            }
-//        }
-//    }
-//    sieveArray[g.a()][g.b()] = true;  // crossed this off; need to remark it as prime
-//}
+// Old method; keeping for reference.
+void QuadrantSieve::crossOffMultiplesAlt(gint g) {
+    long p, subgroupSize;
+    if (g.b) {  // degree 1 primes
+        p = g.norm();
+        subgroupSize = p;
+    } else {  // degree 2 primes
+        p = g.a;
+        subgroupSize = 1;  // trivial subgroup
+    }
+    for (long i = 0; i < subgroupSize; i++) {
+        // s + it is an element of the additive subgroup < a + bi > in Z[i] / pZ[i]
+        long s = i * g.a % p;
+        long t = i * g.b % p;
+        for (long u = s; u <= isqrt(x); u += p) {
+            for (long v = t; v <= isqrt(x - u * u); v += p) {
+                sieveArray[u][v] = false;
+            }
+        }
+    }
+    sieveArray[g.a][g.b] = true;  // crossed this off; need to remark it as prime
+}
 
 void QuadrantSieve::setBigPrimes() {
     cout << "Gathering primes after sieve..." << endl;

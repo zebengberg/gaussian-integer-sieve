@@ -2,7 +2,7 @@
 #include "Sieve.hpp"
 using namespace std;
 
-class SegmentedSieve : public Sieve{
+class SegmentedSieve : public Sieve {
 private:
     long x, y, z;
 
