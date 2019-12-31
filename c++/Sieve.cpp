@@ -4,24 +4,7 @@
 #include <cmath>
 
 
-
-template <typename T>
-void Sieve<T>::printSieveArrayInfo() {
-    unsigned long totalSize = sizeof(sieveArray);
-    for (const auto& column : sieveArray) {
-        totalSize += sizeof(column);
-        if (is_same<T, bool>::value) {
-            totalSize += column.capacity() / 8;  // each bool stored as a bit
-        } else {
-            totalSize += column.capacity() * sizeof(T);
-        }
-    }
-    totalSize /= pow(10, 6);  // convert to MB
-    cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
-}
-
-template <typename T>
-void Sieve<T>::sieve() {
+void SieveBase::sieve() {
     cout << "Starting to sieve..." << endl;
     auto startTime = chrono::high_resolution_clock::now();
     for (gint g : smallPrimes) {
@@ -33,8 +16,7 @@ void Sieve<T>::sieve() {
     cout << "Total time for sieving: " << totalTime.count() << " seconds" << endl;
 }
 
-template <typename T>
-void Sieve<T>::printProgress(gint g) {
+void SieveBase::printProgress(gint g) {
     int barSize = 80;
     progress += 1.0 / double(g.norm());
     int barPos = int(double(barSize) * progress / totalProgress);
@@ -45,21 +27,18 @@ void Sieve<T>::printProgress(gint g) {
     cout.flush();
 }
 
-template <typename T>
-void Sieve<T>::printBigPrimes() {
+void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {
         cout << g.a << "  " << g.b << "  " << g.norm() << endl;
     }
-    Sieve::countBigPrimes();
+    SieveBase::countBigPrimes();
 }
 
-template <typename T>
-void Sieve<T>::countBigPrimes() {
+void SieveBase::countBigPrimes() {
     cout << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
 }
 
-template <typename T>
-void Sieve<T>::writeBigPrimesToFile() {
+void SieveBase::writeBigPrimesToFile() {
     ofstream f;
     f.open("../data/cpp_primes.csv");
     for (gint g : bigPrimes) {
@@ -67,6 +46,34 @@ void Sieve<T>::writeBigPrimesToFile() {
     }
     f.close();
 }
+
+
+// Two specializations of SieveTemplate methods
+
+template <>
+void SieveTemplate<bool>::printSieveArrayInfo() {
+    unsigned long totalSize = sizeof(sieveArray);
+    for (const auto& column : sieveArray) {
+        totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
+    }
+    totalSize /= pow(10, 6);  // convert to MB
+    cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
+}
+
+template <>
+void SieveTemplate<int>::printSieveArrayInfo() {
+    unsigned long totalSize = sizeof(sieveArray);
+    for (const auto& column : sieveArray) {
+        totalSize += sizeof(column) + column.capacity() * sizeof(int);
+    }
+    totalSize /= pow(10, 6);  // convert to MB
+    cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
+}
+
+
+
+
+
 
 // Other useful general purpose functions.
 

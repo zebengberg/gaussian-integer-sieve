@@ -2,7 +2,7 @@
 #include "Sieve.hpp"
 
 
-class QuadrantSieve : public Sieve {
+class QuadrantSieve : public SieveTemplate<bool> {
 private:
     long x;
 

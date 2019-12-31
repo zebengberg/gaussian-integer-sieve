@@ -13,6 +13,6 @@ public:
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
-
-    void setDonut();
+    gint extractGint(int, int);
+    void printDonut();
 };
