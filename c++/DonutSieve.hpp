@@ -2,7 +2,7 @@
 #include "Sieve.hpp"
 using namespace std;
 
-class DonutSieve : public Sieve {
+class DonutSieve : public SieveTemplate<int> {
 private:
     long x;
 

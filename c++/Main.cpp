@@ -1,10 +1,8 @@
 #include "QuadrantSieve.hpp"
-//#include "OctantSieve.hpp"
-//#include "SegmentedSieve.hpp"
-//#include "DonutSieve.hpp"
-#include <iostream>
+#include "OctantSieve.hpp"
+#include "SegmentedSieve.hpp"
+#include "DonutSieve.hpp"
 using namespace std;
-
 
 
 //int main(int argc, const char* argv[]){
@@ -32,7 +30,7 @@ using namespace std;
 //}
 
 int main() {
-    long x = 30000000;
+    long x = 300000000;
     QuadrantSieve s(x);
     s.setMemberVariables();
     s.setSieveArray();

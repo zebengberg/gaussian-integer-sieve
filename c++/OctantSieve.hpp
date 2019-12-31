@@ -2,9 +2,7 @@
 #include "Sieve.hpp"
 using namespace std;
 
-
-
-class OctantSieve : public Sieve {
+class OctantSieve : public SieveTemplate<bool> {
 private:
     long x;
 
