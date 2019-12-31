@@ -13,12 +13,13 @@ struct gint {
 
 
 // Abstract base class to be used in various sieving implementations.
+template <typename T>
 class Sieve {
 protected:
     long maxNorm;
     double progress = 0.0;
     double totalProgress;
-    vector<vector<bool>> sieveArray;
+    vector<vector<T>> sieveArray;  // T will be bool or int
     vector<gint> smallPrimes;
     vector<gint> bigPrimes;
 
@@ -28,7 +29,7 @@ public:
     virtual void setSieveArray() = 0;
     void printSieveArrayInfo();
     virtual void crossOffMultiples(gint) = 0;
-    void sieve();
+    void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
     virtual void setBigPrimes() = 0;  // results of sieve
     void printBigPrimes();

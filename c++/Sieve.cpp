@@ -4,20 +4,27 @@
 #include <cmath>
 
 
-void Sieve::printSieveArrayInfo() {
+
+template <typename T>
+void Sieve<T>::printSieveArrayInfo() {
     unsigned long totalSize = sizeof(sieveArray);
-    for (const auto& col : sieveArray) {
-        totalSize += sizeof(col) + col.size() / 8;  // each bool stored as a bit
+    for (const auto& column : sieveArray) {
+        totalSize += sizeof(column);
+        if (is_same<T, bool>::value) {
+            totalSize += column.capacity() / 8;  // each bool stored as a bit
+        } else {
+            totalSize += column.capacity() * sizeof(T);
+        }
     }
     totalSize /= pow(10, 6);  // convert to MB
     cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
 }
 
-void Sieve::sieve() {
+template <typename T>
+void Sieve<T>::sieve() {
     cout << "Starting to sieve..." << endl;
     auto startTime = chrono::high_resolution_clock::now();
     for (gint g : smallPrimes) {
-        // For debugging: cout << g.a() << "  " << g.b() << endl;
         crossOffMultiples(g);
         printProgress(g);
     }
@@ -26,7 +33,8 @@ void Sieve::sieve() {
     cout << "Total time for sieving: " << totalTime.count() << " seconds" << endl;
 }
 
-void Sieve::printProgress(gint g) {
+template <typename T>
+void Sieve<T>::printProgress(gint g) {
     int barSize = 80;
     progress += 1.0 / double(g.norm());
     int barPos = int(double(barSize) * progress / totalProgress);
@@ -37,18 +45,21 @@ void Sieve::printProgress(gint g) {
     cout.flush();
 }
 
-void Sieve::printBigPrimes() {
+template <typename T>
+void Sieve<T>::printBigPrimes() {
     for (gint g : bigPrimes) {
         cout << g.a << "  " << g.b << "  " << g.norm() << endl;
     }
     Sieve::countBigPrimes();
 }
 
-void Sieve::countBigPrimes() {
+template <typename T>
+void Sieve<T>::countBigPrimes() {
     cout << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
 }
 
-void Sieve::writeBigPrimesToFile() {
+template <typename T>
+void Sieve<T>::writeBigPrimesToFile() {
     ofstream f;
     f.open("../data/cpp_primes.csv");
     for (gint g : bigPrimes) {
