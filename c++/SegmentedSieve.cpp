@@ -3,16 +3,11 @@
 #include "SegmentedSieve.hpp"
 using namespace std;
 
-
-SegmentedSieve::SegmentedSieve(long x, long y, long z) {
+// Calling SieveTemplate constructor to set maxNorm
+SegmentedSieve::SegmentedSieve(long x, long y, long z) : SieveTemplate<bool>((x + z) * (y + z)) {
     this->x = x;  // x-coordinate of lower left-hand corner of segment block
     this->y = y;  // y-coordinate of lower left-hand corner of segment block
     this->z = z;  // side length of segment block
-}
-
-void SegmentedSieve::setMemberVariables() {
-    maxNorm = (x + z) * (y + z);
-    totalProgress = log(log(maxNorm)) - log(2.0);
 }
 
 void SegmentedSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
@@ -27,7 +22,7 @@ void SegmentedSieve::setSieveArray() {
 
 
 void SegmentedSieve::crossOffMultiples(gint g) {
-    // Let a + bi be the Gint and c + di be the co-factor of the multiple we seek.
+    // Let a + bi be the gint and c + di be the co-factor of the multiple we seek.
     // We need the product (a + bi)(c + di) to be contained in the segment block.
     // This gives inequalities x <= ac - bd <= x + z and y <= ad + bc <= y + z.
     // Solve these for c to get (ax + by) / (a^2 + b^2) <= c <= (a(x+z) + b(y+z)) / (a^2 + b^2).
@@ -60,7 +55,6 @@ void SegmentedSieve::crossOffMultiples(gint g) {
         long u = g.a * c - g.b * dLower - x;  // u = ac - bd - x
         long v = g.b * c + g.a * dLower - y;  // v = bc + ad - y
         for (long d = dLower; d <= dUpper; d++) {
-            cout << u << "  " << v << "  " << c << "  " << d << endl;
             sieveArray[u][v] = false;
             u -= g.b;
             v += g.a;

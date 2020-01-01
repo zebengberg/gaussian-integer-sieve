@@ -4,11 +4,7 @@
 using namespace std;
 
 
-void QuadrantSieve::setMemberVariables() {
-    maxNorm = x;
-    totalProgress = log(log(maxNorm)) - log(2.0);
-}
-
+// TODO: standardize setSmallPrimes as part of abstract base class?
 void QuadrantSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
 
 void QuadrantSieve::setSieveArray() {

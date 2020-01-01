@@ -3,12 +3,6 @@
 #include "OctantSieve.hpp"
 using namespace std;
 
-
-void OctantSieve::setMemberVariables() {
-    maxNorm = x;
-    totalProgress = log(log(maxNorm)) - log(2.0);
-}
-
 void OctantSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
 
 void OctantSieve::setSieveArray() {

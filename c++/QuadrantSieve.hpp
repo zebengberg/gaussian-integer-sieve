@@ -7,8 +7,8 @@ private:
     long x;
 
 public:
-    explicit QuadrantSieve(long x) { this->x = x;}
-    void setMemberVariables() override;
+    // Calling SieveTemplate constructor to set maxNorm
+    explicit QuadrantSieve(long x) : SieveTemplate<bool>(x) { this->x = x;}
     void setSmallPrimes() override;
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
