@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "SegmentedSieve.hpp"
+#include "OctantSieve.hpp"
 using namespace std;
 
 // Using an initializer list
@@ -10,6 +11,17 @@ SegmentedSieve::SegmentedSieve(long x, long y, long z)
     , z(z)  // side length of segment block
     , SieveTemplate<bool>((x + z) * (y + z))  // calling SieveTemplate constructor to set maxNorm
 {}
+
+// Method from SieveBase doesn't give enough primes, so calling the trusty octant sieve.
+void SegmentedSieve::setSmallPrimesSegmented() {
+    OctantSieve s(isqrt(maxNorm));
+    s.setSieveArray();
+    s.setSmallPrimes();
+    s.sieve();
+    s.setBigPrimes();
+    smallPrimes = s.getBigPrimes();
+}
+
 
 void SegmentedSieve::setSieveArray() {
     // sieveArray holds values for Gint's with x <= a <= x + z and y <= b <= y + z

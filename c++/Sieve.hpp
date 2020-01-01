@@ -27,6 +27,7 @@ public:
     void setSmallPrimes();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
+    vector<gint> getBigPrimes();
     void printBigPrimes();
     void countBigPrimes();
     void writeBigPrimesToFile();

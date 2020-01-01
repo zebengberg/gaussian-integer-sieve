@@ -8,6 +8,7 @@ private:
 
 public:
     SegmentedSieve(long, long, long);
+    void setSmallPrimesSegmented();
     // overriding virtual methods
     void setSieveArray() override;
     void crossOffMultiples(gint) override;

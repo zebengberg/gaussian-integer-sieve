@@ -35,6 +35,8 @@ void SieveBase::printProgress(gint g) {
     cout.flush();
 }
 
+vector<gint> SieveBase::getBigPrimes() { return bigPrimes; }
+
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {
         cout << g.a << "  " << g.b << "  " << g.norm() << endl;
@@ -55,8 +57,6 @@ void SieveBase::writeBigPrimesToFile() {
     f.close();
 }
 
-
-// Read small primes to be used for sieving from existing file.
 // Getting all primes from file small_primes.txt with norm up to maxNorm variable.
 void SieveBase::setSmallPrimes() {
     // If maxNorm is too small, then we are not actually taking any primes.
@@ -76,9 +76,12 @@ void SieveBase::setSmallPrimes() {
 
     long a, b;
     f >> a >> b;  // token-based parsing
-    while (a * a + b * b <= maxNorm) {
-        smallPrimes.push_back(gint(a, b));
+    gint g(a, b);
+    // Need primes up to square root of the maxNorm
+    while (g.norm() <= isqrt(maxNorm)) {
+        smallPrimes.push_back(g);
         f >> a >> b;  // reading next pair a, b from file f
+        g = gint(a, b);
         // If we get to the end of the file, then we don't have enough precomputed primes.
         if (f.eof()) {
             cerr << "Not enough primes in small_primes.txt!" << endl;
