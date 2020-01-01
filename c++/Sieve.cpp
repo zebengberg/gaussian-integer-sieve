@@ -1,6 +1,7 @@
 #include "Sieve.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cmath>
 
 // Will call this constructor from derived classes.
@@ -102,6 +103,35 @@ void SieveTemplate<bool>::printSieveArray() {
     }
 }
 
+template <>
+void SieveTemplate<unsigned int>::printSieveArray() {
+    // Print sieve array with same orientation as that in the complex plane.
+    long columnMaxSize = 0;
+    for (const auto& column : sieveArray) {
+        if (column.size() > columnMaxSize) {
+            columnMaxSize = column.size();
+        }
+    }
+    for (long v = columnMaxSize - 1; v >=0; v--) {
+        string row;
+        for (long u = 0; u < sieveArray.size(); u++) {
+            if (sieveArray[u].size() >= v) {
+                // printing entire block padded by 1
+                // could use binary or hex or ints ...
+                // bitset<32> b(sieveArray[u][v]);
+                // row += b.to_string('-', '*');
+                stringstream stream;
+                stream << hex << sieveArray[u][v];
+                string result(stream.str());
+                row += result;
+                row += ' ';
+            } else {  // [u][v] index not in sieveArray
+                row += string(9, ' ');
+            }
+        }
+        cout << row << endl;
+    }
+}
 
 template <>
 bool SieveTemplate<bool>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }

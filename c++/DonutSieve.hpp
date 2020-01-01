@@ -20,5 +20,4 @@ public:
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
     void printDonutArrays();
-    void printSieveArray();
 };

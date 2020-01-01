@@ -29,22 +29,9 @@ using namespace std;
 //    return 0;
 //}
 
-//int main() {
-//    long x = 100000;
-//    DonutSieve s(x);
-//    s.setSieveArray();
-//    s.setSmallPrimes();
-//    s.sieve();
-//    s.printSieveArray();
-//    s.setBigPrimes();
-//    s.countBigPrimes();
-//    return 0;
-//}
-//
-//
 int main() {
-    long x = 10000;
-    OctantSieve s(x);
+    long x = 100000;
+    DonutSieve s(x);
     s.setSieveArray();
     s.setSmallPrimes();
     s.sieve();
@@ -53,3 +40,16 @@ int main() {
     s.countBigPrimes();
     return 0;
 }
+
+
+//int main() {
+//    long x = 20000;
+//    OctantSieve s(x);
+//    s.setSieveArray();
+//    s.setSmallPrimes();
+//    s.sieve();
+//    s.printSieveArray();
+//    s.setBigPrimes();
+//    s.countBigPrimes();
+//    return 0;
+//}
