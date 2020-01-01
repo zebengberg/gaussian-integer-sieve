@@ -41,8 +41,8 @@ DonutSieve::DonutSieve(long x)
                {-1, -1, -1, 26, -1, 27, -1, 28, -1, -1},
                {29, -1, -1, -1, 30, -1, 31, -1, -1, -1}}
 
-    , realPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
-    , imagPartDecompress{0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9}
+    , realPartDecompress{0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9}
+    , imagPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
 {}
 
 void DonutSieve::setSmallPrimes() {
@@ -65,9 +65,8 @@ void DonutSieve::setSieveArray() {
         vector<unsigned int> column((unsigned long)b, pow(2, 32) - 1);
         sieveArray.push_back(column);
     }
-    setFalse(0, 0);  // 0 is not prime
     setFalse(1, 0);  // 1 is not prime
-    setFalse(0, 1);  // 1 is not prime
+    setFalse(0, 1);  // i is not prime
 }
 
 void DonutSieve::printSieveArray() {
@@ -97,7 +96,6 @@ void DonutSieve::crossOffMultiples(gint g) {
         long dBound = c <= intersection ? c : isqrt(x / g.norm() - c * c);
         long jump;
         while (d <= dBound) {  // replacing inner for loop with while loop
-            // cout << c << "  " << d << "  " << u << "  " << v << endl;
             // apply units and conjugate until u + iv is in sieveArray index
             if (u > 0) {
                 if (u >= v) {  // u + vi already in first octant
@@ -132,7 +130,7 @@ void DonutSieve::setFalse(long u, long v) {
 void DonutSieve::setTrue(long u, long v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
     unsigned int bit = bitDonut[u % 10][v % 10];
-    sieveArray[u / 10][v / 10] |= (1u << bit);  // clearing the bit; 1u is unsigned int
+    sieveArray[u / 10][v / 10] |= (1u << bit);  // setting the bit to 0; 1u is unsigned int
 }
 
 void DonutSieve::setBigPrimes() {
@@ -233,11 +231,11 @@ void DonutSieve::printDonutArrays() {
     string imag = "{";
     for (bit = 0; bit < 32; bit++) {
         do {
-            if (c < 9) {
-                c++;
-            } else {
+            if (d < 9) {
                 d++;
-                c = 0;
+            } else {
+                c++;
+                d = 0;
             }
         } while (!s.getSieveArrayValue(c, d));
         real += to_string(c);
