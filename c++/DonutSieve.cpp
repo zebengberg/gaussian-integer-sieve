@@ -59,7 +59,7 @@ void DonutSieve::setSieveArray() {
     cout << "Building sieve array..." << endl;
     for (long a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
-        long intersection = long(sqrt(double(x) / 20.0));
+        long intersection = long(sqrt(double(x) / 200.0));
         long b = a <= intersection ? a + 1: isqrt(x / 100 - a * a) + 1;
         vector<unsigned int> column((unsigned long)b, pow(2, 32) - 1);
         sieveArray.push_back(column);

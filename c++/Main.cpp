@@ -2,7 +2,6 @@
 #include "OctantSieve.hpp"
 #include "SegmentedSieve.hpp"
 #include "DonutSieve.hpp"
-#include <iostream>
 using namespace std;
 
 
@@ -30,7 +29,7 @@ using namespace std;
 //}
 
 int main() {
-    long x = 100000;
+    long x = 500000;
     DonutSieve s(x);
     s.setSieveArray();
     s.setSmallPrimes();

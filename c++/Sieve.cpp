@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <cmath>
 
 // Will call this constructor from derived classes.
@@ -89,7 +90,7 @@ void SieveTemplate<bool>::printSieveArray() {
     for (long v = columnMaxSize - 1; v >=0; v--) {
         string row;
         for (long u = 0; u < sieveArray.size(); u++) {
-            if (sieveArray[u].size() >= v) {
+            if (sieveArray[u].size() > v) {
                 if (sieveArray[u][v]) {
                     row += '*';  // found a prime
                 } else {
@@ -115,13 +116,14 @@ void SieveTemplate<unsigned int>::printSieveArray() {
     for (long v = columnMaxSize - 1; v >=0; v--) {
         string row;
         for (long u = 0; u < sieveArray.size(); u++) {
-            if (sieveArray[u].size() >= v) {
+            if (sieveArray[u].size() > v) {
                 // printing entire block padded by 1
                 // could use binary or hex or ints ...
                 // bitset<32> b(sieveArray[u][v]);
                 // row += b.to_string('-', '*');
+                // row += ' ';
                 stringstream stream;
-                stream << hex << sieveArray[u][v];
+                stream << setfill('0') << setw(8) << hex << sieveArray[u][v];
                 string result(stream.str());
                 row += result;
                 row += ' ';
