@@ -2,6 +2,7 @@
 #include "OctantSieve.hpp"
 #include "SegmentedSieve.hpp"
 #include "DonutSieve.hpp"
+#include <iostream>
 using namespace std;
 
 
@@ -30,14 +31,10 @@ using namespace std;
 //}
 
 int main() {
-    long x = 300000000;
-    QuadrantSieve s(x);
-    s.setMemberVariables();
-    s.setSieveArray();
-    s.printSieveArrayInfo();
-    s.setSmallPrimes();
-    s.sieve();
-    s.setBigPrimes();
-    s.countBigPrimes();
+    long x = 10000;
+    DonutSieve s(x);
+//    s.setSieveArray();
+//    s.printSieveArrayInfo();
+    s.printDonut();
     return 0;
 }

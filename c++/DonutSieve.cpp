@@ -5,14 +5,34 @@
 using namespace std;
 
 
-void DonutSieve::setMemberVariables() {
-    maxNorm = x;
-    totalProgress = log(log(maxNorm)) - log(2.0);
-}
+DonutSieve::DonutSieve(long x) :  // initializer list; awkward and terrible C++ notation
+    x(x),
+    SieveTemplate<unsigned int>(x),  // calling SieveTemplate constructor to set maxNorm
+
+    // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
+    // wheel sieve. Got these iteration patterns in printDonut(), then pasted them
+    // here so they can be hard coded in constructor.
+
+    // dStart array determines the starting value of d for a given c during crossOffMultiples()
+    dStart{1, 0, 3, 0, 1, 2, 1, 0, 3, 0},
+
+    // donut array tracks how to move from one d to another during crossOffMultiples()
+    donut{  // note: rows and columns reversed from usual complex plane orientation
+          {0, 2, 0, 4, 0, 0, 0, 2, 0, 2},
+          {4, 0, 0, 0, 2, 0, 4, 0, 0, 0},
+          {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
+          {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
+          {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
+          {0, 0, 2, 0, 2, 0, 2, 0, 4, 0},
+          {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
+          {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
+          {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
+          {4, 0, 0, 0, 2, 0, 4, 0, 0, 0}
+          } {}
 
 void DonutSieve::setSmallPrimes() {
     smallPrimes = readPrimesFromFile(isqrt(maxNorm));
-    //TODO: remove primes from donut
+    //TODO: remove primes above 2 and 5
 }
 
 void DonutSieve::setSieveArray() {
@@ -37,11 +57,68 @@ void DonutSieve::setSieveArray() {
 
 
 void DonutSieve::printDonut() {
-    SegmentedSieve s(0, 0, 10);
-    s.setMemberVariables();
+    SegmentedSieve s(0, 0, 15);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));
     s.crossOffMultiples(gint(2, 1));
     s.crossOffMultiples(gint(1, 2));
-    s.printSieveArray();
+
+    // Printing the donut and the horizontal gap sizes inside the donut
+    for (int c = 0; c < 10; c++) {
+        string line("{");
+        for (int d = 0; d < 10; d++) {
+            if (s.getSieveArrayValue(c, d)) {
+                int e = 0;
+                do { e++; } while(!s.getSieveArrayValue(c, d + e));
+                line += to_string(e);
+                line += ", ";
+            } else {
+                line += "0, ";
+            }
+        }
+        line.pop_back();
+        line.pop_back();
+        line += "},";
+        cout << line << endl;
+    }
+
+    // For each c, getting the starting value of d.
+    string arr("{");
+    for (int c = 0; c < 10; c++) {
+        int d = 0;
+        while (!s.getSieveArrayValue(c, d)) { d++; }
+        arr += to_string(d);
+        arr += ", ";
+    }
+    arr.pop_back();
+    arr.pop_back();
+    arr += "}";
+    cout << "\n\n" << arr << endl;
 }
+
+void DonutSieve::crossOffMultiples(gint g) {
+    // Let a + bi be the gint and c + di be the co-factor of the multiple we seek.
+    // Because the product (a + bi)(c + di) should be coprime to 10, we need that
+    // c + di is also coprime to 10. This gives conditions on c and d mod 10.
+
+    // As with all of these crossOffMultiples() methods, we use a double for-loop
+    // of the form for (iterate over c's) { for (iterate over d's) }.
+
+
+    for (long c = 1; c <= isqrt(x / g.norm()); c++) {  // ignoring c, d = 0, 0
+
+        long d = dStart[c % 10];  // starting value of d for while loop
+
+        long u = c * g.a - d * g.b;  // u = ac - bd
+        long v = c * g.b + d * g.a;  // v = bc + ad
+        long intersection = long(sqrt(double(x) / double(2 * g.norm())));
+        long dBound = c <= intersection ? c : isqrt(x / g.norm() - c * c);
+        while (d <= dBound) {  // replacing inner for loop with while loop
+            d += donut[c % 10][d % 10];
+        }
+    }
+
+
+}
+
+void DonutSieve::setBigPrimes() {}
