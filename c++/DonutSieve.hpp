@@ -13,11 +13,11 @@ private:
 
 public:
     explicit DonutSieve(long);
-    void setSmallPrimes() override;
-    void setSieveArray() override;
     void setFalse(long, long);
     void setTrue(long, long);
+    void printDonutArrays();  // only needed to help write the source cpp file
+    // overriding virtual methods
+    void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
-    void printDonutArrays();
 };

@@ -44,11 +44,6 @@ DonutSieve::DonutSieve(long x)
     , imagPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
 {}
 
-void DonutSieve::setSmallPrimes() {
-    // Can include primes 2 and 5 -- these are excluded in crossOffMultiples()
-    smallPrimes = readPrimesFromFile(isqrt(maxNorm));
-}
-
 void DonutSieve::setSieveArray() {
     // Every 10 x 10 block of gints should get compressed into a 32-bit structure.
     // We'll use an int for this.

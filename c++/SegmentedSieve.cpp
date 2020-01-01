@@ -11,8 +11,6 @@ SegmentedSieve::SegmentedSieve(long x, long y, long z)
     , SieveTemplate<bool>((x + z) * (y + z))  // calling SieveTemplate constructor to set maxNorm
 {}
 
-void SegmentedSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
-
 void SegmentedSieve::setSieveArray() {
     // sieveArray holds values for Gint's with x <= a <= x + z and y <= b <= y + z
     for (long i = 0; i <= z; i ++) {
@@ -20,7 +18,6 @@ void SegmentedSieve::setSieveArray() {
         sieveArray.push_back(column);
     }
 }
-
 
 void SegmentedSieve::crossOffMultiples(gint g) {
     // Let a + bi be the gint and c + di be the co-factor of the multiple we seek.

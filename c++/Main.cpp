@@ -2,6 +2,7 @@
 #include "OctantSieve.hpp"
 #include "SegmentedSieve.hpp"
 #include "DonutSieve.hpp"
+#include <cmath>
 using namespace std;
 
 
@@ -29,26 +30,13 @@ using namespace std;
 //}
 
 int main() {
-    long x = 500000;
+    long x = pow(10, 9);
     DonutSieve s(x);
     s.setSieveArray();
     s.setSmallPrimes();
     s.sieve();
-    s.printSieveArray();
+    //s.printSieveArray();
     s.setBigPrimes();
     s.countBigPrimes();
     return 0;
 }
-
-
-//int main() {
-//    long x = 20000;
-//    OctantSieve s(x);
-//    s.setSieveArray();
-//    s.setSmallPrimes();
-//    s.sieve();
-//    s.printSieveArray();
-//    s.setBigPrimes();
-//    s.countBigPrimes();
-//    return 0;
-//}

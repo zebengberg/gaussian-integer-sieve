@@ -3,8 +3,6 @@
 #include "OctantSieve.hpp"
 using namespace std;
 
-void OctantSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
-
 void OctantSieve::setSieveArray() {
     // sieveArray holds values for Gint's with a, b >= 0, a >= b, and a^2 + b^2 <= x.
     cout << "Building sieve array..." << endl;

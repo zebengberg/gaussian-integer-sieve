@@ -1,11 +1,6 @@
 #include <iostream>
-#include <cmath>
 #include "QuadrantSieve.hpp"
 using namespace std;
-
-
-// TODO: standardize setSmallPrimes as part of abstract base class?
-void QuadrantSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
 
 void QuadrantSieve::setSieveArray() {
     // Lots of controversy about vector<bool>; google it.

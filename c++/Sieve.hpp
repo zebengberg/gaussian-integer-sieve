@@ -23,17 +23,20 @@ protected:
     vector<gint> bigPrimes;
 
 public:
-    explicit SieveBase(long);  // constructor
-    virtual void setSmallPrimes() = 0;
-    virtual void setSieveArray() = 0;
-    virtual void crossOffMultiples(gint) = 0;
+    explicit SieveBase(long);  // constructor; will be called in derived classes
+    void setSmallPrimes();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
-    virtual void setBigPrimes() = 0;  // results of sieve
     void printBigPrimes();
     void countBigPrimes();
     void writeBigPrimesToFile();
+
+    // Virtual methods to be implemented in derived classes
+    virtual void setSieveArray() = 0;
+    virtual void crossOffMultiples(gint) = 0;
+    virtual void setBigPrimes() = 0;  // results of sieve
 };
+
 
 // Derived from SieveBase and parameterized with sieveArray entry type.
 // Cannot have an abstract base class template, so this derived class is a template.

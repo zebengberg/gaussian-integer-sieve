@@ -56,6 +56,41 @@ void SieveBase::writeBigPrimesToFile() {
 }
 
 
+// Read small primes to be used for sieving from existing file.
+// Getting all primes from file small_primes.txt with norm up to maxNorm variable.
+void SieveBase::setSmallPrimes() {
+    // If maxNorm is too small, then we are not actually taking any primes.
+    if (maxNorm < 2) {
+        cerr << "No primes read and no sieving needed.";
+        exit(1);
+    }
+    // small_primes.txt contains a list of Gaussian primes sorted by norm.
+    ifstream f;
+    f.open("../data/small_primes.txt");
+    if (!f) {
+        cerr << "Unable to open file small_primes.txt";
+        exit(1);
+    } else {
+        cout << "Reading small primes from file." << endl;
+    }
+
+    long a, b;
+    f >> a >> b;  // token-based parsing
+    while (a * a + b * b <= maxNorm) {
+        smallPrimes.push_back(gint(a, b));
+        f >> a >> b;  // reading next pair a, b from file f
+        // If we get to the end of the file, then we don't have enough precomputed primes.
+        if (f.eof()) {
+            cerr << "Not enough primes in small_primes.txt!" << endl;
+            cerr << "Need to override this method with a sieve instance." << endl;
+            f.close();
+            exit(1);
+        }
+    }
+    f.close();
+}
+
+
 // Specializations of SieveTemplate methods
 
 template <>
@@ -158,40 +193,3 @@ long isqrt(long n) {
     return x;
 }
 
-
-// Read small primes to be used for sieving from existing file.
-// Getting all primes from file small_primes.txt with norm up to x.
-vector<gint> readPrimesFromFile(long x) {
-    // If x is too small, then we are not actually taking any primes.
-    if (x < 2) {
-        cerr << "No primes read and no sieving needed.";
-        exit(1);
-    }
-    // small_primes.txt contains a list of Gaussian primes sorted by norm.
-    ifstream f;
-    f.open("../data/small_primes.txt");
-    if (!f) {
-        cerr << "Unable to open file small_primes.txt";
-        exit(1);   // call system to stop
-    } else {
-        cout << "Reading small primes from file." << endl;
-    }
-
-    long a, b;
-    f >> a >> b;  // token-based parsing
-    vector<gint> smallPrimes;  // the list of small primes to be populated
-    while (a * a + b * b <= x) {
-        gint g(a, b);  // creating prime struct
-        smallPrimes.push_back(g);  // putting it into vector P
-
-        f >> a >> b;  // reading next pair a, b from file f
-        // If we've gotten to the end of the file, then we don't have enough precomputed primes.
-        if (f.eof()) {
-            cerr << "Not enough primes in small_primes.txt";
-            f.close();
-            exit(1);
-        }
-    }
-    f.close();
-    return smallPrimes;
-}
