@@ -3,6 +3,12 @@
 #include <fstream>
 #include <cmath>
 
+// Will call this constructor from derived classes.
+SieveBase::SieveBase(long maxNorm) : maxNorm(maxNorm) {  // initializer list
+    progress = 0.0;
+    // Using PNT to make approximate progress bar.
+    totalProgress = log(log(maxNorm)) - log(2.0);
+}
 
 void SieveBase::sieve() {
     cout << "Starting to sieve..." << endl;
@@ -48,7 +54,7 @@ void SieveBase::writeBigPrimesToFile() {
 }
 
 
-// Two specializations of SieveTemplate methods
+// Specializations of SieveTemplate methods
 
 template <>
 void SieveTemplate<bool>::printSieveArrayInfo() {
@@ -61,16 +67,20 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
 }
 
 template <>
-void SieveTemplate<int>::printSieveArrayInfo() {
+void SieveTemplate<unsigned int>::printSieveArrayInfo() {
     unsigned long totalSize = sizeof(sieveArray);
     for (const auto& column : sieveArray) {
-        totalSize += sizeof(column) + column.capacity() * sizeof(int);
+        totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
     }
     totalSize /= pow(10, 6);  // convert to MB
     cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
 }
 
+template <>
+bool SieveTemplate<bool>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }
 
+template <>
+unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }
 
 
 

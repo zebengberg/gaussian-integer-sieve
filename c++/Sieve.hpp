@@ -16,13 +16,13 @@ struct gint {
 class SieveBase {
 protected:
     long maxNorm;
-    double progress = 0.0;
+    double progress;
     double totalProgress;
     vector<gint> smallPrimes;
     vector<gint> bigPrimes;
 
 public:
-    virtual void setMemberVariables() = 0;
+    explicit SieveBase(long);  // constructor
     virtual void setSmallPrimes() = 0;
     virtual void setSieveArray() = 0;
     virtual void crossOffMultiples(gint) = 0;
@@ -35,14 +35,16 @@ public:
 };
 
 // Derived from SieveBase and parameterized with sieveArray entry type.
-// Cannot have an abstract base class template.
+// Cannot have an abstract base class template, so this derived class is a template.
 template <typename T>
 class SieveTemplate : public SieveBase {
 protected:
-    vector<vector<T>> sieveArray;  // T will be bool or int
+    vector<vector<T>> sieveArray;  // T will be bool or unsigned int
 
 public:
+    explicit SieveTemplate(long maxNorm) : SieveBase(maxNorm) {};
     void printSieveArrayInfo();
+    T getSieveArrayValue(long u, long v);
 };
 
 
