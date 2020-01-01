@@ -16,7 +16,9 @@ public:
     void setSmallPrimes() override;
     void setSieveArray() override;
     void setFalse(long, long);
+    void setTrue(long, long);
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
-    void printDonut();
+    void printDonutArrays();
+    void printSieveArray();
 };

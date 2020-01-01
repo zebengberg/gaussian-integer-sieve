@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <bitset>
 #include "DonutSieve.hpp"
 #include "SegmentedSieve.hpp"
 using namespace std;
@@ -45,8 +46,8 @@ DonutSieve::DonutSieve(long x)
 {}
 
 void DonutSieve::setSmallPrimes() {
+    // Can include primes 2 and 5 -- these are excluded in crossOffMultiples()
     smallPrimes = readPrimesFromFile(isqrt(maxNorm));
-    //TODO: remove primes above 2 and 5
 }
 
 void DonutSieve::setSieveArray() {
@@ -54,35 +55,49 @@ void DonutSieve::setSieveArray() {
     // We'll use an int for this.
     // Proceed as for octant sieve. The int at (a, b) contains the 10 x 10 block with
     // entries in the grid [10a, 10a + 9] x [10b, 10b + 9].
+
+    // Sieve array might stick out beyond boundary of disk -- we'll fix this in getBigPrimes.
     cout << "Building sieve array..." << endl;
-    for (long a = 0; a <= isqrt(x) / 10; a++) {  // might stick out beyond disk; this is okay
+    for (long a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
         long intersection = long(sqrt(double(x) / 20.0));
         long b = a <= intersection ? a + 1 : isqrt(x / 100 - a * a) + 1;
         vector<unsigned int> column((unsigned long)b, pow(2, 32) - 1);
         sieveArray.push_back(column);
     }
-    // TODO: fix this.
-    //sieveArray[0][0] = false;  // 0 is not prime
-    //sieveArray[1][0] = false;  // 1 is not prime
+    setFalse(0, 0);  // 0 is not prime
+    setFalse(1, 0);  // 1 is not prime
+    setFalse(0, 1);  // 1 is not prime
+}
+
+void DonutSieve::printSieveArray() {
+    for (long a = 0; a <= isqrt(x) / 10; a++) {
+        long intersection = long(sqrt(double(x) / 20.0));
+        long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
+        for (long b = 0; b <= bBound; b++) {
+            cout << bitset<32>(sieveArray[a][b]) << endl;
+        }
+    }
 }
 
 void DonutSieve::crossOffMultiples(gint g) {
+    if (g.norm() <= 5) { return; }  // exit early if g is above 2 or 5.
     // Let a + bi be the gint and c + di be the co-factor of the multiple we seek.
     // Because the product (a + bi)(c + di) should be coprime to 10, we need that
     // c + di is also coprime to 10. This gives conditions on c and d mod 10.
 
     // As with all of these crossOffMultiples() methods, we use a double for-loop
     // of the form for (iterate over c's) { for (iterate over d's) }.
-    for (long c = 1; c <= isqrt(x / g.norm()) / 10; c++) {  // ignoring c, d = 0, 0
+    for (long c = 0; c <= isqrt(x / g.norm()); c++) {
         long d = dStart[c % 10];  // starting value of d for while loop
         long u = c * g.a - d * g.b;  // u = ac - bd
         long v = c * g.b + d * g.a;  // v = bc + ad
 
-        long intersection = long(sqrt(double(x) / double(20 * g.norm())));
-        long dBound = c <= intersection ? c : isqrt(x / (100 * g.norm()) - c * c);
+        long intersection = long(sqrt(double(x) / double(2 * g.norm())));
+        long dBound = c <= intersection ? c : isqrt(x / g.norm() - c * c);
         long jump;
         while (d <= dBound) {  // replacing inner for loop with while loop
+            // cout << c << "  " << d << "  " << u << "  " << v << endl;
             // apply units and conjugate until u + iv is in sieveArray index
             if (u > 0) {
                 if (u >= v) {  // u + vi already in first octant
@@ -103,20 +118,51 @@ void DonutSieve::crossOffMultiples(gint g) {
             d += jump;
         }
     }
+    if (g.a > g.b) {
+        setTrue(g.a, g.b); // crossed this off; need to re-mark it as prime
+    }
 }
 
 void DonutSieve::setFalse(long u, long v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
-    // sieveArray[u / 10][v / 10]
-    //int bit = bitDonut[u % 10][v % 10];
+    unsigned int bit = bitDonut[u % 10][v % 10];
+    sieveArray[u / 10][v / 10] &= ~(1u << bit);  // clearing the bit; 1u is unsigned int
 }
 
-void DonutSieve::setBigPrimes() {}
+void DonutSieve::setTrue(long u, long v) {
+    // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
+    unsigned int bit = bitDonut[u % 10][v % 10];
+    sieveArray[u / 10][v / 10] |= (1u << bit);  // clearing the bit; 1u is unsigned int
+}
+
+void DonutSieve::setBigPrimes() {
+    cout << "Gathering primes after sieve..." << endl;
+    // Putting in primes dividing 10.
+    bigPrimes.push_back(gint(1, 1));
+    bigPrimes.push_back(gint(2, 1));
+    bigPrimes.push_back(gint(1, 2));
+    for (long a = 0; a <= isqrt(x) / 10; a++) {
+        long intersection = long(sqrt(double(x) / 20.0));
+        long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
+        for (long b = 0; b <= bBound; b++) {
+            for (unsigned int bit = 0; bit < 32; bit++) {
+                if ((sieveArray[a][b] >> bit) & 1u) {
+                    gint g(10 * a + realPartDecompress[bit], 10 * b + imagPartDecompress[bit]);
+                    // check for boundary blocks and to avoid imag multiple of degree 2
+                    if ((g.norm() <= x) && (g.a) && (g.a > g.b)) {
+                        bigPrimes.push_back(g);
+                        //bigPrimes.push_back(g.flip());
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 
 
-void DonutSieve::printDonut() {
+void DonutSieve::printDonutArrays() {
     SegmentedSieve s(0, 0, 15);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));
@@ -146,17 +192,17 @@ void DonutSieve::printDonut() {
 
     // Printing the dStart array. For a given c, this array gives the starting value of d.
     cout << "\n\ndStart:" << endl;
-    string dStart = "{";
+    string arr = "{";
     for (int c = 0; c < 10; c++) {
         int d = 0;
         while (!s.getSieveArrayValue(c, d)) { d++; }
-        dStart += to_string(d);
-        dStart += ", ";
+        arr += to_string(d);
+        arr += ", ";
     }
-    dStart.pop_back();
-    dStart.pop_back();
-    dStart += "}";
-    cout << dStart << endl;
+    arr.pop_back();
+    arr.pop_back();
+    arr += "}";
+    cout << arr << endl;
 
     // Printing the bitDonut array. Used to compress a residue mod 10Z[i] into a bit position.
     cout << "\n\nbitDonut:" << endl;

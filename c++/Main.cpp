@@ -30,11 +30,29 @@ using namespace std;
 //    return 0;
 //}
 
-int main() {
-    long x = 10000;
+int main2() {
+    long x = 50;
     DonutSieve s(x);
-//    s.setSieveArray();
-//    s.printSieveArrayInfo();
-    s.printDonut();
+    s.setSieveArray();
+    s.setSmallPrimes();
+    s.crossOffMultiples(gint(3, 2));
+    s.printSieveArray();
+    s.setBigPrimes();
+    s.printBigPrimes();
+    return 0;
+}
+
+
+int main() {
+    long x = 50;
+    QuadrantSieve s(x);
+    s.setSieveArray();
+    s.setSmallPrimes();
+    s.crossOffMultiples(gint(1, 1));
+    s.crossOffMultiples(gint(2, 1));
+    s.crossOffMultiples(gint(1, 2));
+    s.crossOffMultiples(gint(3, 2));
+    s.setBigPrimes();
+    s.printBigPrimes();
     return 0;
 }
