@@ -12,6 +12,4 @@ public:
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
-
-    void printSieveArray();
 };

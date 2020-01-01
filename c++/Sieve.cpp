@@ -77,6 +77,33 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
 }
 
 template <>
+void SieveTemplate<bool>::printSieveArray() {
+    // Print sieve array with same orientation as that in the complex plane.
+    long columnMaxSize = 0;
+    for (const auto& column : sieveArray) {
+        if (column.size() > columnMaxSize) {
+            columnMaxSize = column.size();
+        }
+    }
+    for (long v = columnMaxSize - 1; v >=0; v--) {
+        string row;
+        for (long u = 0; u < sieveArray.size(); u++) {
+            if (sieveArray[u].size() >= v) {
+                if (sieveArray[u][v]) {
+                    row += '*';  // found a prime
+                } else {
+                    row += '-';  // found a composite
+                }
+            } else {
+                row += ' ';  // not in sieveArray
+            }
+        }
+        cout << row << endl;
+    }
+}
+
+
+template <>
 bool SieveTemplate<bool>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }
 
 template <>

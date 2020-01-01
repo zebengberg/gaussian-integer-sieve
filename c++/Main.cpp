@@ -17,9 +17,8 @@ using namespace std;
 //int main() {
 //    long x = 30000;
 //    long y = 10000;
-//    long z = 150;
+//    long z = 100;
 //    SegmentedSieve s(x, y, z);
-//    s.setMemberVariables();
 //    s.setSieveArray();
 //    s.printSieveArrayInfo();
 //    s.setSmallPrimes();
@@ -30,25 +29,26 @@ using namespace std;
 //    return 0;
 //}
 
+//int main() {
+//    long x = 100000;
+//    DonutSieve s(x);
+//    s.setSieveArray();
+//    s.setSmallPrimes();
+//    s.sieve();
+//    s.printSieveArray();
+//    s.setBigPrimes();
+//    s.countBigPrimes();
+//    return 0;
+//}
+//
+//
 int main() {
-    long x = 100000;
-    DonutSieve s(x);
+    long x = 10000;
+    OctantSieve s(x);
     s.setSieveArray();
     s.setSmallPrimes();
     s.sieve();
     s.printSieveArray();
-    s.setBigPrimes();
-    s.countBigPrimes();
-    return 0;
-}
-
-
-int main2() {
-    long x = 10000;
-    QuadrantSieve s(x);
-    s.setSieveArray();
-    s.setSmallPrimes();
-    s.sieve();
     s.setBigPrimes();
     s.countBigPrimes();
     return 0;

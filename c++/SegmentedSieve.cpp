@@ -72,19 +72,3 @@ void SegmentedSieve::setBigPrimes() {
         }
     }
 }
-
-
-void SegmentedSieve::printSieveArray() {
-    // Print sieve array with same orientation as that in the complex plane.
-    for (long v = z; v >= 0; v--) {
-        string row;
-        for (long u = 0; u <= z; u++){
-            if (sieveArray[u][v]) {
-                row += '*';  // found a prime
-            } else {
-                row += ' ';  // found a composite
-            }
-        }
-        cout << row << endl;
-    }
-}

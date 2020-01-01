@@ -45,6 +45,7 @@ protected:
 public:
     explicit SieveTemplate(long maxNorm) : SieveBase(maxNorm) {};
     void printSieveArrayInfo();
+    void printSieveArray();
     T getSieveArrayValue(long u, long v);
 };
 
