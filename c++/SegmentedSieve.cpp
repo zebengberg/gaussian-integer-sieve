@@ -3,12 +3,13 @@
 #include "SegmentedSieve.hpp"
 using namespace std;
 
-// Calling SieveTemplate constructor to set maxNorm
-SegmentedSieve::SegmentedSieve(long x, long y, long z) : SieveTemplate<bool>((x + z) * (y + z)) {
-    this->x = x;  // x-coordinate of lower left-hand corner of segment block
-    this->y = y;  // y-coordinate of lower left-hand corner of segment block
-    this->z = z;  // side length of segment block
-}
+// Using an initializer list
+SegmentedSieve::SegmentedSieve(long x, long y, long z)
+    : x(x)  // x-coordinate of lower left-hand corner of segment block
+    , y(y)  // y-coordinate of lower left-hand corner of segment block
+    , z(z)  // side length of segment block
+    , SieveTemplate<bool>((x + z) * (y + z))  // calling SieveTemplate constructor to set maxNorm
+{}
 
 void SegmentedSieve::setSmallPrimes() { smallPrimes = readPrimesFromFile(isqrt(maxNorm)); }
 

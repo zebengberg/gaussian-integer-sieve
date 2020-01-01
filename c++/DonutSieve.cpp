@@ -5,30 +5,30 @@
 using namespace std;
 
 
-DonutSieve::DonutSieve(long x) :  // initializer list; awkward and terrible C++ notation
-    x(x),
-    SieveTemplate<unsigned int>(x),  // calling SieveTemplate constructor to set maxNorm
+DonutSieve::DonutSieve(long x)
+    : x(x)
+    , SieveTemplate<unsigned int>(x)  // calling SieveTemplate constructor to set maxNorm
 
     // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
     // wheel sieve. Got these iteration patterns in printDonut(), then pasted them
     // here so they can be hard coded in constructor.
 
     // dStart array determines the starting value of d for a given c during crossOffMultiples()
-    dStart{1, 0, 3, 0, 1, 2, 1, 0, 3, 0},
+    , dStart{1, 0, 3, 0, 1, 2, 1, 0, 3, 0}
 
     // donut array tracks how to move from one d to another during crossOffMultiples()
-    donut{  // note: rows and columns reversed from usual complex plane orientation
-          {0, 2, 0, 4, 0, 0, 0, 2, 0, 2},
-          {4, 0, 0, 0, 2, 0, 4, 0, 0, 0},
-          {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
-          {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
-          {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
-          {0, 0, 2, 0, 2, 0, 2, 0, 4, 0},
-          {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
-          {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
-          {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
-          {4, 0, 0, 0, 2, 0, 4, 0, 0, 0}
-          } {}
+    // note: rows and columns reversed from usual complex plane orientation -- don't get confused.
+    , donut{{0, 2, 0, 4, 0, 0, 0, 2, 0, 2},
+            {4, 0, 0, 0, 2, 0, 4, 0, 0, 0},
+            {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
+            {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
+            {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
+            {0, 0, 2, 0, 2, 0, 2, 0, 4, 0},
+            {0, 4, 0, 0, 0, 4, 0, 0, 0, 2},
+            {2, 0, 6, 0, 0, 0, 0, 0, 2, 0},
+            {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
+            {4, 0, 0, 0, 2, 0, 4, 0, 0, 0}}
+{}
 
 void DonutSieve::setSmallPrimes() {
     smallPrimes = readPrimesFromFile(isqrt(maxNorm));
