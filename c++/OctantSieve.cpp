@@ -58,9 +58,10 @@ void OctantSieve::setBigPrimes() {
         long bBound = a <= intersection ? a : isqrt(x - a * a);
         for (long b = 0; b <= bBound; b++) {
             if (sieveArray[a][b]) {
-                bigPrimes.push_back(gint(a, b));
+                gint g(a, b);
+                bigPrimes.push_back(g);
                 if (b) {  // prime not on real axis
-                    bigPrimes.push_back(gint(b, a));
+                    bigPrimes.push_back(g.flip());
                 }
             }
         }

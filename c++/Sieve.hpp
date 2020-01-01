@@ -9,6 +9,7 @@ struct gint {
     long a, b;
     gint(long a, long b) { this->a = a; this->b = b; }
     long norm() { return a * a + b * b; }
+    gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
 };
 
 

@@ -151,7 +151,9 @@ void DonutSieve::setBigPrimes() {
                     // check for boundary blocks and to avoid imag multiple of degree 2
                     if ((g.norm() <= x) && (g.a) && (g.a > g.b)) {
                         bigPrimes.push_back(g);
-                        //bigPrimes.push_back(g.flip());
+                        if (g.b) {  // prime not on real axis
+                            bigPrimes.push_back(g.flip());
+                        }
                     }
                 }
             }
