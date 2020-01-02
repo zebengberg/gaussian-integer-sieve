@@ -1,5 +1,6 @@
 #pragma once
 #include "Sieve.hpp"
+#include "SegmentedSieve.hpp"
 using namespace std;
 
 class DonutSieve : public SieveTemplate<unsigned int> {
@@ -12,11 +13,12 @@ private:
     int imagPartDecompress[32];
 
 public:
-    explicit DonutSieve(long);
+    explicit DonutSieve(long, bool = true);  // default values must be set in header
     void setFalse(long, long);
     void setTrue(long, long);
     void printDonutArrays();  // only needed to help write the source cpp file
     // overriding virtual methods
+    void setSmallPrimes() override;
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;

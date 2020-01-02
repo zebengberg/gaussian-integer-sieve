@@ -1,11 +1,24 @@
 #include <iostream>
 #include <cmath>
 #include "OctantSieve.hpp"
+#include "QuadrantSieve.hpp"
 using namespace std;
+
+void OctantSieve::setSmallPrimes() {
+    // Setting smallPrimes to the output of QuadrantSieve, which can generate
+    // its own small primes.
+    if (display) {
+        cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
+    }
+    QuadrantSieve qs(isqrt(maxNorm), false);
+    smallPrimes = qs.run();
+}
 
 void OctantSieve::setSieveArray() {
     // sieveArray holds values for Gint's with a, b >= 0, a >= b, and a^2 + b^2 <= x.
-    cout << "Building sieve array..." << endl;
+    if (display) {
+        cout << "Building sieve array..." << endl;
+    }
     for (long a = 0; a <= isqrt(x); a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
         long intersection = long(sqrt(double(x) / 2.0));
@@ -15,6 +28,9 @@ void OctantSieve::setSieveArray() {
     }
     sieveArray[0][0] = false;  // 0 is not prime
     sieveArray[1][0] = false;  // 1 is not prime
+    if (display) {
+        printSieveArrayInfo();
+    }
 }
 
 void OctantSieve::crossOffMultiples(gint g) {
@@ -46,10 +62,15 @@ void OctantSieve::crossOffMultiples(gint g) {
     if (g.a > g.b) {
         sieveArray[g.a][g.b] = true; // crossed this off; need to re-mark it as prime
     }
+    if (display) {
+        printProgress(g);
+    }
 }
 
 void OctantSieve::setBigPrimes() {
-    cout << "Gathering primes after sieve..." << endl;
+    if (display) {
+        cout << "Gathering primes after sieve..." << endl;
+    }
     bigPrimes.push_back(gint(1, 1));  // explicitly avoiding ramifying prime 1 + i
     for (long a = 2; a <= isqrt(x); a++) {
         long intersection = long(sqrt(double(x) / 2.0));

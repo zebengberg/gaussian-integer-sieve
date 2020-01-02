@@ -43,7 +43,13 @@ void SieveBase::printProgress(gint g) {
     cout.flush();
 }
 
-vector<gint> SieveBase::getBigPrimes() { return bigPrimes; }
+vector<gint> SieveBase::run() {
+    setSmallPrimes();
+    setSieveArray();
+    sieve();
+    setBigPrimes();
+    return bigPrimes;
+}
 
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {

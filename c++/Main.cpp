@@ -1,7 +1,7 @@
 #include "QuadrantSieve.hpp"
-//#include "OctantSieve.hpp"
-//#include "SegmentedSieve.hpp"
-//#include "DonutSieve.hpp"
+#include "OctantSieve.hpp"
+#include "SegmentedSieve.hpp"
+#include "DonutSieve.hpp"
 #include <cmath>
 using namespace std;
 
@@ -14,31 +14,23 @@ using namespace std;
 //    long x = strtol(argv[1], nullptr, 10);  // convert command line input to long
 
 
-//int main() {
-//    long x = 10000000;
-//    long y = 5000000;
-//    long z = 1000;
-//    SegmentedSieve s(x, y, z);
-//    s.setSieveArray();
-//    s.printSieveArrayInfo();
-//    s.setSmallPrimesSegmented();
-//    s.sieve();
-//    s.setBigPrimes();
-//    s.countBigPrimes();
-//    s.printSieveArray();
-//    return 0;
-//}
-
 int main() {
-    long x = 10000000;
-    QuadrantSieve s(x, false);
-    s.setSmallPrimes();
-    s.setSieveArray();
-    s.sieve();
-    //s.printSieveArray();
-    s.setBigPrimes();
+    long x = pow(10, 9);
+    long y = pow(10, 8);
+    long z = 100;
+    SegmentedSieve s(x, y, z);
+    s.run();
     s.countBigPrimes();
     return 0;
 }
+
+//int main() {
+//    long x = 100000000;
+//    DonutSieve s(x);
+//    s.run();
+//    //s.printSieveArray();
+//    s.countBigPrimes();
+//    return 0;
+//}
 
 // TODO: run code inspect

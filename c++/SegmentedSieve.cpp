@@ -5,29 +5,34 @@
 using namespace std;
 
 // Using an initializer list
-SegmentedSieve::SegmentedSieve(long x, long y, long z)
+SegmentedSieve::SegmentedSieve(long x, long y, long z, bool display)
     : x(x)  // x-coordinate of lower left-hand corner of segment block
     , y(y)  // y-coordinate of lower left-hand corner of segment block
     , z(z)  // side length of segment block
-    , SieveTemplate<bool>((x + z) * (y + z))  // calling SieveTemplate constructor to set maxNorm
+    , SieveTemplate<bool>((x + z) * (y + z), display)  // calling SieveTemplate constructor to set maxNorm
 {}
 
 // Method from SieveBase doesn't give enough primes, so calling the trusty octant sieve.
-void SegmentedSieve::setSmallPrimesSegmented() {
-    OctantSieve s(isqrt(maxNorm));
-    s.setSieveArray();
-    s.setSmallPrimes();
-    s.sieve();
-    s.setBigPrimes();
-    smallPrimes = s.getBigPrimes();
+void SegmentedSieve::setSmallPrimes() {
+    if (display) {
+        cout << "Calling the OctantSieve to generate smallPrimes..." << endl;
+    }
+    OctantSieve s(isqrt(maxNorm), false);
+    smallPrimes = s.run();
 }
 
 
 void SegmentedSieve::setSieveArray() {
     // sieveArray holds values for Gint's with x <= a <= x + z and y <= b <= y + z
+    if (display) {
+        cout << "Building sieve array..." << endl;
+    }
     for (long i = 0; i <= z; i ++) {
         vector<bool> column((unsigned long)(z + 1), true);
         sieveArray.push_back(column);
+    }
+    if (display) {
+        printSieveArrayInfo();
     }
 }
 

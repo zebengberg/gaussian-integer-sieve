@@ -1,13 +1,13 @@
 #include <iostream>
 #include <cmath>
 #include "DonutSieve.hpp"
-#include "SegmentedSieve.hpp"
+#include "QuadrantSieve.hpp"
 using namespace std;
 
 
-DonutSieve::DonutSieve(long x)
+DonutSieve::DonutSieve(long x, bool display)
     : x(x)
-    , SieveTemplate<unsigned int>(x)  // calling SieveTemplate constructor to set maxNorm
+    , SieveTemplate<unsigned int>(x, display)  // calling SieveTemplate constructor to set maxNorm
 
     // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
     // wheel sieve. Got these iteration patterns in printDonut(), then pasted them
@@ -44,6 +44,16 @@ DonutSieve::DonutSieve(long x)
     , imagPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
 {}
 
+void DonutSieve::setSmallPrimes() {
+    // Setting smallPrimes to the output of QuadrantSieve, which can generate
+    // its own small primes.
+    if (display) {
+        cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
+    }
+    QuadrantSieve qs(isqrt(maxNorm), false);
+    smallPrimes = qs.run();
+}
+
 void DonutSieve::setSieveArray() {
     // Every 10 x 10 block of gints should get compressed into a 32-bit structure.
     // We'll use an int for this.
@@ -51,7 +61,9 @@ void DonutSieve::setSieveArray() {
     // entries in the grid [10a, 10a + 9] x [10b, 10b + 9].
 
     // Sieve array might stick out beyond boundary of disk -- we'll fix this in getBigPrimes.
-    cout << "Building sieve array..." << endl;
+    if (display) {
+        cout << "Building sieve array..." << endl;
+    }
     for (long a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
         long intersection = long(sqrt(double(x) / 200.0));
@@ -61,6 +73,9 @@ void DonutSieve::setSieveArray() {
     }
     setFalse(1, 0);  // 1 is not prime
     setFalse(0, 1);  // i is not prime
+    if (display) {
+        printSieveArrayInfo();
+    }
 }
 
 void DonutSieve::crossOffMultiples(gint g) {
@@ -118,7 +133,9 @@ void DonutSieve::setTrue(long u, long v) {
 }
 
 void DonutSieve::setBigPrimes() {
-    cout << "Gathering primes after sieve..." << endl;
+    if (display) {
+        cout << "Gathering primes after sieve..." << endl;
+    }
     // Putting in primes dividing 10.
     bigPrimes.push_back(gint(1, 1));
     bigPrimes.push_back(gint(2, 1));
@@ -147,7 +164,7 @@ void DonutSieve::setBigPrimes() {
 
 
 void DonutSieve::printDonutArrays() {
-    SegmentedSieve s(0, 0, 15);  // going a little bit beyond 9 so we can get gaps
+    SegmentedSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));
     s.crossOffMultiples(gint(2, 1));

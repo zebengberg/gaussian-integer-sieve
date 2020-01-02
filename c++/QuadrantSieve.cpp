@@ -34,6 +34,9 @@ void QuadrantSieve::setSieveArray() {
     sieveArray[0][0] = false;  // 0 is not prime
     sieveArray[1][0] = false;  // 1 is not prime
     sieveArray[0][1] = false;  // i is not prime
+    if (display) {
+        printSieveArrayInfo();
+    }
 }
 
 void QuadrantSieve::crossOffMultiples(gint g) {

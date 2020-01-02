@@ -28,10 +28,10 @@ public:
     void setSmallPrimesFromFile();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
-    vector<gint> getBigPrimes();
     void printBigPrimes();
     void countBigPrimes();
     void writeBigPrimesToFile();
+    vector<gint> run();  // run everything and return bigPrimes
 
     // Virtual methods to be implemented in derived classes
     virtual void setSmallPrimes() = 0;
