@@ -2,11 +2,30 @@
 #include "QuadrantSieve.hpp"
 using namespace std;
 
+void QuadrantSieve::setSmallPrimes() {
+    // Trick: Marking all gints with norm up to sqrt(x) as prime, sorting them, then
+    // only using those that are actually prime when we call crossOffMultiples().
+    if (display) {
+        cout << "Sorting small Gaussian integers by norm..." << endl;
+    }
+    for (long a = 1; a <= isqrt(isqrt(maxNorm)); a++) {
+        for (long b = 0; b <= isqrt(isqrt(maxNorm) - a * a); b++) {
+            smallPrimes.push_back(gint(a, b));
+        }
+    }
+    sort(smallPrimes.begin(), smallPrimes.end(),  // anonymous aka lambda function
+            [](gint& g1, gint& g2 ) { return g1.norm() < g2.norm(); }
+    );
+}
+
+
 void QuadrantSieve::setSieveArray() {
     // Lots of controversy about vector<bool>; google it.
     // Each boolean value is stored as a single bit but pointers are not available.
     // sieveArray holds values for Gint's with a, b >= 0 and a^2 + b^2 <= x.
-    cout << "Building sieve array..." << endl;
+    if (display) {
+        cout << "Building sieve array..." << endl;
+    }
     for (long a = 0; a <= isqrt(x); a++) {
         long b = isqrt(x - a * a) + 1;
         vector<bool> column((unsigned long)b, true);  // Create a vector of size b with all values true.
@@ -18,6 +37,8 @@ void QuadrantSieve::setSieveArray() {
 }
 
 void QuadrantSieve::crossOffMultiples(gint g) {
+    if (!sieveArray[g.a][g.b]) { return; } // early exit if g isn't actually prime.
+
     // c + di should range over a full quadrant and satisfy N(c + di)N(a + bi) <= x
     for (long c = 1; c <= isqrt(x / g.norm()); c++) {  //ignoring c, d = 0, 0
         long u = c * g.a;  // u = ac - bd
@@ -34,6 +55,9 @@ void QuadrantSieve::crossOffMultiples(gint g) {
         }
     }
     sieveArray[g.a][g.b] = true;  // crossed this off; need to re-mark it as prime
+    if (display) {
+        printProgress(g);
+    }
 }
 
 // Old method; keeping for reference.
@@ -60,7 +84,9 @@ void QuadrantSieve::crossOffMultiplesAlt(gint g) {
 }
 
 void QuadrantSieve::setBigPrimes() {
-    cout << "Gathering primes after sieve..." << endl;
+    if (display) {
+        cout << "Gathering primes after sieve..." << endl;
+    }
     for (long a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
         for (long b = 0; b <= isqrt(x - a * a); b++) {
             if (sieveArray[a][b]) {

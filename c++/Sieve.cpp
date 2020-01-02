@@ -6,22 +6,30 @@
 #include <cmath>
 
 // Will call this constructor from derived classes.
-SieveBase::SieveBase(long maxNorm) : maxNorm(maxNorm) {  // initializer list
+SieveBase::SieveBase(long maxNorm, bool display)
+    // initializer list
+    : maxNorm(maxNorm)
+    , display(display)
+    {
     progress = 0.0;
     // Using PNT to make approximate progress bar.
     totalProgress = log(log(maxNorm)) - log(2.0);
 }
 
 void SieveBase::sieve() {
-    cout << "Starting to sieve..." << endl;
+    if (display) {
+        cout << "Starting to sieve..." << endl;
+    }
     auto startTime = chrono::high_resolution_clock::now();
     for (gint g : smallPrimes) {
         crossOffMultiples(g);
-        printProgress(g);
     }
     auto endTime = chrono::high_resolution_clock::now();
-    auto totalTime = chrono::duration_cast<chrono::seconds>(endTime - startTime);
-    cout << "Total time for sieving: " << totalTime.count() << " seconds" << endl;
+    auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
+    float printTime = float(totalTime.count()) / 1000.0;
+    if (display) {
+        cout << "Total time for sieving: " << printTime << " seconds." << endl;
+    }
 }
 
 void SieveBase::printProgress(gint g) {
@@ -58,7 +66,8 @@ void SieveBase::writeBigPrimesToFile() {
 }
 
 // Getting all primes from file small_primes.txt with norm up to maxNorm variable.
-void SieveBase::setSmallPrimes() {
+// Old method; keeping as a reference.
+void SieveBase::setSmallPrimesFromFile() {
     // If maxNorm is too small, then we are not actually taking any primes.
     if (maxNorm < 2) {
         cerr << "No primes read and no sieving needed.";

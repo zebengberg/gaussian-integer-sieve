@@ -19,12 +19,13 @@ protected:
     long maxNorm;
     double progress;
     double totalProgress;
+    bool display;
     vector<gint> smallPrimes;
     vector<gint> bigPrimes;
 
 public:
-    explicit SieveBase(long);  // constructor; will be called in derived classes
-    void setSmallPrimes();
+    explicit SieveBase(long, bool);  // constructor; will be called in derived classes
+    void setSmallPrimesFromFile();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
     vector<gint> getBigPrimes();
@@ -33,6 +34,7 @@ public:
     void writeBigPrimesToFile();
 
     // Virtual methods to be implemented in derived classes
+    virtual void setSmallPrimes() = 0;
     virtual void setSieveArray() = 0;
     virtual void crossOffMultiples(gint) = 0;
     virtual void setBigPrimes() = 0;  // results of sieve
@@ -47,7 +49,7 @@ protected:
     vector<vector<T>> sieveArray;  // T will be bool or unsigned int
 
 public:
-    explicit SieveTemplate(long maxNorm) : SieveBase(maxNorm) {};
+    explicit SieveTemplate(long maxNorm, bool display) : SieveBase(maxNorm, display) {};
     void printSieveArrayInfo();
     void printSieveArray();
     T getSieveArrayValue(long u, long v);
