@@ -81,7 +81,8 @@ void SegmentedSieve::setBigPrimes() {
     for (long a = 0; a <= z; a ++) {
         for (long b = 0; b <= z; b++) {
             if (sieveArray[a][b]) {
-                bigPrimes.push_back(gint(a + x, b + y));
+                gint g(a + x, b + y);
+                bigPrimes.push_back(g);
             }
         }
     }

@@ -52,7 +52,7 @@ public:
     explicit SieveTemplate(long maxNorm, bool display) : SieveBase(maxNorm, display) {};
     void printSieveArrayInfo();
     void printSieveArray();
-    T getSieveArrayValue(long u, long v);
+    T getSieveArrayValue(unsigned long u, unsigned long v);
 };
 
 

@@ -71,7 +71,7 @@ void OctantSieve::setBigPrimes() {
     if (display) {
         cout << "Gathering primes after sieve..." << endl;
     }
-    bigPrimes.push_back(gint(1, 1));  // explicitly avoiding ramifying prime 1 + i
+    bigPrimes.emplace_back(1, 1);  // explicitly avoiding ramifying prime 1 + i
     for (long a = 2; a <= isqrt(x); a++) {
         long intersection = long(sqrt(double(x) / 2.0));
         long bBound = a <= intersection ? a : isqrt(x - a * a);

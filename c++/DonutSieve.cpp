@@ -29,16 +29,16 @@ DonutSieve::DonutSieve(long x, bool display)
                {0, 0, 0, 2, 0, 2, 0, 6, 0, 0},
                {4, 0, 0, 0, 2, 0, 4, 0, 0, 0}}
 
-    , bitDonut{{-1, 0, -1, 1, -1, -1, -1, 2, -1, 3},
-               {4, -1, -1, -1, 5, -1, 6, -1, -1, -1},
-               {-1, -1, -1, 7, -1, 8, -1, 9, -1, -1},
-               {10, -1, 11, -1, -1, -1, -1, -1, 12, -1},
-               {-1, 13, -1, -1, -1, 14, -1, -1, -1, 15},
-               {-1, -1, 16, -1, 17, -1, 18, -1, 19, -1},
-               {-1, 20, -1, -1, -1, 21, -1, -1, -1, 22},
-               {23, -1, 24, -1, -1, -1, -1, -1, 25, -1},
-               {-1, -1, -1, 26, -1, 27, -1, 28, -1, -1},
-               {29, -1, -1, -1, 30, -1, 31, -1, -1, -1}}
+    , bitDonut{{99, 0, 99, 1, 99, 99, 99, 2, 99, 3},
+               {4, 99, 99, 99, 5, 99, 6, 99, 99, 99},
+               {99, 99, 99, 7, 99, 8, 99, 9, 99, 99},
+               {10, 99, 11, 99, 99, 99, 99, 99, 12, 99},
+               {99, 13, 99, 99, 99, 14, 99, 99, 99, 15},
+               {99, 99, 16, 99, 17, 99, 18, 99, 19, 99},
+               {99, 20, 99, 99, 99, 21, 99, 99, 99, 22},
+               {23, 99, 24, 99, 99, 99, 99, 99, 25, 99},
+               {99, 99, 99, 26, 99, 27, 99, 28, 99, 99},
+               {29, 99, 99, 99, 30, 99, 31, 99, 99, 99}}
 
     , realPartDecompress{0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9}
     , imagPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
@@ -68,7 +68,7 @@ void DonutSieve::setSieveArray() {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
         long intersection = long(sqrt(double(x) / 200.0));
         long b = a <= intersection ? a + 1: isqrt(x / 100 - a * a) + 1;
-        vector<unsigned int> column((unsigned long)b, pow(2, 32) - 1);
+        vector<unsigned int> column((unsigned long)b, (unsigned int)pow(2, 32) - 1);
         sieveArray.push_back(column);
     }
     setFalse(1, 0);  // 1 is not prime
@@ -137,9 +137,9 @@ void DonutSieve::setBigPrimes() {
         cout << "Gathering primes after sieve..." << endl;
     }
     // Putting in primes dividing 10.
-    bigPrimes.push_back(gint(1, 1));
-    bigPrimes.push_back(gint(2, 1));
-    bigPrimes.push_back(gint(1, 2));
+    bigPrimes.emplace_back(1, 1);
+    bigPrimes.emplace_back(2, 1);
+    bigPrimes.emplace_back(1, 2);
     for (long a = 0; a <= isqrt(x) / 10; a++) {
         long intersection = long(sqrt(double(x) / 20.0));
         long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
@@ -173,11 +173,11 @@ void DonutSieve::printDonutArrays() {
     // Printing the gapDonut. This array contains information about the horizontal space of the donut
     // and is used to iterate d when calling crossOffMultiples().
     cout << "gapDonut:" << endl;
-    for (int c = 0; c < 10; c++) {
+    for (unsigned int c = 0; c < 10; c++) {
         string line("{");
-        for (int d = 0; d < 10; d++) {
+        for (unsigned int d = 0; d < 10; d++) {
             if (s.getSieveArrayValue(c, d)) {
-                int e = 0;
+                unsigned int e = 0;
                 do { e++; } while(!s.getSieveArrayValue(c, d + e));
                 line += to_string(e);
                 line += ", ";
@@ -194,8 +194,8 @@ void DonutSieve::printDonutArrays() {
     // Printing the dStart array. For a given c, this array gives the starting value of d.
     cout << "\n\ndStart:" << endl;
     string arr = "{";
-    for (int c = 0; c < 10; c++) {
-        int d = 0;
+    for (unsigned int c = 0; c < 10; c++) {
+        unsigned int d = 0;
         while (!s.getSieveArrayValue(c, d)) { d++; }
         arr += to_string(d);
         arr += ", ";
@@ -208,15 +208,15 @@ void DonutSieve::printDonutArrays() {
     // Printing the bitDonut array. Used to compress a residue mod 10Z[i] into a bit position.
     cout << "\n\nbitDonut:" << endl;
     int bit = 0;
-    for (int c = 0; c < 10; c++) {
+    for (unsigned int c = 0; c < 10; c++) {
         string line = "{";
-        for (int d = 0; d < 10; d++) {
+        for (unsigned int d = 0; d < 10; d++) {
             if (s.getSieveArrayValue(c, d)) {
                 line += to_string(bit);
                 line += ", ";
                 bit++;
             } else {
-                line += "-1, ";
+                line += "99, ";  // put in some crazy value that'll hopefully throw an error if accessed
             }
         }
         line.pop_back();
@@ -226,8 +226,8 @@ void DonutSieve::printDonutArrays() {
     }
 
     // Printing the decompression array, which is used in setBigPrimes().
-    int c = 0;
-    int d = 0;
+    unsigned int c = 0;
+    unsigned int d = 0;
     string real = "{";
     string imag = "{";
     for (bit = 0; bit < 32; bit++) {

@@ -3,14 +3,15 @@
 using namespace std;
 
 void QuadrantSieve::setSmallPrimes() {
-    // Trick: Marking all gints with norm up to sqrt(x) as prime, sorting them, then
+    // Trick: Marking all gint's with norm up to sqrt(x) as prime, sorting them, then
     // only using those that are actually prime when we call crossOffMultiples().
     if (display) {
         cout << "Sorting small Gaussian integers by norm..." << endl;
     }
     for (long a = 1; a <= isqrt(isqrt(maxNorm)); a++) {
         for (long b = 0; b <= isqrt(isqrt(maxNorm) - a * a); b++) {
-            smallPrimes.push_back(gint(a, b));
+            gint g(a, b);
+            smallPrimes.push_back(g);
         }
     }
     sort(smallPrimes.begin(), smallPrimes.end(),  // anonymous aka lambda function

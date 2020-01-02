@@ -26,7 +26,7 @@ void SieveBase::sieve() {
     }
     auto endTime = chrono::high_resolution_clock::now();
     auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
-    float printTime = float(totalTime.count()) / 1000.0;
+    double printTime = double(totalTime.count()) / 1000.0;
     if (display) {
         cout << "Total time for sieving: " << printTime << " seconds." << endl;
     }
@@ -135,16 +135,16 @@ template <>
 void SieveTemplate<bool>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
     long columnMaxSize = 0;
-    for (const auto& column : sieveArray) {
+    for (auto & column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
     for (long v = columnMaxSize - 1; v >=0; v--) {
         string row;
-        for (long u = 0; u < sieveArray.size(); u++) {
-            if (sieveArray[u].size() > v) {
-                if (sieveArray[u][v]) {
+        for (auto & column : sieveArray) {
+            if (column.size() > v) {
+                if (column[v]) {
                     row += '*';  // found a prime
                 } else {
                     row += '-';  // found a composite
@@ -161,22 +161,22 @@ template <>
 void SieveTemplate<unsigned int>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
     long columnMaxSize = 0;
-    for (const auto& column : sieveArray) {
+    for (auto & column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
     for (long v = columnMaxSize - 1; v >=0; v--) {
         string row;
-        for (long u = 0; u < sieveArray.size(); u++) {
-            if (sieveArray[u].size() > v) {
+        for (auto & column : sieveArray) {
+            if (column.size() > v) {
                 // printing entire block padded by 1
                 // could use binary or hex or ints ...
                 // bitset<32> b(sieveArray[u][v]);
                 // row += b.to_string('-', '*');
                 // row += ' ';
                 stringstream stream;
-                stream << setfill('0') << setw(8) << hex << sieveArray[u][v];
+                stream << setfill('0') << setw(8) << hex << column[v];
                 string result(stream.str());
                 row += result;
                 row += ' ';
@@ -189,10 +189,14 @@ void SieveTemplate<unsigned int>::printSieveArray() {
 }
 
 template <>
-bool SieveTemplate<bool>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }
+bool SieveTemplate<bool>::getSieveArrayValue(unsigned long u, unsigned long v) {
+    return sieveArray.at(u).at(v);
+}
 
 template <>
-unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(long u, long v) { return sieveArray.at(u).at(v); }
+unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(unsigned long u, unsigned long v) {
+    return sieveArray.at(u).at(v);
+}
 
 
 
