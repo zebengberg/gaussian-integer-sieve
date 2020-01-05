@@ -1,9 +1,5 @@
-#include "QuadrantSieve.hpp"
-#include "OctantSieve.hpp"
-#include "SegmentedSieve.hpp"
-#include "DonutSieve.hpp"
-#include <cmath>
-using namespace std;
+#include "Main.hpp"
+//using namespace std;
 
 
 //int main(int argc, const char* argv[]){
@@ -24,13 +20,22 @@ using namespace std;
 //    return 0;
 //}
 
-int main() {
-    long x = 100000;
-    DonutSieve s(x);
-    s.run();
-    s.sortBigPrimes();
-    s.printBigPrimes();
-    // s.printSieveArray();
-    // s.countBigPrimes();
-    return 0;
-}
+//int main() {
+//    long x = 10000;
+//    DonutSieve s(x);
+//    s.run();
+//    s.sortBigPrimes();
+//    s.printBigPrimes();
+//    // s.printSieveArray();
+//    // s.countBigPrimes();
+//    return 0;
+//}
+//
+// int cythonTest(int x) {
+//    QuadrantSieve s(x);
+//    vector<gint> P = s.run();
+//    return P.size();
+//}
+
+int cythonTest2(int x) { return 2 * x + 1; }
+

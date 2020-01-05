@@ -26,7 +26,7 @@ def simple_sieve(x, display=False, sort=False):
     N = sort_by_norm(isqrt(x))
     if display:
         print('Done initializing sieve array.')
-        mem_size = sys.getsizeof(G)  # tons of overhead in native python
+        mem_size = sys.getsizeof(G)  # tons of overhead in native cython
         for g in G:
             mem_size += sys.getsizeof(g)
             mem_size += sum(sys.getsizeof(v) for v in g)  # True takes 28 bytes to store in memory

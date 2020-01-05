@@ -1,18 +1,23 @@
-# OS and editor overhead
+# editor build stuff
 .DS_Store
 .idea/
 images/.DS_Store
-python/.DS_Store
-python/__pycache__/
-c++/.idea/
-c++/.DS_Store
-c++/c__
-c++/c__.cbp
-c++/cmake_install.cmake
-c++/CMakeCache.txt
-c++/CMakeLists.txt
-c++/Makefile
-c++/CMakeFiles/
+cython/.DS_Store
+cython/__pycache__/
+cpp/.idea/
+cpp/.DS_Store
+cpp/c__
+cpp/c__.cbp
+cpp/cmake_install.cmake
+cpp/CMakeCache.txt
+cpp/CMakeLists.txt
+cpp/Makefile
+cpp/CMakeFiles/
+
+# cython build stuff
+cython/build/
+cython/gg.cpp
+*.so
 
 
 

@@ -31,7 +31,7 @@ The python module `simple_sieve.py` can be imported into a python console or run
 
 To generate all Gaussian integer primes with norm up to 10000, enter
 ```shell script
-$ python simple_sieve.py 10000
+$ cython simple_sieve.py 10000
 ```
 into the command line from within the `python` folder of this repository. This command will write the primes generated to a text file which can then be read by the C++ program `simple_sieve.cpp`. A text file containing a list of primes with norm up to sqrt(x) is needed in order to use `simple_sieve.cpp` to generate primes with norm up to x. 
 
