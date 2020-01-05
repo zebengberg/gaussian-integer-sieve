@@ -1,4 +1,6 @@
-#include "Main.hpp"
+#include "main.hpp"
+#include "QuadrantSieve.hpp"
+#include <vector>
 //using namespace std;
 
 
@@ -20,22 +22,26 @@
 //    return 0;
 //}
 
-//int main() {
-//    long x = 10000;
-//    DonutSieve s(x);
-//    s.run();
-//    s.sortBigPrimes();
-//    s.printBigPrimes();
-//    // s.printSieveArray();
-//    // s.countBigPrimes();
-//    return 0;
-//}
+int main() {
+    long x = 10000;
+    QuadrantSieve s(x);
+    s.run();
+    s.sortBigPrimes();
+    s.printBigPrimes();
+    // s.printSieveArray();
+    // s.countBigPrimes();
+    gint * a = & s.run()[0];
+    return 0;
+}
 //
 // int cythonTest(int x) {
 //    QuadrantSieve s(x);
-//    vector<gint> P = s.run();
-//    return P.size();
+
 //}
 
-int cythonTest2(int x) { return 2 * x + 1; }
+long count(long x) {
+    QuadrantSieve s(x);
+    vector<gint> P = s.run();
+    return P.size();
+}
 

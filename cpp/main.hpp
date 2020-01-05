@@ -5,4 +5,4 @@
 //
 //int main();
 //int cythonTest(int);
-int cythonTest2(int);
+long count(long);

@@ -16,7 +16,7 @@ cpp/CMakeFiles/
 
 # cython build stuff
 cython/build/
-cython/gg.cpp
+cython/gintsieve.cpp
 *.so
 
 
