@@ -25,10 +25,12 @@ using namespace std;
 //}
 
 int main() {
-    long x = 100000000;
+    long x = 100000;
     DonutSieve s(x);
     s.run();
-    s.printSieveArray();
-    s.countBigPrimes();
+    s.sortBigPrimes();
+    s.printBigPrimes();
+    // s.printSieveArray();
+    // s.countBigPrimes();
     return 0;
 }

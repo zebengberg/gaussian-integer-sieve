@@ -1,5 +1,5 @@
 #pragma once
-#include "Sieve.hpp"
+#include "BaseSieve.hpp"
 #include "SegmentedSieve.hpp"
 using namespace std;
 

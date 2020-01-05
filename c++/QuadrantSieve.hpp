@@ -1,5 +1,5 @@
 #pragma once
-#include "Sieve.hpp"
+#include "BaseSieve.hpp"
 
 
 class QuadrantSieve : public SieveTemplate<bool> {

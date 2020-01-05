@@ -1,4 +1,4 @@
-#include "Sieve.hpp"
+#include "BaseSieve.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -50,6 +50,8 @@ vector<gint> SieveBase::run() {
     setBigPrimes();
     return bigPrimes;
 }
+
+void SieveBase::sortBigPrimes() { sort(bigPrimes.begin(), bigPrimes.end()); }
 
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {

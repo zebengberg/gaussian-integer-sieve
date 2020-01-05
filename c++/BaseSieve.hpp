@@ -10,6 +10,7 @@ struct gint {
     gint(long a, long b) { this->a = a; this->b = b; }
     long norm() { return a * a + b * b; }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
+    friend bool operator < (gint g1, gint g2) { return g1.norm() < g2.norm(); }
 };
 
 
@@ -28,6 +29,7 @@ public:
     void setSmallPrimesFromFile();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
+    void sortBigPrimes();
     void printBigPrimes();
     void countBigPrimes();
     void writeBigPrimesToFile();

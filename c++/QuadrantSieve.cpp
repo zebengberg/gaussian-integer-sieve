@@ -14,9 +14,7 @@ void QuadrantSieve::setSmallPrimes() {
             smallPrimes.push_back(g);
         }
     }
-    sort(smallPrimes.begin(), smallPrimes.end(),  // anonymous aka lambda function
-            [](gint& g1, gint& g2 ) { return g1.norm() < g2.norm(); }
-    );
+    sort(smallPrimes.begin(), smallPrimes.end());  // sorting by norm (this is built-in to struct gint)
 }
 
 

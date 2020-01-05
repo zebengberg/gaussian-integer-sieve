@@ -1,5 +1,5 @@
 #pragma once
-#include "Sieve.hpp"
+#include "BaseSieve.hpp"
 using namespace std;
 
 class OctantSieve : public SieveTemplate<bool> {
