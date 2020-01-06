@@ -136,13 +136,13 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
 template <>
 void SieveTemplate<bool>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    long columnMaxSize = 0;
+    unsigned long columnMaxSize = 0;
     for (auto & column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (long v = columnMaxSize - 1; v >=0; v--) {
+    for (unsigned long v = columnMaxSize - 1; v >=0; v--) {
         string row;
         for (auto & column : sieveArray) {
             if (column.size() > v) {
@@ -162,13 +162,13 @@ void SieveTemplate<bool>::printSieveArray() {
 template <>
 void SieveTemplate<unsigned int>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    long columnMaxSize = 0;
+    unsigned long columnMaxSize = 0;
     for (auto & column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (long v = columnMaxSize - 1; v >=0; v--) {
+    for (unsigned long v = columnMaxSize - 1; v >=0; v--) {
         string row;
         for (auto & column : sieveArray) {
             if (column.size() > v) {

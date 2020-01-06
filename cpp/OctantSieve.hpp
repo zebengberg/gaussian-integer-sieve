@@ -8,7 +8,7 @@ private:
 
 public:
     // Using an initializer list and calling SieveTemplate constructor to set maxNorm
-    explicit OctantSieve(long x, bool display = true) : x(x), SieveTemplate<bool>(x, display) {}
+    explicit OctantSieve(long x, bool display = true) : SieveTemplate<bool>(x, display), x(x) {}
 
     // overriding virtual methods
     void setSmallPrimes() override;
