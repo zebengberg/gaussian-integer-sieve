@@ -1,8 +1,10 @@
 import gintsieve
 
-print(gintsieve.gprimes(100))
+P = gintsieve.gprimes(10000)
 
-print(gintsieve.gprimes_count(1000))
+gintsieve.visualize(P)
+
+print(gintsieve.gprimes_count(10000))
 
 print(gintsieve.gprimes_region(1000, 1000, 10))
 
