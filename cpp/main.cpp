@@ -1,4 +1,5 @@
 #include "main.hpp"
+#include "OctantSieve.hpp"
 #include "DonutSieve.hpp"
 #include "SegmentedSieve.hpp"
 #include <cmath>
@@ -15,13 +16,13 @@
 
 
 int main() {
-    long x = 10000;
-    DonutSieve s(x);
+    long x = 100000;
+    OctantSieve s(x);
     s.run();
     s.sortBigPrimes();
-    s.printBigPrimes();
+    // s.printBigPrimes();
     // s.printSieveArray();
-    // s.countBigPrimes();
+    s.countBigPrimes();
     return 0;
 }
 
@@ -37,12 +38,12 @@ vector<pair<long, long>> gPrimes(long x) {
     return pairP;
 }
 
-long gPrimesCount(long x) {
+unsigned long gPrimesCount(long x) {
     // Show display if passed argument is large.
     bool display = x >= (long)pow(10, 7);
     DonutSieve s(x, display);
     vector<gint> gintP = s.run();
-    return gintP.size();
+    return 4 * gintP.size();  // four quadrants
 }
 
 vector<pair<long, long>> gPrimesRegion(long x, long y, long z) {
