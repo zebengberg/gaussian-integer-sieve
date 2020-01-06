@@ -2,7 +2,7 @@
 
 
 
-from gintsieve_externs cimport gPrimes, gPrimesCount
+from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesRegion
 
 
 
@@ -13,6 +13,8 @@ from gintsieve_externs cimport gPrimes, gPrimesCount
 cpdef gprimes(long x):
     return gPrimes(x)
 
-
 cpdef gprimes_count(long x):
     return gPrimesCount(x)
+
+cpdef gprimes_region(long x, long y, long z):
+    return gPrimesRegion(x, y, z)
