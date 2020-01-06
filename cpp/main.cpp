@@ -1,6 +1,8 @@
 #include "main.hpp"
 #include "QuadrantSieve.hpp"
+#include "DonutSieve.hpp"
 #include <vector>
+#include <cmath>
 //using namespace std;
 
 
@@ -30,18 +32,26 @@ int main() {
     s.printBigPrimes();
     // s.printSieveArray();
     // s.countBigPrimes();
-    // gint * a = & s.run()[0];
     return 0;
 }
-//
-// int cythonTest(int x) {
-//    QuadrantSieve s(x);
 
-//}
 
-long count(long x) {
-    QuadrantSieve s(x);
-    vector<gint> P = s.run();
-    return P.size();
+vector<pair<long, long>> gPrimes(long x) {
+    // Show display if passed argument is large.
+    bool display = x >= (long)pow(10, 7);
+    DonutSieve s(x, display);
+    vector<gint> gintP = s.run();
+    vector<pair<long, long>> pairP;
+    pairP.resize(gintP.size());
+    transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
+    return pairP;
 }
 
+
+long gPrimesCount(long x) {
+    // Show display if passed argument is large.
+    bool display = x >= (long)pow(10, 7);
+    DonutSieve s(x, display);
+    vector<gint> gintP = s.run();
+    return gintP.size();
+}

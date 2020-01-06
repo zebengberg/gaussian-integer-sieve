@@ -48,6 +48,7 @@ vector<gint> SieveBase::run() {
     setSieveArray();
     sieve();
     setBigPrimes();
+    sortBigPrimes();
     return bigPrimes;
 }
 
