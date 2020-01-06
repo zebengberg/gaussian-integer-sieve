@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 import os
@@ -9,7 +9,9 @@ import os
 
 extensions = [Extension('gintsieve',
                         sources=['gintsieve.pyx'],
-                        extra_compile_args=['-std=c++11', '-stdlib=libc++', '-v']
+                        extra_compile_args=['-std=c++11', '-stdlib=libc++'],
+                        extra_link_args=['-std=c++11', '-stdlib=libc++'],
+                        language='c++'
                         )]
 
 

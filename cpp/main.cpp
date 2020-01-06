@@ -1,6 +1,5 @@
 #include "main.hpp"
 #include "QuadrantSieve.hpp"
-#include "OctantSieve.hpp"
 #include <vector>
 //using namespace std;
 
@@ -25,13 +24,13 @@
 
 int main() {
     long x = 10000;
-    OctantSieve s(x);
+    QuadrantSieve s(x);
     s.run();
     s.sortBigPrimes();
     s.printBigPrimes();
     // s.printSieveArray();
     // s.countBigPrimes();
-    gint * a = & s.run()[0];
+    // gint * a = & s.run()[0];
     return 0;
 }
 //
