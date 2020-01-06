@@ -6,10 +6,10 @@ using namespace std;
 
 // Using an initializer list
 SegmentedSieve::SegmentedSieve(long x, long y, long z, bool display)
-    : x(x)  // x-coordinate of lower left-hand corner of segment block
+    : SieveTemplate<bool>((x + z) * (y + z), display)  // calling SieveTemplate constructor to set maxNorm
+    , x(x)  // x-coordinate of lower left-hand corner of segment block
     , y(y)  // y-coordinate of lower left-hand corner of segment block
     , z(z)  // side length of segment block
-    , SieveTemplate<bool>((x + z) * (y + z), display)  // calling SieveTemplate constructor to set maxNorm
 {}
 
 // Method from SieveBase doesn't give enough primes, so calling the trusty octant sieve.

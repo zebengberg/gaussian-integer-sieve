@@ -6,8 +6,8 @@ using namespace std;
 
 
 DonutSieve::DonutSieve(long x, bool display)
-    : x(x)
-    , SieveTemplate<unsigned int>(x, display)  // calling SieveTemplate constructor to set maxNorm
+    : SieveTemplate<unsigned int>(x, display)  // calling SieveTemplate constructor to set maxNorm
+    , x(x)
 
     // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
     // wheel sieve. Got these iteration patterns in printDonut(), then pasted them
