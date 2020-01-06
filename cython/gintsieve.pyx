@@ -1,6 +1,6 @@
 # cython: language_level=3
 
-from gaussian_prime_sieve cimport count
+from gintsieve_externs cimport count
 
 def c(x):
     return count(x)
