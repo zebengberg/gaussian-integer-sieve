@@ -1,7 +1,7 @@
 import gintsieve
 
-print(gintsieve.gprimes_count(10000))
-print(gintsieve.gprimes(1000, 1000, 10))
+# Print out Gaussian primes in a 10 x 10 box.
+print(gintsieve.gprimes(10000, 20000, 10))
 
 # Values taken from http://oeis.org/A091100
 assert gintsieve.gprimes_count(10 ** 1) == 16
@@ -14,6 +14,6 @@ assert gintsieve.gprimes_count(10 ** 7) == 2658344
 assert gintsieve.gprimes_count(10 ** 8) == 23046512
 assert gintsieve.gprimes_count(10 ** 9) == 203394764
 
-
-P = gintsieve.gprimes(100000)
-gintsieve.visualize(P, full_disk=True)
+# Graph Gaussian primes with norm up to one million.
+P = gintsieve.gprimes(10 ** 6)
+P.visualize(full_disk=True)

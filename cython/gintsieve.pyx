@@ -1,6 +1,7 @@
 # cython: language_level=3
 
 import matplotlib.pyplot as plt
+import numpy as np
 from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount
 
 
@@ -67,3 +68,30 @@ class GintList(list):
             plt.plot(reals, imags, 'bo', markersize=20 / self.z)
 
         plt.show()
+
+    def to_complex(self):
+        """Convert list of tuples to list of complex numbers."""
+        return [complex(pair[0], pair[1]) for pair in self]
+
+    def to_np(self):
+        """Convert list of tuples to np.array."""
+        return np.array(self).transpose()
+
+    def sector_race(self, a, b, c, d):
+        """Gaussian prime race in sectors."""
+        if b < a or d < c or a < 0 or c < 0 or b > np.pi/2 or d > np.pi/2:
+            raise ValueError('Check your intervals.')
+        p = self.to_np()
+        norms = p[0] ** 2 + p[1] ** 2
+        angles = np.arctan2(p[0], p[1])
+        runner1 = ((angles > a) & (angles < b)).cumsum()
+        runner2 = ((angles > c) & (angles < d)).cumsum()
+
+        plt.subplots(figsize=(8, 8))
+        plt.plot(norms, runner1 - runner2, 'b-')
+        plt.title('Gaussian prime race in sectors')
+        plt.xlabel('norm')
+        plt.ylabel('$\pi({}, {}) - \pi({}, {})$'.format(a, b, c, d))
+        plt.axhline(0, color='red')
+        plt.show()
+
