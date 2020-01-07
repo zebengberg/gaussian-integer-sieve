@@ -40,7 +40,6 @@ void QuadrantSieve::setSieveArray() {
 
 void QuadrantSieve::crossOffMultiples(gint g) {
     if (!sieveArray[g.a][g.b]) { return; } // early exit if g isn't actually prime.
-
     // c + di should range over a full quadrant and satisfy N(c + di)N(a + bi) <= x
     for (long c = 1; c <= isqrt(x / g.norm()); c++) {  //ignoring c, d = 0, 0
         long u = c * g.a;  // u = ac - bd

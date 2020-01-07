@@ -34,7 +34,8 @@ public:
     void printBigPrimes();
     void countBigPrimes();
     void writeBigPrimesToFile();
-    vector<gint> run();  // run everything and return sorted bigPrimes
+    void run();  // run necessary sieve methods
+    vector<gint> getBigPrimes();  // return the big primes after run()
 
     // Virtual methods to be implemented in derived classes
     virtual void setSmallPrimes() = 0;

@@ -1,8 +1,8 @@
 import gintsieve
 
-P = gintsieve.gprimes(10000)
+P = gintsieve.gprimes(100000)
 
-gintsieve.visualize(P)
+gintsieve.visualize(P, full_disk=True)
 
 print(gintsieve.gprimes_count(10000))
 

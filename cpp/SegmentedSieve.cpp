@@ -18,7 +18,8 @@ void SegmentedSieve::setSmallPrimes() {
         cout << "Calling the OctantSieve to generate smallPrimes..." << endl;
     }
     OctantSieve s(isqrt(maxNorm), false);
-    smallPrimes = s.run();
+    s.run();
+    smallPrimes = s.getBigPrimes();
 }
 
 

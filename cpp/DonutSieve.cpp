@@ -51,7 +51,8 @@ void DonutSieve::setSmallPrimes() {
         cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
     }
     QuadrantSieve qs(isqrt(maxNorm), false);
-    smallPrimes = qs.run();
+    qs.run();
+    smallPrimes = qs.getBigPrimes();
 }
 
 void DonutSieve::setSieveArray() {
@@ -117,6 +118,8 @@ void DonutSieve::crossOffMultiples(gint g) {
     }
     if (g.a > g.b) {
         setTrue(g.a, g.b); // crossed this off; need to re-mark it as prime
+    } else {
+        setTrue(g.b, g.a);
     }
 }
 

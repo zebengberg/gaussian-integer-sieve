@@ -11,7 +11,8 @@ void OctantSieve::setSmallPrimes() {
         cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
     }
     QuadrantSieve qs(isqrt(maxNorm), false);
-    smallPrimes = qs.run();
+    qs.run();
+    smallPrimes = qs.getBigPrimes();
 }
 
 void OctantSieve::setSieveArray() {
@@ -61,6 +62,8 @@ void OctantSieve::crossOffMultiples(gint g) {
     }
     if (g.a > g.b) {
         sieveArray[g.a][g.b] = true; // crossed this off; need to re-mark it as prime
+    } else {
+        sieveArray[g.b][g.a] = true; // conjugate crossed this off
     }
     if (display) {
         printProgress(g);
