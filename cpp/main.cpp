@@ -48,7 +48,7 @@ unsigned long gPrimesCount(long x) {
     return 4 * gintP.size();  // four quadrants
 }
 
-vector<pair<long, long>> gPrimesRegion(long x, long y, long z) {
+vector<pair<long, long>> gPrimesSegment(long x, long y, long z) {
     // Show display if passed argument is large.
     bool display = z >= (long)pow(10, 5);
     SegmentedSieve s(x, y, z, display);

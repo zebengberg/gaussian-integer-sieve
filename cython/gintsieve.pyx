@@ -1,7 +1,7 @@
 # cython: language_level=3
 
 import matplotlib.pyplot as plt
-from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesRegion
+from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment
 
 
 
@@ -9,14 +9,18 @@ from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesRegion
 # see https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#standard-library
 
 
-cpdef gprimes(long x):
-    return gPrimes(x)
+cpdef gprimes(long x, long y=0, long z=0):
+    """Generate a list of primes around origin or in segment"""
+    if y or z:
+       return gPrimesSegment(x, y, z)
+    else:
+        return gPrimes(x)
+
 
 cpdef gprimes_count(long x):
     return gPrimesCount(x)
 
-cpdef gprimes_region(long x, long y, long z):
-    return gPrimesRegion(x, y, z)
+
 
 
 def visualize(P, full_disk=False):

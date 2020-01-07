@@ -1,12 +1,7 @@
 import gintsieve
 
-P = gintsieve.gprimes(100000)
-
-gintsieve.visualize(P, full_disk=True)
-
 print(gintsieve.gprimes_count(10000))
-
-print(gintsieve.gprimes_region(1000, 1000, 10))
+print(gintsieve.gprimes(1000, 1000, 10))
 
 # Values taken from http://oeis.org/A091100
 assert gintsieve.gprimes_count(10 ** 1) == 16
@@ -19,3 +14,6 @@ assert gintsieve.gprimes_count(10 ** 7) == 2658344
 assert gintsieve.gprimes_count(10 ** 8) == 23046512
 assert gintsieve.gprimes_count(10 ** 9) == 203394764
 
+
+P = gintsieve.gprimes(100000)
+gintsieve.visualize(P, full_disk=True)

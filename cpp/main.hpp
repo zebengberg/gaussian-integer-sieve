@@ -2,5 +2,5 @@
 using namespace std;
 
 vector<pair<long, long>> gPrimes(long);
+vector<pair<long, long>> gPrimesSegment(long, long, long);
 unsigned long gPrimesCount(long);
-vector<pair<long, long>> gPrimesRegion(long, long, long);
