@@ -28,7 +28,7 @@ void SieveBase::sieve() {
     auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
     double printTime = double(totalTime.count()) / 1000.0;
     if (display) {
-        cout << "Total time for sieving: " << printTime << " seconds." << endl;
+        cout << "Done sieving. Total time for sieving: " << printTime << " seconds." << endl;
     }
 }
 
@@ -47,22 +47,24 @@ void SieveBase::run() {
     setSmallPrimes();
     setSieveArray();
     sieve();
-    setBigPrimes();
-    sortBigPrimes();
 }
 
-vector<gint> SieveBase::getBigPrimes() { return bigPrimes; }
+vector<gint> SieveBase::getBigPrimes() {
+    setBigPrimes();
+    sortBigPrimes();
+    return bigPrimes;
+}
 
-void SieveBase::sortBigPrimes() { sort(bigPrimes.begin(), bigPrimes.end()); }
+void SieveBase::sortBigPrimes() {
+    if (display) {
+        cout << "Sorting primes by norm..." << endl;
+    }
+    sort(bigPrimes.begin(), bigPrimes.end()); }
 
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {
         cout << g.a << "  " << g.b << "  " << g.norm() << endl;
     }
-    SieveBase::countBigPrimes();
-}
-
-void SieveBase::countBigPrimes() {
     cout << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
 }
 
@@ -122,7 +124,7 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
         totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
     }
     totalSize /= pow(10, 6);  // convert to MB
-    cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
+    cout << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
 }
 
 template <>
@@ -132,21 +134,21 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
         totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
     }
     totalSize /= pow(10, 6);  // convert to MB
-    cout << "Sieve array approximate memory use: " << totalSize  << "MB" << endl;
+    cout << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
 }
 
 template <>
 void SieveTemplate<bool>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
     unsigned long columnMaxSize = 0;
-    for (auto & column : sieveArray) {
+    for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (unsigned long v = columnMaxSize - 1; v >=0; v--) {
+    for (long v = (signed)columnMaxSize - 1; v >= 0; v--) {
         string row;
-        for (auto & column : sieveArray) {
+        for (auto &column : sieveArray) {
             if (column.size() > v) {
                 if (column[v]) {
                     row += '*';  // found a prime
@@ -165,14 +167,14 @@ template <>
 void SieveTemplate<unsigned int>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
     unsigned long columnMaxSize = 0;
-    for (auto & column : sieveArray) {
+    for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (unsigned long v = columnMaxSize - 1; v >=0; v--) {
+    for (long v = (signed)columnMaxSize - 1; v >=0; v--) {
         string row;
-        for (auto & column : sieveArray) {
+        for (auto &column : sieveArray) {
             if (column.size() > v) {
                 // printing entire block padded by 1
                 // could use binary or hex or ints ...

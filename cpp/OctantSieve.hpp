@@ -15,4 +15,5 @@ public:
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
+    unsigned long getCountBigPrimes() override;
 };

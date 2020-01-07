@@ -163,6 +163,37 @@ void DonutSieve::setBigPrimes() {
     }
 }
 
+unsigned long DonutSieve::getCountBigPrimes() {
+    if (display) {
+        cout << "Counting primes after sieve..." << endl;
+    }
+    unsigned long count = 3;  // 3 primes dividing 10
+    for (long a = 0; a <= isqrt(x) / 10; a++) {
+        long intersection = long(sqrt(double(x) / 20.0));
+        long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
+        for (long b = 0; b <= bBound; b++) {
+            for (unsigned int bit = 0; bit < 32; bit++) {
+                if ((sieveArray[a][b] >> bit) & 1u) {
+                    // Coordinates of actual gint.
+                    long aa = 10 * a + realPartDecompress[bit];
+                    long bb = 10 * b + imagPartDecompress[bit];
+                    // check for boundary blocks and to avoid imag multiple of degree 2
+                    if ((aa * aa + bb * bb <= x) && aa && (aa > bb)) {
+                        count++;
+                        if (bb) {  // prime not on real axis
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (display) {
+        cout << "Done with count." << endl;
+    }
+    return 4 * count;  // four quadrants
+}
+
 
 
 

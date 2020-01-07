@@ -19,7 +19,7 @@ void QuadrantSieve::setSmallPrimes() {
 
 
 void QuadrantSieve::setSieveArray() {
-    // Lots of controversy about vector<bool>; google it.
+    // Lots of controversy about vector<bool>.
     // Each boolean value is stored as a single bit but pointers are not available.
     // sieveArray holds values for Gint's with a, b >= 0 and a^2 + b^2 <= x.
     if (display) {
@@ -96,4 +96,27 @@ void QuadrantSieve::setBigPrimes() {
             }
         }
     }
+    if (display) {
+        cout << "Done with gathering." << endl;
+    }
+}
+
+unsigned long QuadrantSieve::getCountBigPrimes() {
+    if (display) {
+        cout << "Counting primes after sieve..." << endl;
+    }
+    unsigned long count = 0;
+    for (long a = 1; a <= isqrt(x); a++) {  // Want to stay off imaginary line
+        for (long b = 0; b <= isqrt(x - a * a); b++) {
+            if (sieveArray[a][b]) {
+                count++;
+            }
+        }
+    }
+    count *= 4; // four quadrants
+    if (display) {
+        cout << "Done with count." << endl;
+        cout << "Total number of primes, including associates: " << count << endl;
+    }
+    return count;
 }

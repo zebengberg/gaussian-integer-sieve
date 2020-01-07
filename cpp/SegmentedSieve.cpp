@@ -88,3 +88,15 @@ void SegmentedSieve::setBigPrimes() {
         }
     }
 }
+
+unsigned long SegmentedSieve::getCountBigPrimes() {
+    unsigned long count = 0;
+    for (long a = 0; a <= z; a ++) {
+        for (long b = 0; b <= z; b++) {
+            if (sieveArray[a][b]) {
+                count++;
+            }
+        }
+    }
+    return count;
+}

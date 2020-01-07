@@ -16,4 +16,5 @@ public:
     void crossOffMultiples(gint) override;
     void crossOffMultiplesAlt(gint);  // old method; keeping for reference
     void setBigPrimes() override;
+    unsigned long getCountBigPrimes() override;
 };

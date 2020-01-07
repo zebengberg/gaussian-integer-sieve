@@ -32,9 +32,8 @@ public:
     void printProgress(gint);
     void sortBigPrimes();
     void printBigPrimes();
-    void countBigPrimes();
     void writeBigPrimesToFile();
-    void run();  // run necessary sieve methods
+    void run();  // run necessary sieve methods; does not gather big primes
     vector<gint> getBigPrimes();  // return the big primes after run()
 
     // Virtual methods to be implemented in derived classes
@@ -42,6 +41,7 @@ public:
     virtual void setSieveArray() = 0;
     virtual void crossOffMultiples(gint) = 0;
     virtual void setBigPrimes() = 0;  // results of sieve
+    virtual unsigned long getCountBigPrimes() = 0;
 };
 
 

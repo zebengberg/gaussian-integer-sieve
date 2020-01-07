@@ -88,4 +88,30 @@ void OctantSieve::setBigPrimes() {
             }
         }
     }
+    if (display) {
+        cout << "Done with gathering." << endl;
+    }
+}
+
+unsigned long OctantSieve::getCountBigPrimes() {
+    if (display) {
+        cout << "Counting primes after sieve..." << endl;
+    }
+    unsigned long count = 1;  // explicitly avoiding ramifying prime 1 + i
+    for (long a = 2; a <= isqrt(x); a++) {
+        long intersection = long(sqrt(double(x) / 2.0));
+        long bBound = a <= intersection ? a : isqrt(x - a * a);
+        for (long b = 0; b <= bBound; b++) {
+            if (sieveArray[a][b]) {
+                count++;
+                if (b) {  // prime not on real axis
+                    count++;
+                }
+            }
+        }
+    }
+    if (display) {
+        cout << "Done with count." << endl;
+    }
+    return 4 * count;  // four quadrants
 }
