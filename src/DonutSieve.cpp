@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-#include "DonutSieve.hpp"
-#include "QuadrantSieve.hpp"
+#include "../include/DonutSieve.hpp"
+#include "../include/QuadrantSieve.hpp"
 using namespace std;
 
 

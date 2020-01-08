@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-#include "SegmentedSieve.hpp"
-#include "OctantSieve.hpp"
+#include "../include/SegmentedSieve.hpp"
+#include "../include/OctantSieve.hpp"
 using namespace std;
 
 // Using an initializer list

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
-#include "OctantSieve.hpp"
-#include "QuadrantSieve.hpp"
+#include "../include/OctantSieve.hpp"
+#include "../include/QuadrantSieve.hpp"
 using namespace std;
 
 void OctantSieve::setSmallPrimes() {

@@ -1,20 +1,9 @@
 #include <iostream>
-#include "QuadrantSieve.hpp"
-#include "OctantSieve.hpp"
-#include "DonutSieve.hpp"
-#include "SegmentedSieve.hpp"
-
+#include "../include/QuadrantSieve.hpp"
+#include "../include/OctantSieve.hpp"
+#include "../include/DonutSieve.hpp"
+#include "../include/SegmentedSieve.hpp"
 using namespace std;
-
-//int main(){
-//    if (argc != 2) {
-//        cerr << "Specify the sieve array norm bound." << endl;
-//        return 1;
-//    }
-//    long x = strtol(argv[1], nullptr, 10);  // convert command line input to long
-
-
-
 
 
 int main(int argc, const char* argv[]) {
@@ -35,6 +24,7 @@ int main(int argc, const char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         string arg = argv[i];
+        // Usage information.
         if ((arg == "-h") || (arg == "--help")) {
             cerr << "usage: " << argv[0] << " x [y z] [-h] [-v] [-p] [-w] [-a] [-c] [-q] [-o] [-d] [-s] \n"
                  << "\tx: the bound on the norm of the generated primes"
@@ -56,6 +46,7 @@ int main(int argc, const char* argv[]) {
             return 1;
         }
 
+        // Getting flags
         if ((arg == "-v") || (arg == "--verbose")) { verbose = true; }
         if ((arg == "-p") || (arg == "--printprimes")) { printPrimes = true; }
         if ((arg == "-w") || (arg == "--write")) { write = true; }
@@ -66,7 +57,7 @@ int main(int argc, const char* argv[]) {
         else if ((arg == "-o") || (arg == "--octant")) { sieveType = "octant"; }
         else if ((arg == "-s") || (arg == "--segmented")) { sieveType = "segmented"; }
 
-        // Use first char of string to determine if it is a number.
+        // Use first char of string to determine if string is a number.
         if (isdigit(arg.front())) {
             if (y) {
                 z = stol(arg);
@@ -77,6 +68,7 @@ int main(int argc, const char* argv[]) {
             }
         }
     }
+    // Very boilerplate, but sieve objects are distinct.
     if (sieveType == "donut") {
         DonutSieve s(x, verbose);
         s.run();

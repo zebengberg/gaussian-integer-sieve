@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-#include "BaseSieve.hpp"
+#include "../include/BaseSieve.hpp"
 
 // Will call this constructor from derived classes.
 SieveBase::SieveBase(long maxNorm, bool verbose)

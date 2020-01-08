@@ -1,5 +1,5 @@
 #include <iostream>
-#include "QuadrantSieve.hpp"
+#include "../include/QuadrantSieve.hpp"
 using namespace std;
 
 void QuadrantSieve::setSmallPrimes() {
