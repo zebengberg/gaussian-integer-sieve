@@ -19,6 +19,10 @@ objects = opt/BaseSieve.o opt/QuadrantSieve.o opt/OctantSieve.o opt/DonutSieve.o
 .PHONY: all
 all: $(objects) opt $(target)
 
+# Make opt/ directory if it doesn't exist.
+$(shell mkdir -p opt/)
+
+# Doing all the compiling
 opt/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
 	$(CC) $(CFLAGS) src/BaseSieve.cpp -o $@
 
@@ -42,4 +46,4 @@ $(target): $(objects) opt/main.o
 
 .PHONY: clean
 clean:
-	rm opt/*.o gintsieve
+	rm -r opt/ gintsieve
