@@ -1,27 +1,17 @@
 # editor build stuff
+cmake-build-debug/
+CMakeLists.txt
+
+# other annoying stuff
 .DS_Store
 .idea/
-images/.DS_Store
-cython/.DS_Store
-cython/__pycache__/
-cpp/.idea/
-cpp/.DS_Store
-cpp/c__
-cpp/c__.cbp
-cpp/cmake_install.cmake
-cpp/CMakeCache.txt
-cpp/CMakeLists.txt
-cpp/Makefile
-cpp/CMakeFiles/
 
-# cython build stuff
-cython/build/
-cython/gintsieve.cpp
+# other stuff
+data/
+
+# binaries
+bin/
 *.so
 
-
-
-
-
-# Generated files with list of primes
-data/
+# cython generated stuff
+python/gintsieve.cpp
