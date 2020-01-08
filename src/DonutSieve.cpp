@@ -47,8 +47,8 @@ DonutSieve::DonutSieve(long x, bool display)
 void DonutSieve::setSmallPrimes() {
     // Setting smallPrimes to the output of QuadrantSieve, which can generate
     // its own small primes.
-    if (display) {
-        cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
+    if (verbose) {
+        cerr << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
     }
     QuadrantSieve qs(isqrt(maxNorm), false);
     qs.run();
@@ -62,8 +62,8 @@ void DonutSieve::setSieveArray() {
     // entries in the grid [10a, 10a + 9] x [10b, 10b + 9].
 
     // Sieve array might stick out beyond boundary of disk -- we'll fix this in getBigPrimes.
-    if (display) {
-        cout << "Building sieve array..." << endl;
+    if (verbose) {
+        cerr << "Building sieve array..." << endl;
     }
     for (long a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
@@ -74,7 +74,7 @@ void DonutSieve::setSieveArray() {
     }
     setFalse(1, 0);  // 1 is not prime
     setFalse(0, 1);  // i is not prime
-    if (display) {
+    if (verbose) {
         printSieveArrayInfo();
     }
 }
@@ -136,8 +136,8 @@ void DonutSieve::setTrue(long u, long v) {
 }
 
 void DonutSieve::setBigPrimes() {
-    if (display) {
-        cout << "Gathering primes after sieve..." << endl;
+    if (verbose) {
+        cerr << "Gathering primes after sieve..." << endl;
     }
     // Putting in primes dividing 10.
     bigPrimes.emplace_back(1, 1);
@@ -161,14 +161,14 @@ void DonutSieve::setBigPrimes() {
             }
         }
     }
-    if (display) {
-        cout << "Done with gathering.\n" << endl;
+    if (verbose) {
+        cerr << "Done with gathering.\n" << endl;
     }
 }
 
 unsigned long DonutSieve::getCountBigPrimes() {
-    if (display) {
-        cout << "Counting primes after sieve..." << endl;
+    if (verbose) {
+        cerr << "Counting primes after sieve..." << endl;
     }
     unsigned long count = 3;  // 3 primes dividing 10
     for (long a = 0; a <= isqrt(x) / 10; a++) {
@@ -191,16 +191,17 @@ unsigned long DonutSieve::getCountBigPrimes() {
             }
         }
     }
-    if (display) {
-        cout << "Done with count." << endl;
-        cout << "Total number of primes, including associates: " << count << "\n" << endl;
+    if (verbose) {
+        cerr << "Done with count." << endl;
+        cerr << "Total number of primes, including associates: " << count << "\n" << endl;
     }
     return 4 * count;  // four quadrants
 }
 
 
 
-
+// Using this method to print out some of the member variables used in constructor.
+// This prints out necessary data for the donut.
 void DonutSieve::printDonutArrays() {
     SegmentedSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();

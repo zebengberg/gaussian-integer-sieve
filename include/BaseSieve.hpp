@@ -21,7 +21,7 @@ protected:
     long maxNorm;
     double progress;
     double totalProgress;
-    bool display;
+    bool verbose;
     vector<gint> smallPrimes;
     vector<gint> bigPrimes;
 
@@ -60,6 +60,6 @@ public:
 };
 
 
-// Useful functions
+// Useful library-style functions
 long isqrt(long);
 vector<gint> readPrimesFromFile(long);

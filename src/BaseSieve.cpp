@@ -6,10 +6,10 @@
 #include "BaseSieve.hpp"
 
 // Will call this constructor from derived classes.
-SieveBase::SieveBase(long maxNorm, bool display)
+SieveBase::SieveBase(long maxNorm, bool verbose)
     // initializer list
     : maxNorm(maxNorm)
-    , display(display)
+    , verbose(verbose)
     {
     progress = 0.0;
     // Using PNT to make approximate progress bar.
@@ -17,8 +17,8 @@ SieveBase::SieveBase(long maxNorm, bool display)
 }
 
 void SieveBase::sieve() {
-    if (display) {
-        cout << "Starting to sieve..." << endl;
+    if (verbose) {
+        cerr << "Starting to sieve..." << endl;
     }
     auto startTime = chrono::high_resolution_clock::now();
     for (gint g : smallPrimes) {
@@ -27,8 +27,8 @@ void SieveBase::sieve() {
     auto endTime = chrono::high_resolution_clock::now();
     auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
     double printTime = double(totalTime.count()) / 1000.0;
-    if (display) {
-        cout << "Done sieving. Total time for sieving: " << printTime << " seconds." << endl;
+    if (verbose) {
+        cerr << "Done sieving. Total time for sieving: " << printTime << " seconds." << endl;
     }
 }
 
@@ -36,11 +36,11 @@ void SieveBase::printProgress(gint g) {
     int barSize = 80;
     progress += 1.0 / double(g.norm());
     int barPos = int(double(barSize) * progress / totalProgress);
-    cout << "[";
-    for (int i = 0; i < barPos; i++) { cout << "|"; }
-    for (int i = barPos; i <= barSize; i++) { cout << " "; }
-    cout << "]\r";
-    cout.flush();
+    cerr << "[";
+    for (int i = 0; i < barPos; i++) { cerr << "|"; }
+    for (int i = barPos; i <= barSize; i++) { cerr << " "; }
+    cerr << "]\r";
+    cerr.flush();
 }
 
 void SieveBase::run() {
@@ -56,16 +56,16 @@ vector<gint> SieveBase::getBigPrimes() {
 }
 
 void SieveBase::sortBigPrimes() {
-    if (display) {
-        cout << "Sorting primes by norm..." << endl;
+    if (verbose) {
+        cerr << "Sorting primes by norm..." << endl;
     }
     sort(bigPrimes.begin(), bigPrimes.end()); }
 
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {
-        cout << g.a << "  " << g.b << "  " << g.norm() << endl;
+        cout << g.a << " " << g.b << endl;
     }
-    cout << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
+    cerr << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
 }
 
 void SieveBase::writeBigPrimesToFile() {
@@ -92,7 +92,7 @@ void SieveBase::setSmallPrimesFromFile() {
         cerr << "Unable to open file small_primes.txt";
         exit(1);
     } else {
-        cout << "Reading small primes from file." << endl;
+        cerr << "Reading small primes from file." << endl;
     }
 
     long a, b;
@@ -124,7 +124,7 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
         totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
     }
     totalSize /= pow(10, 6);  // convert to MB
-    cout << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
+    cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
 }
 
 template <>
@@ -134,7 +134,7 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
         totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
     }
     totalSize /= pow(10, 6);  // convert to MB
-    cout << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
+    cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
 }
 
 template <>
@@ -159,7 +159,7 @@ void SieveTemplate<bool>::printSieveArray() {
                 row += ' ';  // not in sieveArray
             }
         }
-        cout << row << endl;
+        cerr << row << endl;
     }
 }
 
@@ -190,7 +190,7 @@ void SieveTemplate<unsigned int>::printSieveArray() {
                 row += string(9, ' ');
             }
         }
-        cout << row << endl;
+        cerr << row << endl;
     }
 }
 

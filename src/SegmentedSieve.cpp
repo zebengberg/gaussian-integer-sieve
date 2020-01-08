@@ -14,8 +14,8 @@ SegmentedSieve::SegmentedSieve(long x, long y, long z, bool display)
 
 // Method from SieveBase doesn't give enough primes, so calling the trusty octant sieve.
 void SegmentedSieve::setSmallPrimes() {
-    if (display) {
-        cout << "Calling the OctantSieve to generate smallPrimes..." << endl;
+    if (verbose) {
+        cerr << "Calling the OctantSieve to generate smallPrimes..." << endl;
     }
     OctantSieve s(isqrt(maxNorm), false);
     s.run();
@@ -25,14 +25,14 @@ void SegmentedSieve::setSmallPrimes() {
 
 void SegmentedSieve::setSieveArray() {
     // sieveArray holds values for Gint's with x <= a <= x + z and y <= b <= y + z
-    if (display) {
-        cout << "Building sieve array..." << endl;
+    if (verbose) {
+        cerr << "Building sieve array..." << endl;
     }
     for (long i = 0; i <= z; i ++) {
         vector<bool> column((unsigned long)(z + 1), true);
         sieveArray.push_back(column);
     }
-    if (display) {
+    if (verbose) {
         printSieveArrayInfo();
     }
 }

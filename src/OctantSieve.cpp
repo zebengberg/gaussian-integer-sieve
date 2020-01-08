@@ -7,8 +7,8 @@ using namespace std;
 void OctantSieve::setSmallPrimes() {
     // Setting smallPrimes to the output of QuadrantSieve, which can generate
     // its own small primes.
-    if (display) {
-        cout << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
+    if (verbose) {
+        cerr << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
     }
     QuadrantSieve qs(isqrt(maxNorm), false);
     qs.run();
@@ -17,8 +17,8 @@ void OctantSieve::setSmallPrimes() {
 
 void OctantSieve::setSieveArray() {
     // sieveArray holds values for Gint's with a, b >= 0, a >= b, and a^2 + b^2 <= x.
-    if (display) {
-        cout << "Building sieve array..." << endl;
+    if (verbose) {
+        cerr << "Building sieve array..." << endl;
     }
     for (long a = 0; a <= isqrt(x); a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
@@ -29,7 +29,7 @@ void OctantSieve::setSieveArray() {
     }
     sieveArray[0][0] = false;  // 0 is not prime
     sieveArray[1][0] = false;  // 1 is not prime
-    if (display) {
+    if (verbose) {
         printSieveArrayInfo();
     }
 }
@@ -65,14 +65,14 @@ void OctantSieve::crossOffMultiples(gint g) {
     } else {
         sieveArray[g.b][g.a] = true; // conjugate crossed this off
     }
-    if (display) {
+    if (verbose) {
         printProgress(g);
     }
 }
 
 void OctantSieve::setBigPrimes() {
-    if (display) {
-        cout << "Gathering primes after sieve..." << endl;
+    if (verbose) {
+        cerr << "Gathering primes after sieve..." << endl;
     }
     bigPrimes.emplace_back(1, 1);  // explicitly avoiding ramifying prime 1 + i
     for (long a = 2; a <= isqrt(x); a++) {
@@ -88,14 +88,14 @@ void OctantSieve::setBigPrimes() {
             }
         }
     }
-    if (display) {
-        cout << "Done with gathering.\n" << endl;
+    if (verbose) {
+        cerr << "Done with gathering.\n" << endl;
     }
 }
 
 unsigned long OctantSieve::getCountBigPrimes() {
-    if (display) {
-        cout << "Counting primes after sieve..." << endl;
+    if (verbose) {
+        cerr << "Counting primes after sieve..." << endl;
     }
     unsigned long count = 1;  // explicitly avoiding ramifying prime 1 + i
     for (long a = 2; a <= isqrt(x); a++) {
@@ -110,9 +110,9 @@ unsigned long OctantSieve::getCountBigPrimes() {
             }
         }
     }
-    if (display) {
-        cout << "Done with count." << endl;
-        cout << "Total number of primes, including associates: " << count << "\n" << endl;
+    if (verbose) {
+        cerr << "Done with count." << endl;
+        cerr << "Total number of primes, including associates: " << count << "\n" << endl;
     }
     return 4 * count;  // four quadrants
 }
