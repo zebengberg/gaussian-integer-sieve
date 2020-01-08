@@ -9,8 +9,9 @@ CMakeLists.txt
 # other stuff
 data/
 
-# object files
-obj/
+# binaries and object files
+gintsieve
+bin/
 *.so
 
 # cython generated stuff
