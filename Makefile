@@ -9,35 +9,36 @@
 CC = g++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
-TARGET = gintsieve
-SOURCES  := src/*.cpp
-INCLUDES := include/*.hpp
-OBJECTS  := bin/BaseSieve.o bin/QuadrantSieve.o bin/OctantSieve.o bin/DonutSieve.o bin/SegmentedSieve.o bin/main.o
+target = gintsieve
+# Not including main.cpp in these three variables
+sources := src/BaseSieve.cpp src/QuadrantSieve.cpp src/OctantSieve.cpp src/DonutSieve.cpp src/SegmentedSieve.cpp
+headers := include/BaseSieve.hpp include/QuadrantSieve.hpp include/OctantSieve.hpp include/DonutSieve.hpp include/SegmentedSieve.hpp
+objects := opt/BaseSieve.o opt/QuadrantSieve.o opt/OctantSieve.o opt/DonutSieve.o opt/SegmentedSieve.o
 
 .PHONY: all
-all: $(OBJECTS) $(TARGET)
+all: $(objects) opt $(target)
 
-bin/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
+opt/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
 	$(CC) $(CFLAGS) src/BaseSieve.cpp -o $@
 
-bin/QuadrantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp
+opt/QuadrantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp
 	$(CC) $(CFLAGS) src/QuadrantSieve.cpp -o $@
 
-bin/OctantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp src/OctantSieve.cpp include/OctantSieve.hpp
+opt/OctantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp src/OctantSieve.cpp include/OctantSieve.hpp
 	$(CC) $(CFLAGS) src/OctantSieve.cpp -o $@
 
-bin/DonutSieve.o: $(INCLUDES) $(SOURCES)
+opt/DonutSieve.o: $(sources) $(headers)
 	$(CC) $(CFLAGS) src/DonutSieve.cpp -o $@
 
-bin/SegmentedSieve.o: $(INCLUDES) $(SOURCES)
+opt/SegmentedSieve.o: $(sources) $(headers)
 	$(CC) $(CFLAGS) src/SegmentedSieve.cpp -o $@
 
-bin/main.o: $(INCLUDES) $(SOURCES)
+opt/main.o: $(sources) $(headers) src/main.cpp
 	$(CC) $(CFLAGS) src/main.cpp -o $@
 
-$(TARGET): $(OBJECTS)
-	$(CC) -o $(TARGET) $(OBJECTS)
+$(target): $(objects) opt/main.o
+	$(CC) -o $@ $^
 
 .PHONY: clean
 clean:
-	rm bin/*.o gintsieve
+	rm opt/*.o gintsieve

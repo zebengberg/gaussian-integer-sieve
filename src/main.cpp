@@ -8,7 +8,8 @@ using namespace std;
 
 int main(int argc, const char* argv[]) {
     if (argc < 2) {
-        cerr << "Cannot understand input. Type <" << argv[0] << " --help> for help." << endl;
+        cerr << "\n";
+        cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
         return 1;
     }
 
@@ -26,22 +27,23 @@ int main(int argc, const char* argv[]) {
         string arg = argv[i];
         // Usage information.
         if ((arg == "-h") || (arg == "--help")) {
-            cerr << "usage: " << argv[0] << " x [y z] [-h] [-v] [-p] [-w] [-a] [-c] [-q] [-o] [-d] [-s] \n"
-                 << "\tx: the bound on the norm of the generated primes"
-                 << "\ty: coordinates (x, y) are the lower left-hand corner of the block used in the segmented sieve"
-                 << "\tz: the side length of the square block used in the segmented sieve"
+            cerr << "\n";
+            cerr << "usage: " << argv[0] << " x [y z] [-h] [-v] [-p] [-w] [-a] [-c] [-q] [-o] [-d] [-s]\n"
+                 << "    x                   the bound on the norm of the generated primes\n"
+                 << "    y                   coordinates (x, y) are lower left corner of block in segmented sieve\n"
+                 << "    z                   the side length of the square block used in the segmented sieve\n\n"
                  << "options:\n"
-                 << "\t-h, --help\t\tshow this help message\n"
-                 << "\t-v, --verbose\t\tdisplay sieving progress\n"
-                 << "\t-p, --printprimes\t\tprint out the results of the sieve\n"
-                 << "\t-w, --write\t\twrite primes to csv file in current directory\n"
-                 << "\t-a, --printarray\t\tprint a text representation of the sieve array\n"
-                 << "\t-c, --count\t\tcount the number of generated primes and exit program\n"
-                 << "\t-q, --quadrant\t\tthe sieve array contains all Gaussian integers in the first quadrant\n"
-                 << "\t-o, --octant\t\tthe sieve array contains all Gaussian integers in the first octant\n"
-                 << "\t-d, --donut\t\tthe sieve array contains Gaussian integers in the first octant coprime to 2 and 5\n"
-                 << "\t-s, --segment\t\tthe sieve array contains Gaussian integers of the form a + b*i with\n"
-                 << "\t\t\t             x <= a <= x + z and y <= b <= y + z"
+                 << "    -h, --help          show this help message\n"
+                 << "    -v, --verbose       display sieving progress\n"
+                 << "    -p, --printprimes   print out the results of the sieve\n"
+                 << "    -w, --write         write primes to csv file in current directory\n"
+                 << "    -a, --printarray    print a text representation of the sieve array\n"
+                 << "    -c, --count         count the number of generated primes and exit program\n"
+                 << "    -q, --quadrant      sieve array contains all Gaussian integers in the first quadrant\n"
+                 << "    -o, --octant        sieve array contains all Gaussian integers in the first octant\n"
+                 << "    -d, --donut         sieve array contains Gaussian integers in first octant coprime to 2 and 5\n"
+                 << "    -s, --segment       sieve array contains Gaussian integers of form a + bi with\n"
+                 << "                        x <= a <= x + z and y <= b <= y + z\n"
                  << std::endl;
             return 1;
         }
@@ -68,6 +70,15 @@ int main(int argc, const char* argv[]) {
             }
         }
     }
+    // If x hasn't been parsed, abort.
+    if (!x) {
+        cerr << "\n";
+        cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
+        return 1;
+    }
+
+
+    if (verbose) { cerr << '\n' << endl; }
     // Very boilerplate, but sieve objects are distinct.
     if (sieveType == "donut") {
         DonutSieve s(x, verbose);

@@ -11,7 +11,7 @@ data/
 
 # binaries and object files
 gintsieve
-bin/
+opt/
 *.so
 
 # cython generated stuff
