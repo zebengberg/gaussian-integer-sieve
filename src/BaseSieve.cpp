@@ -70,7 +70,7 @@ void SieveBase::printBigPrimes() {
 
 void SieveBase::writeBigPrimesToFile() {
     ofstream f;
-    f.open("../data/cpp_primes.csv");
+    f.open("cpp_primes.csv");
     for (gint g : bigPrimes) {
         f << g.a << ' ' << g.b << endl;
     }
@@ -87,9 +87,9 @@ void SieveBase::setSmallPrimesFromFile() {
     }
     // small_primes.txt contains a list of Gaussian primes sorted by norm.
     ifstream f;
-    f.open("../data/small_primes.txt");
+    f.open("PUT IN PATH TO FILE");
     if (!f) {
-        cerr << "Unable to open file small_primes.txt";
+        cerr << "Unable to open file.";
         exit(1);
     } else {
         cerr << "Reading small primes from file." << endl;
@@ -105,7 +105,7 @@ void SieveBase::setSmallPrimesFromFile() {
         g = gint(a, b);
         // If we get to the end of the file, then we don't have enough precomputed primes.
         if (f.eof()) {
-            cerr << "Not enough primes in small_primes.txt!" << endl;
+            cerr << "Not enough primes in PATH TO FILE" << endl;
             cerr << "Need to override this method with a sieve instance." << endl;
             f.close();
             exit(1);

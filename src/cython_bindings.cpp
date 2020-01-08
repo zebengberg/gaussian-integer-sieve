@@ -1,10 +1,8 @@
-#include "cython_bindings.hpp"
-#include "QuadrantSieve.hpp"
-#include "OctantSieve.hpp"
-#include "DonutSieve.hpp"
-#include "SegmentedSieve.hpp"
+#include "../include/cython_bindings.hpp"
+#include "../include/QuadrantSieve.hpp"
+#include "../include/DonutSieve.hpp"
+#include "../include/SegmentedSieve.hpp"
 #include <cmath>
-
 
 
 vector<pair<long, long>> gPrimes(long x) {

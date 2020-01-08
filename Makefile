@@ -1,4 +1,4 @@
-# Useful "automatic variables":
+# Useful "automatic variables" for makefiles.
 # $@: the target filename.
 # $*: the target filename without the file extension.
 # $<: the first prerequisite filename.
@@ -9,6 +9,7 @@
 CC = g++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
+# Main executable.
 target = gintsieve
 # Not including main.cpp in these three variables
 sources = src/BaseSieve.cpp src/QuadrantSieve.cpp src/OctantSieve.cpp src/DonutSieve.cpp src/SegmentedSieve.cpp

@@ -4,13 +4,13 @@ import shutil
 import os
 
 
-sources = ['gintsieve.pyx',
-           '../cpp/main.cpp',
-           '../cpp/BaseSieve.cpp',
-           '../cpp/QuadrantSieve.cpp',
-           '../cpp/OctantSieve.cpp',
-           '../cpp/DonutSieve.cpp',
-           '../cpp/SegmentedSieve.cpp']
+sources = ['src/gintsieve.pyx',
+           '../src/cython_bindings.cpp',
+           '../src/BaseSieve.cpp',
+           '../src/QuadrantSieve.cpp',
+           '../src/OctantSieve.cpp',
+           '../src/DonutSieve.cpp',
+           '../src/SegmentedSieve.cpp']
 
 extensions = [Extension('gintsieve',
                         sources=sources,
@@ -23,6 +23,8 @@ setup(ext_modules=cythonize(extensions))
 
 # Cleaning up after the cythonize build
 shutil.rmtree('build/')
+# Removing the cython generated .cpp
+os.remove('src/gintsieve.cpp')
 
 # Rename the shared object file gintsieve.xxxxxx.so
 for file in os.listdir('.'):

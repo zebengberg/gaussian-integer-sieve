@@ -196,7 +196,7 @@ unsigned long DonutSieve::getCountBigPrimes() {
         cerr << "Done with count." << endl;
         cerr << "Total number of primes, including associates: " << count << "\n" << endl;
     }
-    return 4 * count;  // four quadrants
+    return count;  // four quadrants
 }
 
 

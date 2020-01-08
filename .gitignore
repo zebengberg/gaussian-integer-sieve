@@ -6,9 +6,6 @@ CMakeLists.txt
 .DS_Store
 .idea/
 
-# other stuff
-data/
-
 # binaries and object files
 gintsieve
 opt/
