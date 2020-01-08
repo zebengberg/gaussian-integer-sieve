@@ -11,9 +11,9 @@ CFLAGS = -c -std=c++11 -stdlib=libc++
 
 target = gintsieve
 # Not including main.cpp in these three variables
-sources := src/BaseSieve.cpp src/QuadrantSieve.cpp src/OctantSieve.cpp src/DonutSieve.cpp src/SegmentedSieve.cpp
-headers := include/BaseSieve.hpp include/QuadrantSieve.hpp include/OctantSieve.hpp include/DonutSieve.hpp include/SegmentedSieve.hpp
-objects := opt/BaseSieve.o opt/QuadrantSieve.o opt/OctantSieve.o opt/DonutSieve.o opt/SegmentedSieve.o
+sources = src/BaseSieve.cpp src/QuadrantSieve.cpp src/OctantSieve.cpp src/DonutSieve.cpp src/SegmentedSieve.cpp
+headers = include/BaseSieve.hpp include/QuadrantSieve.hpp include/OctantSieve.hpp include/DonutSieve.hpp include/SegmentedSieve.hpp
+objects = opt/BaseSieve.o opt/QuadrantSieve.o opt/OctantSieve.o opt/DonutSieve.o opt/SegmentedSieve.o
 
 .PHONY: all
 all: $(objects) opt $(target)

@@ -2,9 +2,7 @@
 #include "../include/QuadrantSieve.hpp"
 #include "../include/OctantSieve.hpp"
 #include "../include/DonutSieve.hpp"
-#include "../include/SegmentedSieve.hpp"
 using namespace std;
-
 
 int main(int argc, const char* argv[]) {
     if (argc < 2) {
@@ -77,7 +75,6 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
-
     if (verbose) { cerr << '\n' << endl; }
     // Very boilerplate, but sieve objects are distinct.
     if (sieveType == "donut") {
@@ -94,7 +91,7 @@ int main(int argc, const char* argv[]) {
             s.writeBigPrimesToFile();
         }
         // Default behavior if no useful options passed in.
-        if (printPrimes || (!printPrimes && !printArray && !write)) {
+        if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {
             s.printBigPrimes();
         }
     } else if (sieveType == "quadrant") {
@@ -112,7 +109,7 @@ int main(int argc, const char* argv[]) {
             return 0;
         }
         // Default behavior if no useful options passed in.
-        if (printPrimes || (!printPrimes && !printArray && !write)) {
+        if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {
             s.printBigPrimes();
         }
     } else if (sieveType == "octant") {
@@ -130,7 +127,7 @@ int main(int argc, const char* argv[]) {
             s.writeBigPrimesToFile();
         }
         // Default behavior if no useful options passed in.
-        if (printPrimes || (!printPrimes && !printArray && !write)) {
+        if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {
             s.printBigPrimes();
         }
     } else {
@@ -147,7 +144,7 @@ int main(int argc, const char* argv[]) {
             s.writeBigPrimesToFile();
         }
         // Default behavior if no useful options passed in.
-        if (printPrimes || (!printPrimes && !printArray && !write)) {
+        if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {
             s.printBigPrimes();
         }
     }
@@ -156,13 +153,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-///*
-// * //TODO:
-// * get cpp main going from command line
-// * main.cpp x, y, z -sieve -print -write -count
-// * rewrite count function so no overhead to call them through python
-// * don't let count function build bigPrimes
-// * determine if make file necessary
+///* TODO
 // * write naive algorithm in c++
 // * use primesieve with naive algorithm
 // * write tests.cpp file
