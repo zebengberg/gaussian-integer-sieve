@@ -132,17 +132,16 @@ Once the python module is built, we can import it into python and use it as in t
 [(1, 1), (2, 1), (1, 2), (3, 0), (3, 2), (2, 3), (4, 1), (1, 4), (5, 2), (2, 5), (6, 1), (1, 6)]
 
 # Instead of returning a list, we can count the Gaussian primes.
->>> gprimes_count(3141526535)
-Calling the QuadrantSieve to generate smallPrimes...
-Building sieve array...
-Sieve array approximate memory use: 49MB.
-Starting to sieve...
-Done sieving. Total time for sieving: 13.83 seconds.
-Counting primes after sieve...
-Done with count.
-Total number of primes, including associates: 603713636
-
-
+>>> gprimes_count(3141592653)
+# Calling the QuadrantSieve to generate smallPrimes...
+# Building sieve array...
+# Sieve array approximate memory use: 49MB.
+# Starting to sieve...
+# Done sieving. Total time for sieving: 15.499 seconds.
+# Counting primes after sieve...
+# Done with count.
+# Total number of primes, including associates: 603726004
+603726004
 
 # The function gprimes actually returns an object that can be plotted. Below we get a
 # block of Gaussian primes generated with a segmented sieve.
