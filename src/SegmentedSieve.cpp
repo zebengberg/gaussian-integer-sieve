@@ -5,11 +5,11 @@
 using namespace std;
 
 // Using an initializer list
-SegmentedSieve::SegmentedSieve(long x, long y, long z, bool display)
-    : SieveTemplate<bool>((x + z) * (y + z), display)  // calling SieveTemplate constructor to set maxNorm
+SegmentedSieve::SegmentedSieve(long x, long y, long z, bool verbose)
+    : SieveTemplate<bool>((x + z - 1) * (y + z - 1), verbose)  // calling SieveTemplate constructor to set maxNorm
     , x(x)  // x-coordinate of lower left-hand corner of segment block
     , y(y)  // y-coordinate of lower left-hand corner of segment block
-    , z(z)  // side length of segment block
+    , z(z-1)  // side length of segment block; NOTE: originally included x+z, now excluding it.
 {}
 
 // Method from SieveBase doesn't give enough primes, so calling the trusty octant sieve.
@@ -28,7 +28,7 @@ void SegmentedSieve::setSieveArray() {
     if (verbose) {
         cerr << "Building sieve array..." << endl;
     }
-    for (long i = 0; i <= z; i ++) {
+    for (long i = 0; i <= z; i++) {
         vector<bool> column((unsigned long)(z + 1), true);
         sieveArray.push_back(column);
     }
