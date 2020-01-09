@@ -23,71 +23,144 @@ The goal of this project is to build an efficient implementation of a prime gene
 
 ## Install
 
-This entire repository can be cloned or downloaded for use.
-
-The python module `simple_sieve.py` can be imported into a python console or run directly from the command line. After an initial list of "small" primes is generated and stored to file, the C++ file `simple_sieve.cpp` can be compiled and run. See the first example below for details.
-
-## Examples
-
-To generate all Gaussian integer primes with norm up to 10000, enter
+This entire repository can be cloned or downloaded for use. To build the executable on a macOS, cd into the
+ `gaussian-integer-sieve` directory and run
 ```shell script
-$ cython simple_sieve.py 10000
+$ make
 ```
-into the command line from within the `python` folder of this repository. This command will write the primes generated to a text file which can then be read by the C++ program `simple_sieve.cpp`. A text file containing a list of primes with norm up to sqrt(x) is needed in order to use `simple_sieve.cpp` to generate primes with norm up to x. 
+This requires a C++ compiler supporting both C++11 and the `libc++` library as well as `make`. On macOS, they can be
+ installed with `xcode-select --install`.
 
-The python module `simple_sieve.py` can also be imported into a python script as seen in the examples below.
+ The Cython bindings can be built from source with
+ ```shell script
+$ python setup.py build_ext --inplace
+```
+from within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the
+ aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a
+  python script.
+
+
+## Command line usage
+Command line options include:
+```
+Usage: ./gintsieve x [y z] [option1] [option2] ...
+Generate Gaussian primes with norm up to x using sieving methods.
+    x                   The norm-bound of the generated primes
+    y                   Coordinates (x, y) of SW-corner of block in segmented sieve.
+    z                   Side length block in segmented sieve.
+
+Options:
+    -h, --help          Print this help message.
+    -v, --verbose       Display sieving progress.
+    -p, --printprimes   Print the real and imag part of primes found by the sieve.
+    -w, --write         Write primes to csv file in working directory.
+    -a, --printarray    Print a text representation of the sieve array.
+    -c, --count         Count the number of generated primes and exit program.
+    -q, --quadrant      Sieve array consists of Gaussian integers in the first quadrant.
+    -o, --octant        Sieve array consists of Gaussian integers in the first octant.
+    -d, --donut         Sieve array consists of Gaussian integers in first octant
+                        coprime to 2 and 5.
+    -s, --segmented     Sieve array consists of Gaussian integers of form a + bi with
+                        x <= a < x + z and y <= b < y + z.
+```
+For example, to get the real and imaginary parts of the Gaussian primes with norm up to 60 sorted by norm, run:
+```shell script
+$ ./gintsieve 60
+1 1
+2 1
+1 2
+3 0
+3 2
+2 3
+4 1
+1 4
+5 2
+2 5
+6 1
+1 6
+5 4
+4 5
+7 0
+7 2
+2 7
+Total number of primes, including associates: 68
+```
+Many of the sieving algorithms can be visualized by using the `-a` option to print the sieve array after the sieving
+ is finished. For example, we can see a hexidecimal encoding of the donut sieving with:
+ ```shell script
+$ ./gintsieve 15000 -d -a
+                                                                        bf6edbef ffffffec                            
+                                                               434cdbff e01dbe2c db48e06c ffffffff                   
+                                                      0aedf3ff c0120c78 88730b2e 0aae83e5 fffff145                   
+                                             6fdcd7ff 1f08ddf0 eed55590 d18b13c7 35e62db2 c3496c47 fffffffc          
+                                    f65cffef 70113512 369847a3 36968225 e82622d5 1149408b 9490ea99 fffede51          
+                           43eedbff f8cba42e 51413f89 082e18b5 88face6d 2a0c2722 5316d330 fb516844 ff0946a4          
+                  0bffdfef 0e47b6da 25f0b9da f9245714 87cac0ea 8894d858 8f4c51d5 9602fc1a 6914b816 792d101d fffffffe 
+         f3ceffef ac979b9b be4c61d3 94f6cea5 64332c6d 660ea2b6 1196506d 40fdb31f 2a1e034f 35c0ac56 08b210f2 ffffffd0 
+5fffffee bb73ba7f c9767527 1739d9f0 c3a99523 bf5e23a4 199f8080 f06afb52 554124ac 4f237261 48e00f02 c5530187 fffffc25 
+```
+To see the primality of a 15 x 15 block of Gaussian integers way out the in complex plane, we run:
+```shell script
+$ ./gintsieve 100000000 300000000 15 -a -s
+---------------
+---------------
+-------------*-
+--------------*
+---*-------*---
+---------------
+---------------
+---------------
+---------*-----
+------*--------
+---------------
+---------------
+---*---------*-
+---------------
+-*-------------
+```
+
+## Python bindings
+
+Once the python module is built, we can import it into python and use it as in the following examples.
+
 
 ```Python
->>>  from simple_sieve import simple_sieve, visualize
+>>>  from gintsieve import *
 
-# Generate Gaussian integer primes with norm up to 50 sorted lexicographically.
->>>  simple_sieve(50)
-[(1, 1),
- (1, 2),
- (1, 4),
- (1, 6),
- (2, 1),
- (2, 3),
- (2, 5),
- (3, 0),
- (3, 2),
- (4, 1),
- (4, 5),
- (5, 2),
- (5, 4),
- (6, 1),
- (7, 0)]
+# Generate a list of tuples representing Gaussian primes with norm up to 50 sorted by norm.
+>>> gprimes(40)
+[(1, 1), (2, 1), (1, 2), (3, 0), (3, 2), (2, 3), (4, 1), (1, 4), (5, 2), (2, 5), (6, 1), (1, 6)]
 
-# Generate Gaussian integer primes with norm up to 50 sorted by norm.
->>>  simple_sieve(50, sort=True)
-[(1, 1),
- (1, 2),
- (2, 1),
- (3, 0),
- (2, 3),
- (3, 2),
- (1, 4),
- (4, 1),
- (2, 5),
- (5, 2),
- (1, 6),
- (6, 1),
- (4, 5),
- (5, 4),
- (7, 0)]
+# Instead of returning a list, we can count the Gaussian primes.
+>>> gprimes_count(3141526535)
+Calling the QuadrantSieve to generate smallPrimes...
+Building sieve array...
+Sieve array approximate memory use: 49MB.
+Starting to sieve...
+Done sieving. Total time for sieving: 13.83 seconds.
+Counting primes after sieve...
+Done with count.
+Total number of primes, including associates: 603713636
 
-# Plot the Gaussian primes in the first quadrant with norm up to 10000.
->>>  x = 10000
->>>  P = simple_sieve(x)
->>>  visualize(P, x)
+
+
+# The function gprimes actually returns an object that can be plotted. Below we get a
+# block of Gaussian primes generated with a segmented sieve.
+>>> p = gprimes(123456, 67890, 100)
+>>> p.visualize()
+```
+![Segmented Block](/images/block.png)
+```Python
+# Plot the Gaussian primes in the first quadrant with norm up to 10000. Use the save flag to write the image to disk.
+>>> p = gprimes(10000)
+>>> p.visualize(save=True)
 ```
 ![First Quadrant](/images/first_quadrant.png)
 
 ```python
-# Plot the Gaussian primes in the full complex plane with norm up to 1000.
->>>  x = 1000
->>>  P = simple_sieve(x)
->>>  visualize(P, x, full_disk=True)
+# Plot the Gaussian primes as well as their associates with norm up to 1000.
+>>> p = gprimes(1000)
+>>> p.visualize(full_disk=True)
 ```
 ![Full Plane](/images/full_plane.png)
 

@@ -38,7 +38,7 @@ class GintList(list):
         else:
             self.sieve = 'to_norm'
 
-    def visualize(self, full_disk=False):
+    def visualize(self, full_disk=False, save=False):
         """Plot Gaussian primes with Matplotlib."""
 
         reals = [p[0] for p in self]
@@ -65,9 +65,13 @@ class GintList(list):
                 plt.plot(reals, imags, 'bo', markersize=200 / (self.x ** .5))
         else:
             # Plotting segment.
-            plt.plot(reals, imags, 'bo', markersize=20 / self.z)
+            plt.plot(reals, imags, 'ro', markersize=300 / self.z)
+
+        if save:
+            plt.savefig('sieve_visual.png')
 
         plt.show()
+
 
     def to_complex(self):
         """Convert list of tuples to list of complex numbers."""

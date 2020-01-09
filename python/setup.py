@@ -18,7 +18,13 @@ extensions = [Extension('gintsieve',
                         extra_link_args=['-std=c++11', '-stdlib=libc++'],
                         language='c++')]
 
-setup(ext_modules=cythonize(extensions))
+setup(
+    name='gintsieve',
+    version='1.0',
+    url='https://github.com/zebengberg/gaussian-integer-sieve',
+    author='Zeb Engberg',
+    license='MIT',
+    ext_modules=cythonize(extensions))
 
 
 # Cleaning up after the cythonize build

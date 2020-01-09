@@ -6,7 +6,7 @@
 # $+: similar to $^, but includes duplicates.
 # $?: the names of all prerequisites that are newer than the target, separated by spaces.
 
-CC = g++
+CC = clang++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
 # Main executable.
