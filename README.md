@@ -5,14 +5,17 @@
 
 ## Table of Contents
 
-- [Background](#background)
+- [Gaussian Integers](#gints)
 - [Install](#install)
-- [Examples](#examples)
+- [Command line usage](#usage)
+- [Python bindings](#bindings)
+- [Sieving](#sieving)
 - [Algorithm](#algorithm)
+- [Applications](#appplications)
 - [License](#license)
 
 
-## Background
+## Gaussian Integers
 
 The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit** with the property that i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the rational integers, denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
 
@@ -155,7 +158,6 @@ Once the python module is built, we can import it into python and use it as in t
 >>> p.visualize(save=True)
 ```
 ![First Quadrant](/images/first_quadrant.png)
-
 ```python
 # Plot the Gaussian primes as well as their associates with norm up to 1000.
 >>> p = gprimes(1000)
@@ -163,11 +165,19 @@ Once the python module is built, we can import it into python and use it as in t
 ```
 ![Full Plane](/images/full_plane.png)
 
-## Implementation
 
-With prime generating sieves, we often work with a *sieve array* A and a set of primes P. For each prime p in P, the sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an array of booleans indexed by elements of A. The state of each boolean tracks if the element has yet been crossed off by some prime p in P.
+## Sieving
 
-Working within the Gaussian integers, our sieve array A is a 2-dimensional object indexed by Gaussian integers. In native python, this can be implemented with a list of lists. We can also use a 2-dimensional *numpy* array. In C++, we can use the built-in array, or vector, or another class of container.
+
+
+
+With prime generating sieves, we often work with a *sieve array* A and a set of primes P. For each prime p in P, the
+ sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an
+  array of booleans indexed by elements of A. The state of each boolean tracks if the element has yet been crossed
+   off by some prime p in P.
+
+Working within the Gaussian integers, our sieve array A is a 2-dimensional object indexed by Gaussian integers. In
+ native python, this can be implemented with a list of lists. We can also use a 2-dimensional *numpy* array. In C++, we can use the built-in array, or vector, or another class of container.
 
 In python 3.7, the boolean `True` takes up 28 bytes of memory storage. The vast majority of this is overhead; in theory, a boolean value should only occupy a single bit of space. Even in C++, a single boolean value requires a full byte of memory. One issue involved with storing a boolean value into a smaller storage space is that modern computers do not allow pointers to individual bits in memory. In C++, there are various ways around this issue such as the `bitset` object.
 
@@ -178,7 +188,21 @@ In `simple_sieve.py` and `simple_sieve.cpp`, I use native booleans to track the 
 Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy.
 
 
-## Simple sieving algorithm
+## Algorithms
+
+There are several immediate methods that can be used to find all prime numbers in *Z[i]* up to norm *x*. We describe
+ three below.
+ 1. Using the sieve of Eratosthenes in *Z*, generate all prime numbers up to *x* as some array *A*. According to
+  elementary number theory, a Gaussian integer *a + bi* with *a > 0* and *b >= 0* is prime if and only if *N(a + bi
+  * is a prime in *Z* or *b = 0* and *a* is a prime in *Z*. Using the sieve takes *O(x log log x)* steps, and
+   checking each Gaussian integer for primality in this way takes *O(x)* steps. The entire runtime of this algorithm
+    is *O(x log log x)*.
+ 2. 
+
+
+
+
+
 
 The module `simple_sieve.py` can be used to generate Gaussian integer primes with norm up to x. This algorithm is summarized in the following steps.
 
@@ -198,6 +222,8 @@ These two approaches have trade-offs. The first approach can be implemented with
 
 
 The program `simple_sieve.cpp` takes a similar approach to the implementation in python. The only difference here is that `simple_sieve.cpp` reads a file containing a list of small primes used to sieve rather than generating such primes on the fly (as is done in `simple_sieve.py`). This C++ implementation requires a list of primes with norm up to sqrt(x) so that it can sieve to compute all primes with norm up to x.
+
+## Applications
 
 
 
