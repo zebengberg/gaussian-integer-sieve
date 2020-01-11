@@ -190,13 +190,13 @@ Results of this repository can be verified with [http://oeis.org/A091100](http:/
 
 ## Algorithms
 
-There are several immediate methods that can be used to find all prime numbers in *Z[i]* up to norm *x*. We describe
+There are several immediate methods that can be used to find all prime numbers in **Z[i]** up to norm **x**. We describe
  three below.
- 1. Using the sieve of Eratosthenes in *Z*, generate all prime numbers up to *x* as some array *A*. According to
-  elementary number theory, a Gaussian integer *a + bi* with *a > 0* and *b >= 0* is prime if and only if *N(a + bi
-  * is a prime in *Z* or *b = 0* and *a* is a prime in *Z*. Using the sieve takes *O(x log log x)* steps, and
-   checking each Gaussian integer for primality in this way takes *O(x)* steps. The entire runtime of this algorithm
-    is *O(x log log x)*.
+ 1. Using the sieve of Eratosthenes in **Z**, generate all prime numbers up to **x** as some array **A**. According to
+  elementary number theory, a Gaussian integer **a + bi** with **a > 0** and **b >= 0** is prime if and only if **N(a
+   + bi)** is a prime in **Z** or **b = 0** and **a** is a prime in **Z**. Using the sieve takes **O(x log log x
+   )** steps, and checking each Gaussian integer for primality in this way takes **O(x)** steps. The entire runtime of
+    this algorithm is **O(x log log x)**.
  2. 
 
 
