@@ -5,10 +5,10 @@
 
 ## Table of Contents
 
-- [Gaussian Integers](#gints)
+- [Gaussian Integers](#gaussian-integers)
 - [Install](#install)
-- [Command line usage](#usage)
-- [Python bindings](#bindings)
+- [Command line usage](#command-line-usage)
+- [Python bindings](#python-bindings)
 - [Sieving](#sieving)
 - [Algorithm](#algorithm)
 - [Implementation](#implementation)
@@ -215,7 +215,7 @@ This simply requires a double for-loop (once over c and once over d). Moreover, 
 
 ## Implementation
 
-The aforementioned algorithm is implemented in a C++ library. `BaseSieve.cpp` defines an abstract base class with some of the basic sieving methods. Examples of classes derived from this include `QuadrantSieve`, `OctantSieve`, `DonutSieve`, and `SegmentedSieve`. Each derived class has its own method for initiating and accessing the sieve array. See the [usage examples](#usage) for various text representations of these sieve arrays.
+The aforementioned algorithm is implemented in a C++ library. `BaseSieve.cpp` defines an abstract base class with some of the basic sieving methods. Examples of classes derived from this include `QuadrantSieve`, `OctantSieve`, `DonutSieve`, and `SegmentedSieve`. Each derived class has its own method for initiating and accessing the sieve array. See the [usage examples](#command-line-usage) for various text representations of these sieve arrays.
 
 
 ## Applications
