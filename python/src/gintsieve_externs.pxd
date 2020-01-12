@@ -7,6 +7,7 @@ cdef extern from '../../include/cython_bindings.hpp':
     vector[pair[long, long]] gPrimesSegment(long, long, long)
     unsigned long gPrimesCount(long)
     unsigned long gPrimesSegmentCount(long, long, long)
+    pair[long *, unsigned long] gPrimesArray(long);
 
 
 

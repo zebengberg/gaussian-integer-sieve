@@ -2,6 +2,7 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 import shutil
 import os
+import numpy as np
 
 
 sources = ['src/gintsieve.pyx',
@@ -14,6 +15,7 @@ sources = ['src/gintsieve.pyx',
 
 extensions = [Extension('gintsieve',
                         sources=sources,
+                        include_dirs=[np.get_include()],
                         extra_compile_args=['-std=c++11', '-stdlib=libc++'],
                         extra_link_args=['-std=c++11', '-stdlib=libc++'],
                         language='c++')]
@@ -27,10 +29,14 @@ setup(
     ext_modules=cythonize(extensions))
 
 
-# Cleaning up after the cythonize build
-shutil.rmtree('build/')
-# Removing the cython generated .cpp
-os.remove('src/gintsieve.cpp')
+try:
+    print('Cleaning up after build...')
+    # Cleaning up build directory after the cythonize build
+    shutil.rmtree('build/')
+    # Removing the cython generated .cpp
+    os.remove('src/gintsieve.cpp')
+except FileNotFoundError:
+    pass
 
 # Rename the shared object file gintsieve.xxxxxx.so
 for file in os.listdir('.'):

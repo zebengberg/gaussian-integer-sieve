@@ -5,8 +5,8 @@
 using namespace std;
 
 
-DonutSieve::DonutSieve(long x, bool display)
-    : SieveTemplate<unsigned int>(x, display)  // calling SieveTemplate constructor to set maxNorm
+DonutSieve::DonutSieve(long x, bool verbose)
+    : SieveTemplate<unsigned int>(x, verbose)  // calling SieveTemplate constructor to set maxNorm
     , x(x)
 
     // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
@@ -162,7 +162,7 @@ void DonutSieve::setBigPrimes() {
         }
     }
     if (verbose) {
-        cerr << "Done with gathering.\n" << endl;
+        cerr << "Done with gathering." << endl;
     }
 }
 

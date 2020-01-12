@@ -1,19 +1,30 @@
 # cython: language_level=3
 
-import matplotlib.pyplot as plt
 import numpy as np
-from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount
+cimport numpy as np
+from cython cimport view
+import matplotlib.pyplot as plt
+
+from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount, gPrimesArray
 
 
-
-# cython casts vector to a list
-# see https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#standard-library
+cpdef gprimes_as_array(long x):
+    pair = gPrimesArray(x)
+    cdef long *ptr = pair.first
+    cdef unsigned long size = pair.second
+    # Casting c++ pointer from gPrimesArray to a memory view object
+    # primes = np.asarray(<np.int64_t[:size]> ptr)
+    cdef view.array primes = <long[:size]> ptr
+    primes = np.asarray(primes)
+    return primes
 
 
 cpdef gprimes(long x, long y=0, long z=0):
     """Generate a list of primes up to norm x or in given rectangle."""
+
+    # Cython casts vectors to an array.
     if z:
-       return GintList(gPrimesSegment(x, y, z), x, y, z)
+        return GintList(gPrimesSegment(x, y, z), x, y, z)
     else:
         return GintList(gPrimes(x), x)
 
@@ -98,4 +109,3 @@ class GintList(list):
         plt.ylabel('$\pi({}, {}) - \pi({}, {})$'.format(a, b, c, d))
         plt.axhline(0, color='red')
         plt.show()
-
