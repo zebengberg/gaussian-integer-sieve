@@ -9,7 +9,6 @@
 - [Install](#install)
 - [Command line usage](#command-line-usage)
 - [Python bindings](#python-bindings)
-- [Sieving](#sieving)
 - [Algorithm](#algorithm)
 - [Implementation](#implementation)
 - [Applications](#appplications)
@@ -34,6 +33,8 @@ $ make
 ```
 This requires a C++ compiler supporting both C++11 and the `libc++` library as well as `make`. On macOS, they can be
  installed with `xcode-select --install`.
+ 
+Contact me if you would like better support for compiling this project on linux. I could readily use the `libstdc++` instead of the default macOS standard library.
 
  The Cython bindings can be built from source with
  ```shell script
@@ -167,31 +168,9 @@ Once the python module is built, we can import it into python and use it as in t
 ![Full Plane](/assets/full_plane.png)
 
 
-## Sieving
-
-
-
-
-With prime generating sieves, we often work with a *sieve array* A and a set of primes P. For each prime p in P, the
- sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an
-  array of booleans indexed by elements of A. The state of each boolean tracks if the element has yet been crossed
-   off by some prime p in P.
-
-Working within the Gaussian integers, our sieve array A is a 2-dimensional object indexed by Gaussian integers. In
- native python, this can be implemented with a list of lists. We can also use a 2-dimensional *numpy* array. In C++, we can use the built-in array, or vector, or another class of container.
-
-In python 3.7, the boolean `True` takes up 28 bytes of memory storage. The vast majority of this is overhead; in theory, a boolean value should only occupy a single bit of space. Even in C++, a single boolean value requires a full byte of memory. One issue involved with storing a boolean value into a smaller storage space is that modern computers do not allow pointers to individual bits in memory. In C++, there are various ways around this issue such as the `bitset` object.
-
-A different way to resolve this issue is to include some of the ideas of the wheel sieve. Primes other than 2, 3, and 5 must lie in one of the 8 distinct residue classes 1, 7, 11, 13, 17, 19, 23, 29 mod 30. In light of this observation, the wheel sieve reduces both the memory and complexity of sieving by only tracking these 8 distinguished residue classes. If implemented carefully, a wheel sieve should not add significant overhead to the actual sieving process. Moreover, this approach dovetails nicely with modern computer architecture: a single byte can track the state of 30 consecutive integers from an integer sieve array, allowing for a 30-fold reduction in memory usage (in a C++ implementation). Extending this wheel sieve to the Gaussian integers, both the memory and complexity of the sieve can be greatly reduced.
-
-In `simple_sieve.py` and `simple_sieve.cpp`, I use native booleans to track the state of each Gaussian integer in the sieve array. This will create significant overhead in both python (up to 28 * 8 = 224-fold waste) and C++ (8-fold).  In our donut sieve (TODO: implement this), I use the aforementioned ideas to reduce and align the storage requirements of the sieve to modern hardware architecture.
-
-Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy.
-
-
 ## Algorithm
 
-[See here](assets/algorithm.pdf) for a discussion of different approaches to generating primes in Z[i]. 
+With prime generating sieves, we often work with a *sieve array* A and a set of *small primes* P. For each prime p in P,the sieve proceeds by crossing off multiples of p in the sieve array A. To implement this on a computer, we define an array of booleans indexed by elements of A. The state of each boolean tracks if the element has yet been crossed off by some prime p in P.
 
 In broad strokes, sieving in Z[i] involves the following steps.
 
@@ -202,25 +181,79 @@ In broad strokes, sieving in Z[i] involves the following steps.
 3. The unmarked entries that remain in the array A are exactly the Gaussian primes in A.
 
 
-## Algorithm Specifics
+[See here](assets/algorithm.pdf) for a discussion of different approaches to generating primes in Z[i] and some motivation for our choice of algorithm.
+
+
+### Crossing off multiples
 
 Given a Gaussian integer a + bi and a sieve array A (A represents a sector or rectangle), we need to cross off multiples of a + bi from A. Said differently, we must cross off any sieve array element with index correspoinding to (a + bi)(c + di) for c, d in Z. Expanding this, we seek indices of the form (u, v) where
-u = ac - bd;  and  v = ad + bc.
-This simply requires a double for-loop (once over c and once over d). Moreover, we can avoid costly multiplications by adding or subtracting d's or c's from the current index u and v when iterating over these for-loops.
+                u = ac - bd,  and  v = ad + bc.
+This simply requires a double for-loop (once over c and once over d). Moreover, we can avoid costly multiplications by adding or subtracting d's or c's from the current index u and v when iterating over these for-loops. In the language of abstract algebra, we are crossing off elements of the Z-module generated by (a, b) and (-b, a).
+
+### Donut Sieve
+
+With the rational integers Z, the [wheel sieve](https://en.wikipedia.org/wiki/Wheel_factorization) allows for a more efficient way to manage and step through the sieve array. Primes other than 2, 3, and 5 must lie in one of the 8 distinct residue classes 1, 7, 11, 13, 17, 19, 23, 29 mod 30. In light of this observation, the wheel sieve (with a wheel size of 30) reduces both the memory and complexity of sieving by only tracking these 8 distinguished residue classes. If implemented carefully, a wheel sieve will not add significant overhead to the actual sieving process, and it will reduce to the total size of the sieve array to 8 / 30 = 27% of the original size.
+
+We extend this idea of a wheel sieve to the Gaussian integers. Instead of a wheel corresponding to Z/30Z rolling over the integers, we consider the finite set of remainders in Z[i]/10Z[i]. Mathematically, this quotient is a **donut** or torus. Just as the primes 2, 3, 5 in a wheel sieve gave rise to a mod-30 wheel, the mod-10 donut arises from the primes 1 + i, 1 + 2i and 2 + i. The first of these three primes sits above 2, and the second both sit above 5.
+- Every Gaussian integer z satisfying z = 0 (mod 1 + i) should be removed from the sieve array. The prime 1 + i has norm 2 and so one out of every two Gaussian integers will be divisible by 1 + i. In this way, including 1 + i in the donut will reduce the sieve array storage and memory by 50%.
+- We deal with the primes 1 + 2i and 2 + i together (by the CRT, this is equivalent to working in Z[i]/5Z[i]). Every Gaussian integer satisfying z = 0 (mod 1 + 2i) **or** z = 0 (mod 2 + i). By the inclusion-exclusion principle and the Chinese remainder theorem, there should be exactly 9 solutions to these equations in Z[i]/5Z[i]. The Gaussian integer 5 has norm 25, and so 9 out of every 25 Gaussian integers will be removed from the sieve array. This provides a savings of 9/25 = 36%.
+- Combining both of these local conditions, our donut allows us to only keep 32 of the 100 residue classes in Z[i]/10Z[i].
+
+Just as in the wheel sieve, adding more primes to the wheel will continue to make the sieve array more efficient at the cost of increasing the combinatorial complexity of the donut itself. Although we stopped with a donut of size 10 for other reasons (see [implementation](c++-implementation), additional primes to consider include:
+- using 3 in the donut would give a savings of 1/9 = 11% in sieve array size,
+- using the primes 3 + 2i and 3 + 2i, the primes dividing 13, would give a savings of 25/169 = 15% in sieve array size.
+
+In `DonutSieve.cpp` we implement the basic structures of this donut sieve. In particular, just as one hard codes gaps between wheel spokes in wheel sieve, the `DonutSieve` class contains certain variable and methods for access and dealing with the donut. As a simple example from this class, the array below enumerates the 32 residue classes we keep in the mod-10 donut.
+```
+{{-, 0, -, 1, -, -, -, 2, -, 3},
+ {4, -, -, -, 5, -, 6, -, -, -},
+ {-, -, -, 7, -, 8, -, 9, -, -},
+ {10, -, 11, -, -, -, -, -, 12, -},
+ {-, 13, -, -, -, 14, -, -, -, 15},
+ {-, -, 16, -, 17, -, 18, -, 19, -},
+ {-, 20, -, -, -, 21, -, -, -, 22},
+ {23, -, 24, -, -, -, -, -, 25, -},
+ {-, -, -, 26, -, 27, -, 28, -, -},
+ {29, -, -, -, 30, -, 31, -, -, -}}
+```
+
+### Segmented Sieve
+
+In a segmented sieve, we break up the entire sieving array into smaller subsets called **segments**. With these segments in place, we perform sieving (crossing off multiples of small primes) segment by segment. There are advantages and disadvantages to this segmented approach.
+- The main disadvantage will be some additional overhead. If a python template for segmented sieving is:
+```python
+for segment in sieve_array:
+    for p in small_primes:
+        cross_off_multiples(segment, p)
+```
+then the inner for-loop will be smaller if the entire sieve array was used but it will also be repeated many times.
+- The main advantage is that each segment can fit more readily into computer hardware such as the L2 cache. This will allow the inner for-loop in the snippet above to run more quickly because the sieve array segmented is cheap to access.
+
+In this project, segmentation can be done by calling methods in the `BlockSieve` class.
 
 
 
 
-
-
-## Implementation
+## C++ Implementation
 
 The aforementioned algorithm is implemented in a C++ library. `BaseSieve.cpp` defines an abstract base class with some of the basic sieving methods. Examples of classes derived from this include `QuadrantSieve`, `OctantSieve`, `DonutSieve`, and `SegmentedSieve`. Each derived class has its own method for initiating and accessing the sieve array. See the [usage examples](#command-line-usage) for various text representations of these sieve arrays.
+
+
+Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy.
+
+In the `OctantSieve` class, the 2-dimensional sieve array A is stored as a `vector<vector<bool>>` container. This C++ object is memory-efficient: each boolean is stored as a single bit in memory (this in itself gives a 224-fold savings over python 3.7 which requires 28 bytes of memory to store a boolean value).
+
+In implementing the donut sieve, each 10 x 10 block of Gaussian integers corresponds to a full *donut roll*. The donut sieve requires us to track 32 residue classes for every 10 x 10 block of Gaussian integers. Said differently, every 10 x 10 block of Gaussian integers requires 32 bits of information to store their current state in the sieve process. Conveniently, a C++ `int` typically also requires 32 bits (4 bytes) of memory space. In this way, in donut-based classes such as `DonutSieve`, our sieve array is a `vector<vector<int>>` container in C++.
+
+
+
 
 
 ## Applications
 
 This library can be used to generated data related to two unsolved problems in number theory.
+- Prime number races in sectors
+- Gaussian moat
 
 
 
