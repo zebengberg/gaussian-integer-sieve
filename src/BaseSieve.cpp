@@ -140,13 +140,13 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
 template <>
 void SieveTemplate<bool>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    uint64_t columnMaxSize = 0;
+    uint32_t columnMaxSize = 0;
     for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (int64_t v = (signed)columnMaxSize - 1; v >= 0; v--) {
+    for (int32_t v = (signed)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if ((unsigned)column.size() > v) {
@@ -164,15 +164,15 @@ void SieveTemplate<bool>::printSieveArray() {
 }
 
 template <>
-void SieveTemplate<unsigned int>::printSieveArray() {
+void SieveTemplate<uint32_t>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    uint64_t columnMaxSize = 0;
+    uint32_t columnMaxSize = 0;
     for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (int64_t v = (signed)columnMaxSize - 1; v >=0; v--) {
+    for (int32_t v = (signed)columnMaxSize - 1; v >=0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if ((unsigned)column.size() > v) {
@@ -200,7 +200,7 @@ bool SieveTemplate<bool>::getSieveArrayValue(uint32_t u, uint32_t v) {
 }
 
 template <>
-unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(uint32_t u, uint32_t v) {
+unsigned int SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v) {
     return sieveArray.at(u).at(v);
 }
 

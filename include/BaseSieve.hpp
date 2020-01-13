@@ -19,7 +19,7 @@ struct gint {
 // Abstract base class to be used in various sieving implementations.
 class SieveBase {
 protected:
-    uint64_t maxNorm;
+    const uint64_t maxNorm;
     double progress;
     double totalProgress;
     bool verbose;

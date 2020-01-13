@@ -4,16 +4,16 @@ using namespace std;
 
 class OctantSieve : public SieveTemplate<bool> {
 private:
-    long x;
+    const uint64_t x;
 
 public:
     // Using an initializer list and calling SieveTemplate constructor to set maxNorm
-    explicit OctantSieve(long x, bool display = true) : SieveTemplate<bool>(x, display), x(x) {}
+    explicit OctantSieve(uint64_t x, bool display = true) : SieveTemplate<bool>(x, display), x(x) {}
 
     // overriding virtual methods
     void setSmallPrimes() override;
     void setSieveArray() override;
     void crossOffMultiples(gint) override;
     void setBigPrimes() override;
-    unsigned long getCountBigPrimes() override;
+    uint64_t getCountBigPrimes() override;
 };

@@ -17,9 +17,9 @@ int main(int argc, const char* argv[]) {
     bool write = false;
     bool count = false;
     string sieveType = "donut";  // put in default sieve method here
-    long x = 0;
-    long y = 0;
-    long z = 0;
+    uint64_t x = 0;
+    uint32_t y = 0;
+    uint32_t z = 0;
 
     for (int i = 1; i < argc; i++) {
         string arg = argv[i];
@@ -156,12 +156,9 @@ int main(int argc, const char* argv[]) {
 
 
 ///* TODO
-// * write naive algorithm in c++
-// * use primesieve with naive algorithm
 // * write tests.cpp file
 // * write race.cpp file
 // * determine how to put c array or vector into numpy array through cython
 // * use this to get results of race, possible load as np
-// * rewrite readme
 // * publish to pip
 // * /

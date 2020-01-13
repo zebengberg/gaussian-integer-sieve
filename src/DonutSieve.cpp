@@ -5,7 +5,7 @@
 using namespace std;
 
 
-DonutSieve::DonutSieve(long x, bool verbose)
+DonutSieve::DonutSieve(uint64_t x, bool verbose)
     : SieveTemplate<unsigned int>(x, verbose)  // calling SieveTemplate constructor to set maxNorm
     , x(x)
 
@@ -65,11 +65,11 @@ void DonutSieve::setSieveArray() {
     if (verbose) {
         cerr << "Building sieve array..." << endl;
     }
-    for (long a = 0; a <= isqrt(x) / 10; a++) {
+    for (uint32_t a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
-        long intersection = long(sqrt(double(x) / 200.0));
-        long b = a <= intersection ? a + 1: isqrt(x / 100 - a * a) + 1;
-        vector<unsigned int> column((unsigned long)b, (unsigned int)pow(2, 32) - 1);
+        uint32_t intersection = isqrt(x / 200);
+        uint32_t b = a <= intersection ? a + 1: isqrt(x / 100 - a * a) + 1;
+        vector<uint32_t> column(b, (uint32_t)pow(2, 32) - 1);
         sieveArray.push_back(column);
     }
     setFalse(1, 0);  // 1 is not prime
@@ -87,14 +87,14 @@ void DonutSieve::crossOffMultiples(gint g) {
 
     // As with all of these crossOffMultiples() methods, we use a double for-loop
     // of the form for (iterate over c's) { for (iterate over d's) }.
-    for (long c = 0; c <= isqrt(x / g.norm()); c++) {
-        long d = dStart[c % 10];  // starting value of d for while loop
-        long u = c * g.a - d * g.b;  // u = ac - bd
-        long v = c * g.b + d * g.a;  // v = bc + ad
+    for (uint32_t c = 0; c <= isqrt(x / g.norm()); c++) {
+        uint32_t d = dStart[c % 10];  // starting value of d for while loop
+        int32_t u = c * g.a - d * g.b;  // u = ac - bd
+        int32_t v = c * g.b + d * g.a;  // v = bc + ad
 
-        long intersection = long(sqrt(double(x) / double(2 * g.norm())));
-        long dBound = c <= intersection ? c : isqrt(x / g.norm() - c * c);
-        long jump;
+        uint32_t intersection = isqrt(x / (2 * g.norm()));
+        uint32_t dBound = c <= intersection ? c : isqrt(x / g.norm() - c * c);
+        uint32_t jump;
         while (d <= dBound) {  // replacing inner for loop with while loop
             // apply units and conjugate until u + iv is in sieveArray index
             if (u > 0) {
@@ -123,15 +123,15 @@ void DonutSieve::crossOffMultiples(gint g) {
     }
 }
 
-void DonutSieve::setFalse(long u, long v) {
+void DonutSieve::setFalse(uint32_t u, uint32_t v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
-    unsigned int bit = bitDonut[u % 10][v % 10];
+    uint32_t bit = bitDonut[u % 10][v % 10];
     sieveArray[u / 10][v / 10] &= ~(1u << bit);  // clearing the bit; 1u is unsigned int
 }
 
-void DonutSieve::setTrue(long u, long v) {
+void DonutSieve::setTrue(uint32_t u, uint32_t v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
-    unsigned int bit = bitDonut[u % 10][v % 10];
+    unsigned char bit = bitDonut[u % 10][v % 10];
     sieveArray[u / 10][v / 10] |= (1u << bit);  // setting the bit to 0; 1u is unsigned int
 }
 
@@ -143,11 +143,11 @@ void DonutSieve::setBigPrimes() {
     bigPrimes.emplace_back(1, 1);
     bigPrimes.emplace_back(2, 1);
     bigPrimes.emplace_back(1, 2);
-    for (long a = 0; a <= isqrt(x) / 10; a++) {
-        long intersection = long(sqrt(double(x) / 20.0));
-        long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
-        for (long b = 0; b <= bBound; b++) {
-            for (unsigned int bit = 0; bit < 32; bit++) {
+    for (uint32_t a = 0; a <= isqrt(x) / 10; a++) {
+        uint32_t intersection = isqrt(x / 20);
+        uint32_t bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
+        for (uint32_t b = 0; b <= bBound; b++) {
+            for (unsigned char bit = 0; bit < 32; bit++) {
                 if ((sieveArray[a][b] >> bit) & 1u) {
                     gint g(10 * a + realPartDecompress[bit], 10 * b + imagPartDecompress[bit]);
                     // check for boundary blocks and to avoid imag multiple of degree 2
@@ -166,20 +166,20 @@ void DonutSieve::setBigPrimes() {
     }
 }
 
-unsigned long DonutSieve::getCountBigPrimes() {
+uint64_t DonutSieve::getCountBigPrimes() {
     if (verbose) {
         cerr << "Counting primes after sieve..." << endl;
     }
-    unsigned long count = 3;  // 3 primes dividing 10
-    for (long a = 0; a <= isqrt(x) / 10; a++) {
-        long intersection = long(sqrt(double(x) / 20.0));
-        long bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
-        for (long b = 0; b <= bBound; b++) {
-            for (unsigned int bit = 0; bit < 32; bit++) {
+    uint64_t count = 3;  // 3 primes dividing 10
+    for (uint32_t a = 0; a <= isqrt(x) / 10; a++) {
+        uint32_t intersection = isqrt(x / 20);
+        uint32_t bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
+        for (uint32_t b = 0; b <= bBound; b++) {
+            for (unsigned char bit = 0; bit < 32; bit++) {
                 if ((sieveArray[a][b] >> bit) & 1u) {
                     // Coordinates of actual gint.
-                    long aa = 10 * a + realPartDecompress[bit];
-                    long bb = 10 * b + imagPartDecompress[bit];
+                    uint64_t aa = 10 * a + realPartDecompress[bit];
+                    uint64_t bb = 10 * b + imagPartDecompress[bit];
                     // check for boundary blocks and to avoid imag multiple of degree 2
                     if ((aa * aa + bb * bb <= x) && aa && (aa > bb)) {
                         count++;
@@ -193,7 +193,6 @@ unsigned long DonutSieve::getCountBigPrimes() {
     }
     count *= 4; // four quadrants
     if (verbose) {
-        cerr << "Done with count." << endl;
         cerr << "Total number of primes, including associates: " << count << "\n" << endl;
     }
     return count;  // four quadrants
