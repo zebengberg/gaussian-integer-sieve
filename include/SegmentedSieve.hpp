@@ -4,11 +4,10 @@ using namespace std;
 
 class SegmentedSieve : public SieveTemplate<bool> {
 private:
-    uint32_t x, y, z;
-    // TODO: include w variable to get honest rectangle
+    uint32_t x, y, z, w;
 
 public:
-    SegmentedSieve(uint32_t, uint32_t, uint32_t, bool = true);
+    SegmentedSieve(uint32_t, uint32_t, uint32_t, uint32_t, bool = true);
     // overriding virtual methods
     void setSmallPrimes() override;
     void setSieveArray() override;

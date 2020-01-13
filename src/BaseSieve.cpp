@@ -128,7 +128,7 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
 }
 
 template <>
-void SieveTemplate<unsigned int>::printSieveArrayInfo() {
+void SieveTemplate<uint32_t>::printSieveArrayInfo() {
     uint64_t totalSize = sizeof(sieveArray);
     for (const auto& column : sieveArray) {
         totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
@@ -147,7 +147,7 @@ void SieveTemplate<bool>::printSieveArray() {
         }
     }
     // Some type casting because subtraction confuses it.
-    for (auto v = uint32_t(signed(columnMaxSize) - 1); v >= 0; v--) {
+    for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if (column.size() > v) {
@@ -174,10 +174,10 @@ void SieveTemplate<uint32_t>::printSieveArray() {
         }
     }
     // Some type casting because subtraction confuses it.
-    for (auto v = uint32_t(signed(columnMaxSize) - 1); v >= 0; v--) {
+    for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
-            if ((unsigned)column.size() > v) {
+            if (column.size() > v) {
                 // printing entire block padded by 1
                 // could use binary or hex or ints ...
                 // bitset<32> b(sieveArray[u][v]);
@@ -202,7 +202,7 @@ bool SieveTemplate<bool>::getSieveArrayValue(uint32_t u, uint32_t v) {
 }
 
 template <>
-unsigned int SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v) {
+uint32_t SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v) {
     return sieveArray.at(u).at(v);
 }
 

@@ -4,7 +4,21 @@
 #include "../include/DonutSieve.hpp"
 using namespace std;
 
-int main(int argc, const char* argv[]) {
+
+int main() {
+    uint32_t x = 200000;
+    uint32_t y = 100000;
+    uint32_t z = 100;
+    uint32_t w = 10;
+    SegmentedSieve s(x, y, z, w);
+    s.setSieveArray();
+    s.setSmallPrimes();
+    s.printSieveArray();
+    s.sieve();
+    s.printSieveArray();
+}
+
+int main2(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
