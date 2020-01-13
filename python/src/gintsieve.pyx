@@ -10,13 +10,20 @@ from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSeg
 
 cpdef gprimes_as_array(long x):
     pair = gPrimesArray(x)
-    cdef long *ptr = pair.first
+    cdef np.int64_t *ptr = pair.first
     cdef unsigned long size = pair.second
     # Casting c++ pointer from gPrimesArray to a memory view object
     # primes = np.asarray(<np.int64_t[:size]> ptr)
-    cdef view.array primes = <long[:size]> ptr
-    primes = np.asarray(primes)
+    cdef view.array primes = <np.int64_t[:size]> ptr
+    #cdef primes = np.asarray(primes)
     return primes
+
+
+# cpdef gprimes_as_array(long x):
+#     pair = gPrimesArray(x)
+#     cdef long *ptr = pair.first
+#     cdef npy_intp size = pair.second
+#     cdef np.ndarray[np.int64_t, ndim=1] primes = np.PyArray_SimpleNewFromData(1, &size, np.NPY_INT64, ptr)
 
 
 cpdef gprimes(long x, long y=0, long z=0):

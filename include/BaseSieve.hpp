@@ -3,14 +3,15 @@
 using namespace std;
 
 
-// Gaussian integer struct.
+
+// Gaussian integer struct with 32-bit integer coordinates.
 struct gint {
     // Members are public by default in a struct.
-    long a, b;
-    gint(long a, long b) { this->a = a; this->b = b; }
-    long norm() { return a * a + b * b; }
+    uint32_t a, b;
+    gint(uint32_t a, uint32_t b) { this->a = a; this->b = b; }
+    uint64_t norm() { return a * a + b * b; }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
-    pair<long, long> asPair() {return pair<long, long> {a, b}; }
+    pair<uint32_t, uint32_t> asPair() {return pair<uint32_t, uint32_t> {a, b}; }
     friend bool operator < (gint g1, gint g2) { return g1.norm() < g2.norm(); }
 };
 
@@ -18,7 +19,7 @@ struct gint {
 // Abstract base class to be used in various sieving implementations.
 class SieveBase {
 protected:
-    long maxNorm;
+    uint64_t maxNorm;
     double progress;
     double totalProgress;
     bool verbose;
@@ -26,7 +27,7 @@ protected:
     vector<gint> bigPrimes;
 
 public:
-    explicit SieveBase(long, bool);  // constructor; will be called in derived classes
+    explicit SieveBase(uint64_t, bool);  // constructor; will be called in derived classes
     void setSmallPrimesFromFile();
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
@@ -41,7 +42,7 @@ public:
     virtual void setSieveArray() = 0;
     virtual void crossOffMultiples(gint) = 0;
     virtual void setBigPrimes() = 0;  // results of sieve
-    virtual unsigned long getCountBigPrimes() = 0;
+    virtual uint64_t getCountBigPrimes() = 0;
 };
 
 
@@ -53,13 +54,12 @@ protected:
     vector<vector<T>> sieveArray;  // T will be bool or unsigned int
 
 public:
-    explicit SieveTemplate(long maxNorm, bool display) : SieveBase(maxNorm, display) {};
+    explicit SieveTemplate(uint64_t maxNorm, bool display) : SieveBase(maxNorm, display) {};
     void printSieveArrayInfo();
     void printSieveArray();
-    T getSieveArrayValue(unsigned long u, unsigned long v);
+    T getSieveArrayValue(uint32_t u, uint32_t v);
 };
 
 
 // Useful library-style functions
-long isqrt(long);
-vector<gint> readPrimesFromFile(long);
+uint32_t isqrt(uint64_t);

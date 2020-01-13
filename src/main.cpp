@@ -4,7 +4,7 @@
 #include "../include/DonutSieve.hpp"
 using namespace std;
 
-int main2(int argc, const char* argv[]) {
+int main(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;

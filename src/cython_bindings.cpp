@@ -37,7 +37,7 @@ pair<long *, unsigned long> gPrimesArray(long x) {
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
     }
-    std::cout << "Sending array over to python...." << std::endl;
+    cout << P << endl;
     return pair<long *, unsigned long> {P, 2 * size};
 }
 

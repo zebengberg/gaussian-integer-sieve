@@ -6,7 +6,7 @@
 #include "../include/BaseSieve.hpp"
 
 // Will call this constructor from derived classes.
-SieveBase::SieveBase(long maxNorm, bool verbose)
+SieveBase::SieveBase(uint64_t maxNorm, bool verbose)
     // initializer list
     : maxNorm(maxNorm)
     , verbose(verbose)
@@ -95,7 +95,7 @@ void SieveBase::setSmallPrimesFromFile() {
         cerr << "Reading small primes from file." << endl;
     }
 
-    long a, b;
+    int64_t a, b;
     f >> a >> b;  // token-based parsing
     gint g(a, b);
     // Need primes up to square root of the maxNorm
@@ -119,7 +119,7 @@ void SieveBase::setSmallPrimesFromFile() {
 
 template <>
 void SieveTemplate<bool>::printSieveArrayInfo() {
-    unsigned long totalSize = sizeof(sieveArray);
+    uint64_t totalSize = sizeof(sieveArray);
     for (const auto& column : sieveArray) {
         totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
     }
@@ -129,7 +129,7 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
 
 template <>
 void SieveTemplate<unsigned int>::printSieveArrayInfo() {
-    unsigned long totalSize = sizeof(sieveArray);
+    uint64_t totalSize = sizeof(sieveArray);
     for (const auto& column : sieveArray) {
         totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
     }
@@ -140,13 +140,13 @@ void SieveTemplate<unsigned int>::printSieveArrayInfo() {
 template <>
 void SieveTemplate<bool>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    unsigned long columnMaxSize = 0;
+    uint64_t columnMaxSize = 0;
     for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (long v = (signed)columnMaxSize - 1; v >= 0; v--) {
+    for (int64_t v = (signed)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if ((unsigned)column.size() > v) {
@@ -166,13 +166,13 @@ void SieveTemplate<bool>::printSieveArray() {
 template <>
 void SieveTemplate<unsigned int>::printSieveArray() {
     // Print sieve array with same orientation as that in the complex plane.
-    unsigned long columnMaxSize = 0;
+    uint64_t columnMaxSize = 0;
     for (auto &column : sieveArray) {
         if (column.size() > columnMaxSize) {
             columnMaxSize = column.size();
         }
     }
-    for (long v = (signed)columnMaxSize - 1; v >=0; v--) {
+    for (int64_t v = (signed)columnMaxSize - 1; v >=0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if ((unsigned)column.size() > v) {
@@ -195,12 +195,12 @@ void SieveTemplate<unsigned int>::printSieveArray() {
 }
 
 template <>
-bool SieveTemplate<bool>::getSieveArrayValue(unsigned long u, unsigned long v) {
+bool SieveTemplate<bool>::getSieveArrayValue(uint32_t u, uint32_t v) {
     return sieveArray.at(u).at(v);
 }
 
 template <>
-unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(unsigned long u, unsigned long v) {
+unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(uint32_t u, uint32_t v) {
     return sieveArray.at(u).at(v);
 }
 
@@ -210,14 +210,14 @@ unsigned int SieveTemplate<unsigned int>::getSieveArrayValue(unsigned long u, un
 // Other useful general purpose functions.
 
 // Integer square root.
-long isqrt(long n) {
-    long x, y;
+uint32_t isqrt(uint64_t n) {
+    uint64_t x, y;
     x = n;
     y = (x + 1) / 2;
     while (y < x) {
         x = y;
         y = (x + n / x) / 2;
     }
-    return x;
+    return (uint32_t)x;
 }
 
