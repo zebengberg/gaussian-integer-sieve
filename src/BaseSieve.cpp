@@ -146,10 +146,11 @@ void SieveTemplate<bool>::printSieveArray() {
             columnMaxSize = column.size();
         }
     }
-    for (int32_t v = (signed)columnMaxSize - 1; v >= 0; v--) {
+    // Some type casting because subtraction confuses it.
+    for (auto v = uint32_t(signed(columnMaxSize) - 1); v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
-            if ((unsigned)column.size() > v) {
+            if (column.size() > v) {
                 if (column[v]) {
                     row += '*';  // found a prime
                 } else {
@@ -172,7 +173,8 @@ void SieveTemplate<uint32_t>::printSieveArray() {
             columnMaxSize = column.size();
         }
     }
-    for (int32_t v = (signed)columnMaxSize - 1; v >=0; v--) {
+    // Some type casting because subtraction confuses it.
+    for (auto v = uint32_t(signed(columnMaxSize) - 1); v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
             if ((unsigned)column.size() > v) {

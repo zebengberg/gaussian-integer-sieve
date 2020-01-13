@@ -1,23 +1,22 @@
 #include "../include/cython_bindings.hpp"
 #include "../include/QuadrantSieve.hpp"
 #include "../include/DonutSieve.hpp"
-#include "../include/SegmentedSieve.hpp"
 #include <iostream>
 #include <cmath>
 
 
 // Use this for ints?
-vector<pair<long, long>> gPrimes(long x) {
-    if (x >= pow(2, 32)) { // between 10^9 and 10^10
-        cerr << "Norm bound too large for this method. Instead call gPrimes2dArray()" << endl;
+vector<pair<uint32_t, uint32_t>> gPrimes(uint64_t x) {
+    if (x >= pow(2, 30)) {
+        cerr << "Norm bound too large for this method. Instead call gPrimesAsArray()" << endl;
         exit(1);
     }
     // Trigger verbose mode if passed argument is large.
-    bool verbose = x >= (long)pow(10, 7);
+    bool verbose = x >= (uint64_t)pow(10, 7);
     DonutSieve s(x, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    vector<pair<long, long>> pairP;
+    vector<pair<uint32_t, uint32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
     cout << "Sending array over to python...." << endl;
@@ -26,44 +25,44 @@ vector<pair<long, long>> gPrimes(long x) {
 
 
 // And have this contain longs?
-pair<long *, unsigned long> gPrimesArray(long x) {
+pair<uint32_t *, uint64_t> gPrimesAsArray(uint64_t x) {
     DonutSieve s(x);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     // Creating a 1-dimensional array to hold big primes -- this way we can avoid array of pointers.
-    unsigned long size = gintP.size();
-    long *P = new long[2 * size];
-    for (unsigned long i = 0; i < size; i++) {
+    uint64_t size = gintP.size();
+    auto *P = new uint32_t[2 * size];  // declaring the array
+    for (uint64_t i = 0; i < size; i++) {
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
     }
     cout << P << endl;
-    return pair<long *, unsigned long> {P, 2 * size};
+    return pair<uint32_t *, uint64_t> {P, 2 * size};
 }
 
-vector<pair<long, long>> gPrimesSegment(long x, long y, long z) {
+vector<pair<uint32_t , uint32_t>> gPrimesSegment(uint32_t x, uint32_t y, uint32_t z) {
     // Show display if passed argument is large.
-    bool display = z >= (long)pow(10, 5);
+    bool display = z >= (uint32_t)pow(10, 5);
     SegmentedSieve s(x, y, z, display);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    vector<pair<long, long>> pairP;
+    vector<pair<uint32_t, uint32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
     return pairP;
 }
 
-unsigned long gPrimesCount(long x) {
+uint64_t gPrimesCount(uint64_t x) {
     // Show display if passed argument is large.
-    bool display = x >= (long)pow(10, 9);
+    bool display = x >= (uint64_t)pow(10, 9);
     DonutSieve s(x, display);
     s.run();
     return s.getCountBigPrimes();
 }
 
-unsigned long gPrimesSegmentCount(long x, long y, long z) {
+uint64_t gPrimesSegmentCount(uint32_t x, uint32_t y, uint32_t z) {
     // Show display if passed argument is large.
-    bool display = z >= (long)pow(10, 5);
+    bool display = z >= (uint32_t)pow(10, 5);
     SegmentedSieve s(x, y, z, display);
     s.run();
     return s.getCountBigPrimes();

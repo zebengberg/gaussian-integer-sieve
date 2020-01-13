@@ -4,19 +4,20 @@ import numpy as np
 cimport numpy as np
 from cython cimport view
 import matplotlib.pyplot as plt
+from libc.stdint cimport uint32_t, uint64_t
 
-from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount, gPrimesArray
+from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount, gPrimesAsArray
 
 
-cpdef gprimes_as_array(long x):
-    pair = gPrimesArray(x)
-    cdef np.int64_t *ptr = pair.first
-    cdef unsigned long size = pair.second
+cpdef gprimes_as_array(uint64_t x):
+    pairs = gPrimesAsArray(x)
+    cdef uint32_t *ptr = pairs.first
+    cdef uint64_t size = pairs.second
     # Casting c++ pointer from gPrimesArray to a memory view object
     # primes = np.asarray(<np.int64_t[:size]> ptr)
-    cdef view.array primes = <np.int64_t[:size]> ptr
-    #cdef primes = np.asarray(primes)
-    return primes
+    cdef view.array primes = <np.uint32_t[:size]> ptr
+    cdef np_primes = np.asarray(primes)
+    return np_primes
 
 
 # cpdef gprimes_as_array(long x):
@@ -26,22 +27,20 @@ cpdef gprimes_as_array(long x):
 #     cdef np.ndarray[np.int64_t, ndim=1] primes = np.PyArray_SimpleNewFromData(1, &size, np.NPY_INT64, ptr)
 
 
-cpdef gprimes(long x, long y=0, long z=0):
+cpdef gprimes(uint64_t x):
     """Generate a list of primes up to norm x or in given rectangle."""
 
     # Cython casts vectors to an array.
-    if z:
-        return GintList(gPrimesSegment(x, y, z), x, y, z)
-    else:
-        return GintList(gPrimes(x), x)
+    return GintList(gPrimes(x), x)
 
 
-cpdef gprimes_count(long x, long y=0, long z=0):
+cpdef gprimes_count(uint64_t x):
     """Count primes up to norm x or in given rectangle."""
-    if z:
-        return gPrimesSegmentCount(x, y, z)
-    else:
-        return gPrimesCount(x)
+    return gPrimesCount(x)
+    # if z:
+    #     return gPrimesSegmentCount(x, y, z)
+    # else:
+
 
 
 class GintList(list):

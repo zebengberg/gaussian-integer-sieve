@@ -2,8 +2,8 @@
 #include <vector>
 using namespace std;
 
-vector<pair<long, long>> gPrimes(long);
-vector<pair<long, long>> gPrimesSegment(long, long, long);
-unsigned long gPrimesCount(long);
-unsigned long gPrimesSegmentCount(long, long, long);
-pair<long *, unsigned long> gPrimesArray(long);  // holds pointer to array and size of array
+vector<pair<uint32_t, uint32_t>> gPrimes(uint64_t);
+vector<pair<uint32_t, uint32_t>> gPrimesSegment(uint32_t, uint32_t, uint32_t);
+uint64_t gPrimesCount(uint64_t);
+uint64_t gPrimesSegmentCount(uint32_t, uint32_t, uint32_t);
+pair<uint32_t *, uint64_t> gPrimesAsArray(uint64_t);  // holds pointer to array of uint32_t and size of array
