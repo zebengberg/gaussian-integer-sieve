@@ -63,7 +63,7 @@ void DonutSieve::setSieveArray() {
 
     // Sieve array might stick out beyond boundary of disk -- we'll fix this in getBigPrimes.
     if (verbose) {
-        cerr << "Building sieve array..." << endl;
+        cerr << "Building donut sieve array..." << endl;
     }
     for (uint32_t a = 0; a <= isqrt(x) / 10; a++) {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
