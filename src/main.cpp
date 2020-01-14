@@ -9,10 +9,12 @@ using namespace std;
 int main() {
     uint32_t x = 0;
     uint32_t y = 0;
-    uint32_t dx = 10;
-    uint32_t dy = 10;
-    BlockSieve s(x, y, dx, dy);
+    uint32_t dx = 10000;
+    uint32_t dy = 2000;
+    BlockDonutSieve s(x, y, dx, dy);
     s.run();
+    s.setBigPrimes();
+    s.sortBigPrimes();
     s.getCountBigPrimes();
 }
 

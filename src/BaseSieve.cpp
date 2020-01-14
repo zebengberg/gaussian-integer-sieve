@@ -59,13 +59,14 @@ void SieveBase::sortBigPrimes() {
     if (verbose) {
         cerr << "Sorting primes by norm..." << endl;
     }
-    sort(bigPrimes.begin(), bigPrimes.end()); }
+    sort(bigPrimes.begin(), bigPrimes.end());
+}
 
 void SieveBase::printBigPrimes() {
     for (gint g : bigPrimes) {
         cout << g.a << " " << g.b << endl;
     }
-    cerr << "Total number of primes, including associates: " << 4 * bigPrimes.size() << endl;
+    cerr << "Total number of primes printed: " << bigPrimes.size() << endl;
 }
 
 void SieveBase::writeBigPrimesToFile() {

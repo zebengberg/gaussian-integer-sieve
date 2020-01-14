@@ -11,7 +11,7 @@ using namespace std;
 
 // Using an initializer list
 BlockDonutSieve::BlockDonutSieve(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy, bool verbose)
-        : SieveTemplate<uint32_t>((uint64_t)(x + dx - 1) * (uint64_t)(y + dy - 1), verbose)
+        : SieveTemplate<uint32_t>(pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2), verbose)
         , x(x) // x-coordinate of lower left-hand corner of segment block
         , y(y) // y-coordinate of lower left-hand corner of segment block
         , dx(dx) // horizontal side length of segment block
@@ -95,6 +95,7 @@ void BlockDonutSieve::setSieveArray() {
 // (ax + by) / (a^2 + b^2) <= c <= (a(x + dx - 1) + b(y + dy - 1)) / (a^2 + b^2).
 // Then d is defined by some max and min conditions.
 void BlockDonutSieve::crossOffMultiples(gint g) {
+    if (g.norm() <= 5) { return; }  // exit early if g is above 2 or 5.
     // Convert everything to unsigned long type.
     int64_t a = g.a;
     int64_t b = g.b;
@@ -200,7 +201,7 @@ uint64_t BlockDonutSieve::getCountBigPrimes() {
     }
     uint64_t count = 0;
     // Putting in primes dividing 10.
-    if ((x == 0) && (y == 10)) {
+    if ((x == 0) && (y == 0)) {
         count = 3;
     }
     for (uint32_t a = 0; a < dx / 10; a ++) {

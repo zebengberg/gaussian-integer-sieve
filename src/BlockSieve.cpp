@@ -6,8 +6,8 @@ using namespace std;
 
 // Using an initializer list
 BlockSieve::BlockSieve(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy, bool verbose)
-    // Calling SieveTemplate constructor to set maxNorm
-    : SieveTemplate<bool>((uint64_t)(x + dx - 1) * (uint64_t)(y + dy - 1), verbose)
+    // Calling SieveTemplate constructor to set maxNorm = N(upper right corner)
+    : SieveTemplate<bool>(pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2), verbose)
     , x(x)  // x-coordinate of lower left-hand corner of segment block
     , y(y)  // y-coordinate of lower left-hand corner of segment block
     , dx(dx)  // horizontal side length of segment block
