@@ -111,9 +111,9 @@ void DonutSieve::crossOffMultiples(gint g) {
                 }
             }
             jump = gapDonut[c % 10][d % 10];
+            d += jump;
             u -= jump * g.b;
             v += jump * g.a;
-            d += jump;
         }
     }
     if (g.a > g.b) {
@@ -162,7 +162,7 @@ void DonutSieve::setBigPrimes() {
         }
     }
     if (verbose) {
-        cerr << "Done with gathering." << endl;
+        cerr << "Done gathering." << endl;
     }
 }
 
@@ -203,7 +203,7 @@ uint64_t DonutSieve::getCountBigPrimes() {
 // Using this method to print out some of the member variables used in constructor.
 // This prints out necessary data for the donut.
 void DonutSieve::printDonutArrays() {
-    SegmentedSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
+    BlockSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));
     s.crossOffMultiples(gint(2, 1));

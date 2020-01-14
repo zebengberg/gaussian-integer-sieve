@@ -2,12 +2,12 @@
 #include "BaseSieve.hpp"
 using namespace std;
 
-class SegmentedSieve : public SieveTemplate<bool> {
+class BlockSieve : public SieveTemplate<bool> {
 private:
-    uint32_t x, y, z, w;
+    uint32_t x, y, dx, dy;
 
 public:
-    SegmentedSieve(uint32_t, uint32_t, uint32_t, uint32_t, bool = true);
+    BlockSieve(uint32_t, uint32_t, uint32_t, uint32_t, bool = true);
     // overriding virtual methods
     void setSmallPrimes() override;
     void setSieveArray() override;

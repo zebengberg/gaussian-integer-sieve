@@ -223,3 +223,11 @@ uint32_t isqrt(uint64_t n) {
     return (uint32_t)x;
 }
 
+// Positive remainder.
+uint32_t mod(int64_t k, uint32_t m) {
+    int32_t r = k % m;
+    if (r < 0) {
+        r += m;
+    }
+    return r;
+}

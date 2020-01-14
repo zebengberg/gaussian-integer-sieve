@@ -2,20 +2,18 @@
 #include "../include/QuadrantSieve.hpp"
 #include "../include/OctantSieve.hpp"
 #include "../include/DonutSieve.hpp"
+#include "../include/BlockDonutSieve.hpp"
 using namespace std;
 
 
 int main() {
-    uint32_t x = 200000;
-    uint32_t y = 100000;
-    uint32_t z = 100;
-    uint32_t w = 10;
-    SegmentedSieve s(x, y, z, w);
-    s.setSieveArray();
-    s.setSmallPrimes();
-    s.printSieveArray();
-    s.sieve();
-    s.printSieveArray();
+    uint32_t x = 0;
+    uint32_t y = 0;
+    uint32_t dx = 10;
+    uint32_t dy = 10;
+    BlockSieve s(x, y, dx, dy);
+    s.run();
+    s.getCountBigPrimes();
 }
 
 int main2(int argc, const char* argv[]) {
@@ -147,7 +145,7 @@ int main2(int argc, const char* argv[]) {
             s.printBigPrimes();
         }
     } else {
-        SegmentedSieve s(x, y, z, verbose);
+        BlockSieve s(x, y, z, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {

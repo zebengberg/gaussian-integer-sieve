@@ -43,7 +43,7 @@ pair<uint32_t *, uint64_t> gPrimesAsArray(uint64_t x) {
 vector<pair<uint32_t , uint32_t>> gPrimesSegment(uint32_t x, uint32_t y, uint32_t z) {
     // Show display if passed argument is large.
     bool display = z >= (uint32_t)pow(10, 5);
-    SegmentedSieve s(x, y, z, display);
+    BlockSieve s(x, y, z, display);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     vector<pair<uint32_t, uint32_t>> pairP;
@@ -63,7 +63,7 @@ uint64_t gPrimesCount(uint64_t x) {
 uint64_t gPrimesSegmentCount(uint32_t x, uint32_t y, uint32_t z) {
     // Show display if passed argument is large.
     bool display = z >= (uint32_t)pow(10, 5);
-    SegmentedSieve s(x, y, z, display);
+    BlockSieve s(x, y, z, display);
     s.run();
     return s.getCountBigPrimes();
 }

@@ -63,3 +63,4 @@ public:
 
 // Useful library-style functions
 uint32_t isqrt(uint64_t);
+uint32_t mod(int64_t, uint32_t);
