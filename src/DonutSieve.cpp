@@ -2,6 +2,7 @@
 #include <cmath>
 #include "../include/DonutSieve.hpp"
 #include "../include/QuadrantSieve.hpp"
+#include "../include/BlockSieve.hpp"
 using namespace std;
 
 

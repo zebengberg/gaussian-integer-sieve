@@ -2,16 +2,15 @@
 #include "../include/QuadrantSieve.hpp"
 #include "../include/OctantSieve.hpp"
 #include "../include/DonutSieve.hpp"
+#include "../include/BlockSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
 using namespace std;
 
 
 int main() {
-    uint64_t x = pow(10, 8);
-    double alpha = 0;
-    double beta = M_PI_4;
-    SectorSieve s(x, alpha, beta);
+    uint64_t x = 10000;
+    OctantSieve s(x);
     s.setSieveArray();
     s.setSmallPrimes();
     s.sieve();

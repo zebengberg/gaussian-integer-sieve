@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseSieve.hpp"
-using namespace std;
+
 
 class OctantSieve : public SieveTemplate<bool> {
 private:
@@ -8,7 +8,7 @@ private:
 
 public:
     // Using an initializer list and calling SieveTemplate constructor to set maxNorm
-    explicit OctantSieve(uint64_t x, bool display = true) : SieveTemplate<bool>(x, display), x(x) {}
+    explicit OctantSieve(uint64_t x, bool verbose = true) : SieveTemplate<bool>(x, verbose), x(x) {}
 
     // overriding virtual methods
     void setSmallPrimes() override;

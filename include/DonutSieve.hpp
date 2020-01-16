@@ -1,6 +1,5 @@
 #pragma once
 #include "BaseSieve.hpp"
-#include "BlockSieve.hpp"
 using namespace std;
 
 class DonutSieve : public SieveTemplate<unsigned int> {

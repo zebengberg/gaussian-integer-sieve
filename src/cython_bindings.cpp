@@ -1,6 +1,7 @@
 #include "../include/cython_bindings.hpp"
 #include "../include/QuadrantSieve.hpp"
 #include "../include/DonutSieve.hpp"
+#include "../include/BlockSieve.hpp"
 #include <iostream>
 #include <cmath>
 
