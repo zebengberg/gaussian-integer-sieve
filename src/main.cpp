@@ -8,17 +8,14 @@ using namespace std;
 
 
 int main() {
-    uint64_t x = 2000;
-    double alpha = .8;
-    double beta = .1;
+    uint64_t x = pow(10, 8);
+    double alpha = 0;
+    double beta = M_PI_4;
     SectorSieve s(x, alpha, beta);
     s.setSieveArray();
     s.setSmallPrimes();
     s.sieve();
-    s.printSieveArray();
-    s.setBigPrimes();
-    s.sortBigPrimes();
-    s.printBigPrimes();
+    s.getCountBigPrimes();
 }
 
 int main2(int argc, const char* argv[]) {

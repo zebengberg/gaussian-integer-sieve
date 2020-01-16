@@ -7,7 +7,7 @@ class SectorSieve : public SieveTemplate<bool> {
 private:
     uint64_t x;
     double alpha, beta;
-    double tolerance = .00000000001;
+    const double tolerance = .00000000001;
     vector<uint32_t> heightShifts; // might not need
 
 public:
