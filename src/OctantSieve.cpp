@@ -16,7 +16,7 @@ void OctantSieve::setSmallPrimes() {
 }
 
 void OctantSieve::setSieveArray() {
-    // sieveArray holds values for Gint's with a, b >= 0, a >= b, and a^2 + b^2 <= x.
+    // sieveArray holds values for gint's with a, b >= 0, a >= b, and a^2 + b^2 <= x.
     if (verbose) {
         cerr << "Building sieve array..." << endl;
     }

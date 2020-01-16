@@ -1,10 +1,17 @@
+/* Perform sieving in the box defined by [x, x + dx) x [y, y + dy). Must have
+ * x > 0, y >= 0, dx > 0, dy > 0. Using a non-donut sieve approach; this will be
+ * most efficient if all of x, y, dx, and dy are multiples of 10.
+ */
+
+
+
 #include <iostream>
 #include <cmath>
 #include "BlockSieve.hpp"
 #include "../include/OctantSieve.hpp"
 using namespace std;
 
-// Using an initializer list
+// Using an initializer list in the constructor.
 BlockSieve::BlockSieve(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy, bool verbose)
     // Calling SieveTemplate constructor to set maxNorm = N(upper right corner)
     : SieveTemplate<bool>(pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2), verbose)

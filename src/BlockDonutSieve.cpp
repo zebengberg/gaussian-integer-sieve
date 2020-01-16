@@ -1,6 +1,6 @@
 /* Perform sieving in the box defined by [x, x + dx) x [y, y + dy). Must have
- * x > 0, y >= 0, dx > 0, dy > 0. Using a donut sieve approach; this will be
- * most efficient if all of x, y, dx, and dy are multiples of 10.
+ * x > 0, y >= 0, dx > 0, dy > 0. Using a donut sieve approach; all of x, y, dx,
+ * and dy must be multiples of 10.
  */
 
 #include <iostream>

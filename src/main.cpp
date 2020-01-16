@@ -3,19 +3,22 @@
 #include "../include/OctantSieve.hpp"
 #include "../include/DonutSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
+#include "../include/SectorSieve.hpp"
 using namespace std;
 
 
 int main() {
-    uint32_t x = 0;
-    uint32_t y = 0;
-    uint32_t dx = 10000;
-    uint32_t dy = 2000;
-    BlockDonutSieve s(x, y, dx, dy);
-    s.run();
+    uint64_t x = 2000;
+    double alpha = .8;
+    double beta = .1;
+    SectorSieve s(x, alpha, beta);
+    s.setSieveArray();
+    s.setSmallPrimes();
+    s.sieve();
+    s.printSieveArray();
     s.setBigPrimes();
     s.sortBigPrimes();
-    s.getCountBigPrimes();
+    s.printBigPrimes();
 }
 
 int main2(int argc, const char* argv[]) {

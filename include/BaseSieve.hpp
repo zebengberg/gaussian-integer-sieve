@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 using namespace std;
 
 
@@ -10,6 +11,7 @@ struct gint {
     uint32_t a, b;
     gint(uint32_t a, uint32_t b) { this->a = a; this->b = b; }
     uint64_t norm() { return a * a + b * b; }
+    double arg() { return atan2(b, a); }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
     pair<uint32_t, uint32_t> asPair() {return pair<uint32_t, uint32_t> {a, b}; }
     friend bool operator < (gint g1, gint g2) { return g1.norm() < g2.norm(); }
