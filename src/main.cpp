@@ -1,7 +1,6 @@
 #include <iostream>
-#include "../include/QuadrantSieve.hpp"
 #include "../include/OctantSieve.hpp"
-#include "../include/DonutSieve.hpp"
+#include "../include/OctantDonutSieve.hpp"
 #include "../include/BlockSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
@@ -68,7 +67,6 @@ int main2(int argc, const char* argv[]) {
         if ((arg == "-a") || (arg == "--printarray")) { printArray = true; }
         if ((arg == "-c") || (arg == "--count")) { count = true; }
 
-        if ((arg == "-q") || (arg == "--quadrant")) { sieveType = "quadrant"; }
         else if ((arg == "-o") || (arg == "--octant")) { sieveType = "octant"; }
         else if ((arg == "-s") || (arg == "--segmented")) { sieveType = "segmented"; }
 
@@ -93,7 +91,7 @@ int main2(int argc, const char* argv[]) {
     if (verbose) { cerr << '\n' << endl; }
     // Very boilerplate, but sieve objects are distinct.
     if (sieveType == "donut") {
-        DonutSieve s(x, verbose);
+        OctantDonutSieve s(x, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
@@ -104,24 +102,6 @@ int main2(int argc, const char* argv[]) {
         s.sortBigPrimes();
         if (write) {
             s.writeBigPrimesToFile();
-        }
-        // Default behavior if no useful options passed in.
-        if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {
-            s.printBigPrimes();
-        }
-    } else if (sieveType == "quadrant") {
-        QuadrantSieve s(x, verbose);
-        s.run();
-        if (printArray) { s.printSieveArray(); }
-        if (count) {
-            s.getCountBigPrimes();
-            return 0;  // early exit for count
-        }
-        s.setBigPrimes();
-        s.sortBigPrimes();
-        if (write) {
-            s.writeBigPrimesToFile();
-            return 0;
         }
         // Default behavior if no useful options passed in.
         if (printPrimes || ((!printPrimes) && (!printArray) && (!write))) {

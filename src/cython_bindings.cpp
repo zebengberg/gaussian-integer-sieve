@@ -1,6 +1,6 @@
 #include "../include/cython_bindings.hpp"
 #include "../include/QuadrantSieve.hpp"
-#include "../include/DonutSieve.hpp"
+#include "OctantDonutSieve.hpp"
 #include "../include/BlockSieve.hpp"
 #include <iostream>
 #include <cmath>
@@ -14,7 +14,7 @@ vector<pair<uint32_t, uint32_t>> gPrimes(uint64_t x) {
     }
     // Trigger verbose mode if passed argument is large.
     bool verbose = x >= (uint64_t)pow(10, 7);
-    DonutSieve s(x, verbose);
+    OctantDonutSieve s(x, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     vector<pair<uint32_t, uint32_t>> pairP;
@@ -27,7 +27,7 @@ vector<pair<uint32_t, uint32_t>> gPrimes(uint64_t x) {
 
 // And have this contain longs?
 pair<uint32_t *, uint64_t> gPrimesAsArray(uint64_t x) {
-    DonutSieve s(x);
+    OctantDonutSieve s(x);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     // Creating a 1-dimensional array to hold big primes -- this way we can avoid array of pointers.
@@ -56,7 +56,7 @@ vector<pair<uint32_t , uint32_t>> gPrimesSegment(uint32_t x, uint32_t y, uint32_
 uint64_t gPrimesCount(uint64_t x) {
     // Show display if passed argument is large.
     bool display = x >= (uint64_t)pow(10, 9);
-    DonutSieve s(x, display);
+    OctantDonutSieve s(x, display);
     s.run();
     return s.getCountBigPrimes();
 }

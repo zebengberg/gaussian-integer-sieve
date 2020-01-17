@@ -2,7 +2,7 @@
 #include "BaseSieve.hpp"
 using namespace std;
 
-class DonutSieve : public SieveTemplate<unsigned int> {
+class OctantDonutSieve : public SieveTemplate<unsigned int> {
 private:
     const uint64_t x;
     const uint32_t dStart[10];  // used to start d during crossOffMultiples()
@@ -12,7 +12,7 @@ private:
     const int32_t imagPartDecompress[32];
 
 public:
-    explicit DonutSieve(uint64_t, bool = true);  // default values must be set in header
+    explicit OctantDonutSieve(uint64_t, bool = true);  // default values must be set in header
     void setFalse(uint32_t, uint32_t);
     void setTrue(uint32_t, uint32_t);
     static void printDonutArrays();  // only needed to help write the source cpp file

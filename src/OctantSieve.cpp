@@ -1,3 +1,7 @@
+// Using a boolean-style sieve array to generate all primes in first octant.
+// This class does not rely on any other methods besides those in BaseSieve to
+// generate its set of small primes. This will be called by every other sieving
+// method to generated small primes.
 #include <iostream>
 #include "../include/OctantSieve.hpp"
 using namespace std;

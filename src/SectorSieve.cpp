@@ -41,9 +41,9 @@ void SectorSieve::setSmallPrimes() {
     if (verbose) {
         cerr << "Calling the OctantSieve to generate smallPrimes..." << endl;
     }
-    OctantSieve qs((uint64_t)isqrt(maxNorm), false);
-    qs.run();
-    smallPrimes = qs.getBigPrimes();
+    OctantSieve s((uint64_t)isqrt(maxNorm), false);
+    s.run();
+    smallPrimes = s.getBigPrimes();
 }
 
 // Involves many intersections.

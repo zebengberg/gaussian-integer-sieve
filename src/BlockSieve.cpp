@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "BlockSieve.hpp"
+#include "../include/BlockSieve.hpp"
 #include "../include/OctantSieve.hpp"
 using namespace std;
 

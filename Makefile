@@ -6,18 +6,32 @@
 # $+: similar to $^, but includes duplicates.
 # $?: the names of all prerequisites that are newer than the target, separated by spaces.
 
+# Compiler and flags needed for calling it.
 CC = clang++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
 # Main executable.
-target = gintsieve
-# Not including main.cpp in these three variables
-sources = src/BaseSieve.cpp src/QuadrantSieve.cpp src/OctantSieve.cpp src/DonutSieve.cpp src/SegmentedSieve.cpp
-headers = include/BaseSieve.hpp include/QuadrantSieve.hpp include/OctantSieve.hpp include/DonutSieve.hpp include/SegmentedSieve.hpp
-objects = opt/BaseSieve.o opt/QuadrantSieve.o opt/OctantSieve.o opt/DonutSieve.o opt/SegmentedSieve.o
+TARGET = gintsieve
 
+# Variables with some relevant files.
+CORE = src/BaseSieve.cpp src/OctantSieve.cpp include/BaseSieve.hpp include/OctantSieve.hpp
+
+EXTENDED = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
+		   include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp
+
+EVERYTHING = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
+	   	     src/BlockSieve.cpp src/BlockDonutSieve.cpp src/SectorSieve.cpp \
+		     include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp \
+		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp
+
+# All object files but main.o
+OBJECTS = opt/BaseSieve.o opt/OctantSieve.o opt/OctantDonutSieve.o \
+          opt/BlockSieve.o opt/BlockDonutSieve.o opt/SectorSieve.o
+
+
+# Telling make to compile every object.
 .PHONY: all
-all: $(objects) opt $(target)
+all: $(OBJECTS) opt $(TARGET)
 
 # Make opt/ directory if it doesn't exist.
 $(shell mkdir -p opt/)
@@ -26,22 +40,25 @@ $(shell mkdir -p opt/)
 opt/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
 	$(CC) $(CFLAGS) src/BaseSieve.cpp -o $@
 
-opt/QuadrantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp
-	$(CC) $(CFLAGS) src/QuadrantSieve.cpp -o $@
-
-opt/OctantSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp src/QuadrantSieve.cpp include/QuadrantSieve.hpp src/OctantSieve.cpp include/OctantSieve.hpp
+opt/OctantSieve.o: $(CORE)
 	$(CC) $(CFLAGS) src/OctantSieve.cpp -o $@
 
-opt/DonutSieve.o: $(sources) $(headers)
-	$(CC) $(CFLAGS) src/DonutSieve.cpp -o $@
+opt/OctantDonutSieve.o: $(EXTENDED)
+	$(CC) $(CFLAGS) src/OctantDonutSieve.cpp -o $@
 
-opt/SegmentedSieve.o: $(sources) $(headers)
-	$(CC) $(CFLAGS) src/SegmentedSieve.cpp -o $@
+opt/BlockSieve.o: $(CORE) src/BlockSieve.cpp include/BlockSieve.hpp
+	$(CC) $(CFLAGS) src/BlockSieve.cpp -o $@
 
-opt/main.o: $(sources) $(headers) src/main.cpp
+opt/BlockDonutSieve.o: $(EXTENDED) src/BlockDonutSieve.cpp include/BlockDonutSieve.hpp
+	$(CC) $(CFLAGS) src/BlockDonutSieve.cpp -o $@
+
+opt/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
+	$(CC) $(CFLAGS) src/SectorSieve.cpp -o $@
+
+opt/main.o: $(EVERYTHING) src/main.cpp
 	$(CC) $(CFLAGS) src/main.cpp -o $@
 
-$(target): $(objects) opt/main.o
+$(TARGET): $(OBJECTS) opt/main.o
 	$(CC) -o $@ $^
 
 .PHONY: clean

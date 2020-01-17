@@ -1,12 +1,12 @@
 #include <iostream>
 #include <cmath>
-#include "../include/DonutSieve.hpp"
-#include "../include/QuadrantSieve.hpp"
-#include "../include/BlockSieve.hpp"
+#include "../include/OctantDonutSieve.hpp"  // header
+#include "../include/OctantSieve.hpp"  // for generating small primes
+#include "../include/BlockSieve.hpp"  // for generating donut stuff
 using namespace std;
 
 
-DonutSieve::DonutSieve(uint64_t x, bool verbose)
+OctantDonutSieve::OctantDonutSieve(uint64_t x, bool verbose)
     : SieveTemplate<unsigned int>(x, verbose)  // calling SieveTemplate constructor to set maxNorm
     , x(x)
 
@@ -45,18 +45,18 @@ DonutSieve::DonutSieve(uint64_t x, bool verbose)
     , imagPartDecompress{1, 3, 7, 9, 0, 4, 6, 3, 5, 7, 0, 2, 8, 1, 5, 9, 2, 4, 6, 8, 1, 5, 9, 0, 2, 8, 3, 5, 7, 0, 4, 6}
 {}
 
-void DonutSieve::setSmallPrimes() {
+void OctantDonutSieve::setSmallPrimes() {
     // Setting smallPrimes to the output of QuadrantSieve, which can generate
     // its own small primes.
     if (verbose) {
         cerr << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
     }
-    QuadrantSieve qs(isqrt(maxNorm), false);
-    qs.run();
-    smallPrimes = qs.getBigPrimes();
+    OctantSieve s(isqrt(maxNorm), false);
+    s.run();
+    smallPrimes = s.getBigPrimes();
 }
 
-void DonutSieve::setSieveArray() {
+void OctantDonutSieve::setSieveArray() {
     // Every 10 x 10 block of gints should get compressed into a 32-bit structure.
     // We'll use an int for this.
     // Proceed as for octant sieve. The int at (a, b) contains the 10 x 10 block with
@@ -80,7 +80,7 @@ void DonutSieve::setSieveArray() {
     }
 }
 
-void DonutSieve::crossOffMultiples(gint g) {
+void OctantDonutSieve::crossOffMultiples(gint g) {
     if (g.norm() <= 5) { return; }  // exit early if g is above 2 or 5.
     // Let a + bi be the gint and c + di be the co-factor of the multiple we seek.
     // Because the product (a + bi)(c + di) should be coprime to 10, we need that
@@ -124,19 +124,19 @@ void DonutSieve::crossOffMultiples(gint g) {
     }
 }
 
-void DonutSieve::setFalse(uint32_t u, uint32_t v) {
+void OctantDonutSieve::setFalse(uint32_t u, uint32_t v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
     uint32_t bit = bitDonut[u % 10][v % 10];
     sieveArray[u / 10][v / 10] &= ~(1u << bit);  // clearing the bit; 1u is unsigned int
 }
 
-void DonutSieve::setTrue(uint32_t u, uint32_t v) {
+void OctantDonutSieve::setTrue(uint32_t u, uint32_t v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
     unsigned char bit = bitDonut[u % 10][v % 10];
     sieveArray[u / 10][v / 10] |= (1u << bit);  // setting the bit to 0; 1u is unsigned int
 }
 
-void DonutSieve::setBigPrimes() {
+void OctantDonutSieve::setBigPrimes() {
     if (verbose) {
         cerr << "Gathering primes after sieve..." << endl;
     }
@@ -167,7 +167,7 @@ void DonutSieve::setBigPrimes() {
     }
 }
 
-uint64_t DonutSieve::getCountBigPrimes() {
+uint64_t OctantDonutSieve::getCountBigPrimes() {
     if (verbose) {
         cerr << "Counting primes after sieve..." << endl;
     }
@@ -203,7 +203,7 @@ uint64_t DonutSieve::getCountBigPrimes() {
 
 // Using this method to print out some of the member variables used in constructor.
 // This prints out necessary data for the donut.
-void DonutSieve::printDonutArrays() {
+void OctantDonutSieve::printDonutArrays() {
     BlockSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));

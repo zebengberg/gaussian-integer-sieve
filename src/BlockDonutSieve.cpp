@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "../include/DonutSieve.hpp"
+#include "../include/OctantDonutSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
 using namespace std;
 
@@ -57,9 +57,9 @@ BlockDonutSieve::BlockDonutSieve(uint32_t x, uint32_t y, uint32_t dx, uint32_t d
 // Calling the fastest sieve method available to generate small primes.
 void BlockDonutSieve::setSmallPrimes() {
     if (verbose) {
-        cerr << "Calling the DonutSieve to generate smallPrimes..." << endl;
+        cerr << "Calling the OctantDonutSieve to generate smallPrimes..." << endl;
     }
-    DonutSieve s((uint64_t)isqrt(maxNorm), false);
+    OctantDonutSieve s((uint64_t)isqrt(maxNorm), false);
     s.run();
     smallPrimes = s.getBigPrimes();
 }
