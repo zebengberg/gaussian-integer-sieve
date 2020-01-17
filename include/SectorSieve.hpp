@@ -11,7 +11,7 @@ private:
     vector<uint32_t> heightShifts; // might not need
 
 public:
-    SectorSieve(uint64_t, double = 0, double = M_PI_4, bool = true);
+    SectorSieve(uint64_t, double, double, bool = true);
 
     // overriding virtual methods
     void setSmallPrimes() override;
