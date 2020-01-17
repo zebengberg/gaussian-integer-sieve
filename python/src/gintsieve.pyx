@@ -6,52 +6,79 @@ from cython cimport view
 import matplotlib.pyplot as plt
 from libc.stdint cimport uint32_t, uint64_t
 
-from gintsieve_externs cimport gPrimes, gPrimesCount, gPrimesSegment, gPrimesSegmentCount, gPrimesAsArray
+from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
+    gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
+    gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray
 
+cpdef gprimes(uint64_t x):
+    """Generate a GintList object of primes up to norm x."""
+    # Cython casts vector to an array.
+    return GintList(gPrimesToNorm(x), x)
 
-cpdef gprimes_as_array(uint64_t x):
-    pairs = gPrimesAsArray(x)
-    cdef uint32_t *ptr = pairs.first
-    cdef uint64_t size = pairs.second
-    # Casting c++ pointer from gPrimesArray to a memory view object
-    # primes = np.asarray(<np.int64_t[:size]> ptr)
+cpdef gprimes_sector(uint64_t x, double alpha, double beta):
+    """Generate a GintList object of primes up to norm x in given sector."""
+    return GintList(gPrimesInSector(x, alpha, beta), x, alpha, beta)
+
+cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+    """Generate a GintList object of primes up to norm x in given sector."""
+    return GintList(gPrimesInBlock(x, y, dx, dy), x, y, dx, dy)
+
+cpdef count_gprimes(uint64_t x):
+    """Count primes up to norm x."""
+    return gPrimesToNormCount(x)
+
+cpdef count_gprimes_sector(uint64_t x, double alpha, double beta):
+    """Count primes up to norm x."""
+    return gPrimesInSectorCount(x, alpha, beta)
+
+cpdef count_gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+    """Count primes up to norm x."""
+    return gPrimesInBlockCount(x, y, dx, dy)
+
+cpdef gprimes_as_np(uint64_t x):
+    both = gPrimesToNormAsArray(x)
+    cdef uint32_t *ptr = both.first
+    cdef uint64_t size = both.second
+    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
+    cdef view.array primes = <np.uint32_t[:size]> ptr
+    cdef np_primes = np.asarray(primes)
+    return np_primes
+
+cpdef gprimes_sector_as_np(uint64_t x, double alpha, double beta):
+    both = gPrimesInSectorAsArray(x, alpha, beta)
+    cdef uint32_t *ptr = both.first
+    cdef uint64_t size = both.second
+    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
+    cdef view.array primes = <np.uint32_t[:size]> ptr
+    cdef np_primes = np.asarray(primes)
+    return np_primes
+
+cpdef gprimes_block_as_np(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+    both = gPrimesInBlockAsArray(x, y, dx, dy)
+    cdef uint32_t *ptr = both.first
+    cdef uint64_t size = both.second
+    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
     cdef view.array primes = <np.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     return np_primes
 
 
-# cpdef gprimes_as_array(long x):
-#     pair = gPrimesArray(x)
-#     cdef long *ptr = pair.first
-#     cdef npy_intp size = pair.second
-#     cdef np.ndarray[np.int64_t, ndim=1] primes = np.PyArray_SimpleNewFromData(1, &size, np.NPY_INT64, ptr)
-
-
-cpdef gprimes(uint64_t x):
-    """Generate a list of primes up to norm x or in given rectangle."""
-
-    # Cython casts vectors to an array.
-    return GintList(gPrimes(x), x)
-
-
-cpdef gprimes_count(uint64_t x):
-    """Count primes up to norm x or in given rectangle."""
-    return gPrimesCount(x)
-    # if z:
-    #     return gPrimesSegmentCount(x, y, z)
-    # else:
-
 
 
 class GintList(list):
     """Class to wrap sieved lists."""
-    def __init__(self, gints, x, y=0, z=0):
+    def __init__(self, gints, x, x1=-1, x2=-1, x3=-1):
         list.__init__(self, gints)
         self.x = x
-        if z:
-            self.y = y
-            self.z = z
-            self.sieve = 'segment'
+        if x3 != -1:
+            self.y = x1
+            self.dx = x2
+            self.dy = x3
+            self.sieve = 'block'
+        elif x2 != -1:
+            self.alpha = min(x1, x2)
+            self.beta = max(x1, x2)
+            self.sieve = 'sector'
         else:
             self.sieve = 'to_norm'
 

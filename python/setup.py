@@ -8,10 +8,11 @@ import numpy as np
 sources = ['src/gintsieve.pyx',
            '../src/cython_bindings.cpp',
            '../src/BaseSieve.cpp',
-           '../src/QuadrantSieve.cpp',
            '../src/OctantSieve.cpp',
-           '../src/DonutSieve.cpp',
-           '../src/SegmentedSieve.cpp']
+           '../src/OctantDonutSieve.cpp',
+           '../src/SectorSieve.cpp',
+           '../src/BlockSieve.cpp',
+           '../src/BlockDonutSieve.cpp']
 
 extensions = [Extension('gintsieve',
                         sources=sources,
