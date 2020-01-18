@@ -49,7 +49,7 @@ void OctantDonutSieve::setSmallPrimes() {
     // Setting smallPrimes to the output of QuadrantSieve, which can generate
     // its own small primes.
     if (verbose) {
-        cerr << "Calling the QuadrantSieve to generate smallPrimes..." << endl;
+        cerr << "Calling the OctantSieve to generate smallPrimes..." << endl;
     }
     OctantSieve s(isqrt(maxNorm), false);
     s.run();

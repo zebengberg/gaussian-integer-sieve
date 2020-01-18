@@ -29,18 +29,21 @@ setup(
     license='MIT',
     ext_modules=cythonize(extensions))
 
-
-try:
-    print('Cleaning up after build...')
-    # Cleaning up build directory after the cythonize build
-    shutil.rmtree('build/')
-    # Removing the cython generated .cpp
-    os.remove('src/gintsieve.cpp')
-except FileNotFoundError:
-    pass
-
 # Rename the shared object file gintsieve.xxxxxx.so
 for file in os.listdir('.'):
     if file.endswith('.so'):
         os.rename(file, 'gintsieve.so')
         break
+
+
+if False:  # change false to true to clean the build directory
+    try:
+        print('Cleaning up after build...')
+        # Cleaning up build directory after the cythonize build
+        shutil.rmtree('build/')
+        # Removing the cython generated .cpp
+        os.remove('src/gintsieve.cpp')
+    except FileNotFoundError:
+        pass
+
+

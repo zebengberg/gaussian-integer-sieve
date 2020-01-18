@@ -20,3 +20,6 @@ uint64_t gPrimesInBlockCount(uint32_t, uint32_t, uint32_t, uint32_t);
 pair<uint32_t *, uint64_t> gPrimesToNormAsArray(uint64_t);
 pair<uint32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t, double, double);
 pair<uint32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, uint32_t);
+
+// Histogram of angles of primes to norm.
+vector<uint64_t> angularDistribution(uint64_t, uint32_t);

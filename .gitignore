@@ -12,4 +12,5 @@ opt/
 *.so
 
 # cython generated stuff
-python/gintsieve.cpp
+python/build/
+python/src/gintsieve.cpp

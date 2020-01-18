@@ -8,7 +8,8 @@ from libc.stdint cimport uint32_t, uint64_t
 
 from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
     gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
-    gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray
+    gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray,\
+    angularDistribution
 
 cpdef gprimes(uint64_t x):
     """Generate a GintList object of primes up to norm x."""
@@ -142,3 +143,21 @@ class GintList(list):
         plt.ylabel('$\pi({}, {}) - \pi({}, {})$'.format(a, b, c, d))
         plt.axhline(0, color='red')
         plt.show()
+
+cpdef race(a, b, c, d):
+    # histogram?
+    # plot norm against cum sum?
+    # weight them in different ways?
+    # specify norm or let function specify it?
+    pass
+
+cpdef moat():
+    # get prmes in block
+    pass
+
+cpdef angular_dist(x, n_bins):
+    bins = angularDistribution(x, n_bins)
+    for bin in bins:
+        print(bin)
+
+

@@ -18,3 +18,5 @@ cdef extern from '../../include/cython_bindings.hpp':
     pair[unsigned int *, uint64_t] gPrimesToNormAsArray(uint64_t)
     pair[unsigned int *, uint64_t] gPrimesInSectorAsArray(uint64_t, double, double)
     pair[unsigned int *, uint64_t] gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, uint32_t)
+
+    vector[uint64_t] angularDistribution(uint64_t, uint32_t)

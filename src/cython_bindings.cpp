@@ -145,3 +145,20 @@ pair<uint32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t x, uint32_t y, uint32_
     cout << P << endl;
     return pair<uint32_t *, uint64_t> {P, 2 * size};
 }
+
+// Getting statistics on the angular distribution of Gaussian primes to norm.
+vector<uint64_t> angularDistribution(uint64_t x, uint32_t nBins) {
+    // A vector holding nBins, each with value 0.
+    vector<uint64_t> bins(nBins, 0);
+    OctantDonutSieve s(x);
+    s.run();
+    vector<gint> gintP = s.getBigPrimes();
+    for (gint g : gintP) {
+        double angle = g.arg();
+        auto bin = uint32_t(nBins * angle / M_PI_4);
+        if (bin < nBins) {  // getting primes only first octant, not second octant
+            bins[bin]++;
+        }
+    }
+    return bins;
+}
