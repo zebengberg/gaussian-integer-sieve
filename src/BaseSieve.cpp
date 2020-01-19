@@ -49,9 +49,11 @@ void SieveBase::run() {
     sieve();
 }
 
-vector<gint> SieveBase::getBigPrimes() {
+vector<gint> SieveBase::getBigPrimes(bool sort) {
     setBigPrimes();
-    sortBigPrimes();
+    if (sort) {
+        sortBigPrimes();
+    }
     return bigPrimes;
 }
 

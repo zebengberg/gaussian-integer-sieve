@@ -155,9 +155,15 @@ cpdef moat():
     # get prmes in block
     pass
 
-cpdef angular_dist(x, n_bins):
-    bins = angularDistribution(x, n_bins)
-    for bin in bins:
-        print(bin)
+cpdef angular_dist(x, n_sectors):
+    """Make histogram of number of Gaussian primes up to norm x in equispaced sectors."""
+    data = np.array(angularDistribution(x, n_sectors))
+    min = np.percentile(data, 1)
+    max = np.percentile(data, 99)
+    plt.hist(data, bins=30, range=(min, max))
+    plt.show()
+    return data
+
+
 
 

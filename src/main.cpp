@@ -233,7 +233,7 @@ int main(int argc, const char* argv[]) {
 
 
 ///* TODO
-// * write tests.cpp file
+// * write tests.cpp file and benchmarks file
 // * write race.cpp file
 // * use this to get results of race, possible load as np
 // * publish to pip

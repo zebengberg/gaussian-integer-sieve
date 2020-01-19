@@ -10,7 +10,7 @@ struct gint {
     // Members are public by default in a struct.
     uint32_t a, b;
     gint(uint32_t a, uint32_t b) { this->a = a; this->b = b; }
-    uint64_t norm() { return a * a + b * b; }
+    uint64_t norm() { return uint64_t(a) * uint64_t(a) + uint64_t(b) * uint64_t(b); }
     double arg() { return atan2(b, a); }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
     pair<uint32_t, uint32_t> asPair() {return pair<uint32_t, uint32_t> {a, b}; }
@@ -37,7 +37,7 @@ public:
     void printBigPrimes();
     void writeBigPrimesToFile();
     void run();  // run necessary sieve methods; does not gather big primes
-    vector<gint> getBigPrimes();  // return the big primes after run()
+    vector<gint> getBigPrimes(bool = true);  // return the big primes after run()
 
     // Virtual methods to be implemented in derived classes
     virtual void setSmallPrimes() = 0;
