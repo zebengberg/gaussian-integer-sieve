@@ -158,12 +158,10 @@ vector<uint64_t> angularDistribution(uint64_t x, uint32_t nSectors) {
         double angle = g.arg();
         auto sector = uint32_t(nSectors * angle / M_PI_4);
         // Only considering first octant (not second).
-        // Inert primes cause outliers in first sector count; perhaps should count with multiplicity 1/2.
+        // Inert primes cause outliers in first sector count;
+        // perhaps should count with multiplicity 1/2.
         if (sector < nSectors) {
             sectors[sector]++;
-            if (sectors[sector] > 900000) {
-                cout << g.a << "  " << g.b << endl;
-            }
         }
     }
     return sectors;

@@ -35,15 +35,13 @@ for file in os.listdir('.'):
         os.rename(file, 'gintsieve.so')
         break
 
-
-if False:  # change false to true to clean the build directory
-    try:
-        print('Cleaning up after build...')
-        # Cleaning up build directory after the cythonize build
-        shutil.rmtree('build/')
-        # Removing the cython generated .cpp
-        os.remove('src/gintsieve.cpp')
-    except FileNotFoundError:
-        pass
+try:
+    print('Cleaning up after build...')
+    # Cleaning up build directory after the cythonize build
+    shutil.rmtree('build/')
+    # Removing the cython generated .cpp
+    os.remove('src/gintsieve.cpp')
+except FileNotFoundError:
+    pass
 
 

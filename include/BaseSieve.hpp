@@ -14,7 +14,19 @@ struct gint {
     double arg() { return atan2(b, a); }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
     pair<uint32_t, uint32_t> asPair() {return pair<uint32_t, uint32_t> {a, b}; }
-    friend bool operator < (gint g1, gint g2) { return g1.norm() < g2.norm(); }
+    // Gives a total ordering; every two distinct gints are related by <.
+    friend bool operator < (gint g1, gint g2) {
+        uint64_t n1 = g1.norm();
+        uint64_t n2 = g2.norm();
+        if (n1 == n2) {
+            return g1.a > g2.a;  // reverse lexicographic; larger real part is smaller
+        } else {
+            return n1 < n2;
+        }
+    }
+    friend bool operator == (gint g1, gint g2) {
+        return (g1.a == g2.a) && (g1.b == g2.b);
+    }
 };
 
 
