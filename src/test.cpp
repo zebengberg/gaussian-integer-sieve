@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include "../include/OctantSieve.hpp"
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/BlockSieve.hpp"
@@ -45,12 +46,14 @@ int main() {
     cout << " | block | # of primes | block sieve time | block donut sieve time | " << endl;
     cout << " |-------|-------------|------------------|------------------------| " << endl;
 
+    default_random_engine generator;
+    uniform_int_distribution<int> distInt(1,9);
     for (int j = 1; j <= 5; j++) {
-        // Some arbitrary testing parameters.
-        uint32_t x = 1 * j * pow(10, 6);
-        uint32_t y = 2 * j * pow(10, 6);
-        uint32_t dx = 1 * j * 100;
-        uint32_t dy = 2 * j * 100;
+        // Arbitrary testing parameters.
+        uint32_t x = distInt(generator) * pow(10, 6);
+        uint32_t y = distInt(generator) * pow(10, 6);
+        uint32_t dx = distInt(generator) * 100;
+        uint32_t dy = distInt(generator) * 100;
 
         auto startTime = chrono::high_resolution_clock::now();
         BlockSieve b(x, y, dx, dy, false);
@@ -81,20 +84,31 @@ int main() {
         assert(bP == dP);
     }
 
-    cout << "\nTesting and Timing Sector Sieve against Block Donut Sieve\n" << endl;
+    cout << "\nTiming Sector Sieve\n" << endl;
+    cout << " | alpha | beta | norm bound | # of primes | time | " << endl;
+    cout << " |-------|------|------------|-------------|------| " << endl;
+    uniform_real_distribution<double> distReal(0.0, M_PI_4 - 0.01);
     for (int j = 25; j <= 30; j++) {
-        double alpha = .01 * (j - 25);
-        double beta = alpha + .01;
+        uint64_t x = pow(2, j);
+        double alpha = distReal(generator);
+        double beta = distReal(generator);
+        double temp = max(alpha, beta);
+        alpha = min(alpha, beta);
+        beta = temp;
 
         auto startTime = chrono::high_resolution_clock::now();
-        SectorSieve s(pow(2, j), alpha, beta, false);
+        SectorSieve s(x, alpha, beta, false);
         s.run();
         vector<gint> sP = s.getBigPrimes(false);  // not sorting yet
         auto endTime = chrono::high_resolution_clock::now();
         auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
         double sectorTime = double(totalTime.count()) / 1000.0;
-
-        cout << sectorTime << "  " << endl;
+        cout << " | " << alpha
+             << " | " << beta
+             << " | 2^" << j
+             << " | " << sP.size()
+             << " | " << sectorTime
+             << " | " << endl;
 
     }
     return 0;

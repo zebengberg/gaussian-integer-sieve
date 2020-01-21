@@ -6,8 +6,14 @@
 #include "../include/SectorSieve.hpp"
 using namespace std;
 
+int main() {
+    SectorSieve o(pow(10, 10), .1001, .1002);
+    o.run();
+    o.setBigPrimes();
+}
 
-int main(int argc, const char* argv[]) {
+
+int main2(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
