@@ -9,7 +9,7 @@ from libc.stdint cimport uint32_t, uint64_t
 from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
     gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
     gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray,\
-    angularDistribution
+    angularDistribution, sectorRace
 
 cpdef gprimes(uint64_t x):
     """Generate a GintList object of primes up to norm x."""
@@ -144,18 +144,13 @@ class GintList(list):
         plt.axhline(0, color='red')
         plt.show()
 
-cpdef race(a, b, c, d):
-    # histogram?
-    # plot norm against cum sum?
-    # weight them in different ways?
-    # specify norm or let function specify it?
-    pass
+
 
 cpdef moat():
     # get prmes in block
     pass
 
-cpdef angular_dist(x, n_sectors):
+cpdef angular_dist(uint64_t x, uint32_t n_sectors):
     """Make histogram of number of Gaussian primes up to norm x in equispaced sectors."""
     data = np.array(angularDistribution(x, n_sectors))
     min = np.percentile(data, 1)
@@ -164,6 +159,8 @@ cpdef angular_dist(x, n_sectors):
     plt.show()
     return data
 
-
+cpdef sector_race(uint64_t x, double a, double b, double c, double d, uint32_t n_bins):
+    """Generate n_bins checkpoints for the race pi(x, a, b) - pi(x, c, d)."""
+    return sectorRace(x, a, b, c, d, n_bins)
 
 

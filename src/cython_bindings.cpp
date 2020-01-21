@@ -166,3 +166,41 @@ vector<uint64_t> angularDistribution(uint64_t x, uint32_t nSectors) {
     }
     return sectors;
 }
+
+
+vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, double delta, uint32_t nBins) {
+    if ((beta - alpha) - (delta - gamma) > 0.0000001) {
+        cerr << "Unfair race; try again with two equal-sized intervals." << endl;
+        exit(1);
+    }
+    if (alpha < 0 || beta < 0 || gamma < 0 || delta < 0 ||
+        alpha > M_PI_4 || beta > M_PI_4 || gamma > M_PI_4 || delta > M_PI_4) {
+        cerr << "Stay inside the first octant." << endl;
+        exit(1);
+    }
+    SectorSieve s1(x, alpha, beta);
+    SectorSieve s2(x, gamma, delta);
+    cerr << "Running Sector Sieves...\n" << endl;
+    s1.run();
+    s2.run();
+    vector<gint> p1 = s1.getBigPrimes(false);
+    vector<gint> p2 = s2.getBigPrimes(false);
+
+    cerr << "Collecting norm data from sieved primes..." << endl;
+    // Collecting norm data
+    // Creating a vector of length x / spacing of all 0s
+    vector<int32_t> normData(nBins, 0);
+    // Incrementing for gints in first sector; decrementing for gints in second sector.
+    for (gint g : p1) {
+        normData[g.norm() * nBins / x]++;
+    }
+    for (gint g : p2) {
+        normData[g.norm() * nBins / x]--;
+    }
+
+    return normData;
+}
+
+// log density
+//    cum sum
+//    shanks histogram
