@@ -6,14 +6,17 @@
 #include "../include/SectorSieve.hpp"
 using namespace std;
 
-int main() {
-    SectorSieve o(pow(10, 9), 0, M_PI_4);
-    o.run();
-    o.setBigPrimes();
+// Delete after debugging
+int main2() {
+    SectorSieve s(100000, .1, .2);
+    s.run();
+    s.setBigPrimes();
+    s.printBigPrimes();
+    return 0;
 }
 
 
-int main2(int argc, const char* argv[]) {
+int main(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
@@ -131,7 +134,7 @@ int main2(int argc, const char* argv[]) {
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
-            s.getCountBigPrimes();
+            cout << s.getCountBigPrimes() << endl;
             return 0; // early exit for count
         }
         s.setBigPrimes();
@@ -149,7 +152,7 @@ int main2(int argc, const char* argv[]) {
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
-            s.getCountBigPrimes();
+            cout << s.getCountBigPrimes() << endl;
             return 0;  // early exit for count
         } else {
             s.setBigPrimes();
@@ -173,7 +176,7 @@ int main2(int argc, const char* argv[]) {
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
-            s.getCountBigPrimes();
+            cout << s.getCountBigPrimes() << endl;
             return 0;  // early exit for count
         }
         s.setBigPrimes();
@@ -196,7 +199,7 @@ int main2(int argc, const char* argv[]) {
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
-            s.getCountBigPrimes();
+            cout << s.getCountBigPrimes() << endl;
             return 0;  // early exit for count
         }
         s.setBigPrimes();
@@ -220,7 +223,7 @@ int main2(int argc, const char* argv[]) {
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {
-            s.getCountBigPrimes();
+            cout << s.getCountBigPrimes() << endl;
             return 0;  // early exit for count
         }
         s.setBigPrimes();

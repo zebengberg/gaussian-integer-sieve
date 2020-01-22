@@ -71,9 +71,13 @@ void SectorSieve::setSieveArray() {
         int32_t b;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
             // Do not include any point on the ray theta = beta.
-            b = int32_t(floor(tan(beta) * a + tolerance)) - heightShifts[a];
+            b = int32_t(floor(tan(beta) * a + tolerance)) - heightShifts[a] + 1;
         } else {
-            b = isqrt(x - a * a) - int32_t(ceil(tan(alpha) * a - tolerance)) + 1;
+            b = isqrt(x - a * a) - heightShifts[a] + 1;
+        }
+        // Sometimes b ends up negative; we must avoid this.
+        if (b < 0) {
+            b = 1;
         }
         vector<bool> column(b, true);  // Create a vector of size b with all values true.
         sieveArray.push_back(column);
@@ -165,9 +169,9 @@ uint64_t SectorSieve::getCountBigPrimes() {
         uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t bUpper;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
-            bUpper = int32_t(tan(beta) * a) - int32_t(ceil(tan(alpha) * a));
+            bUpper = int32_t(tan(beta) * a) - heightShifts[a];
         } else {
-            bUpper = isqrt(x - a * a) - int32_t(ceil(tan(alpha) * a));
+            bUpper = isqrt(x - a * a) - heightShifts[a];
         }
         for (int32_t b = 0; b <= bUpper; b++) {
             if (sieveArray[a][b]) {
@@ -178,5 +182,5 @@ uint64_t SectorSieve::getCountBigPrimes() {
     if (verbose) {
         cerr << "Total number of primes in sector: " << count << "\n" << endl;
     }
-    return count;  // four quadrants
+    return count;
 }

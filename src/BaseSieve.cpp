@@ -153,7 +153,7 @@ void SieveTemplate<bool>::printSieveArray() {
     for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
-            if (column.size() > v) {
+            if (int32_t(column.size()) > v) {
                 if (column[v]) {
                     row += '*';  // found a prime
                 } else {
@@ -180,7 +180,7 @@ void SieveTemplate<uint32_t>::printSieveArray() {
     for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
         string row;
         for (auto &column : sieveArray) {
-            if (column.size() > v) {
+            if (int32_t(column.size()) > v) {
                 // printing entire block padded by 1
                 // could use binary or hex or ints ...
                 // bitset<32> b(sieveArray[u][v]);
