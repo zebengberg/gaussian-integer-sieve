@@ -20,7 +20,7 @@ SectorSieve::SectorSieve(uint64_t x, double alpha, double beta, bool verbose)
         , beta(beta) // final angle of sector
 {
     if (beta < alpha) { // the order of alpha and beta doesn't matter; corrected here
-        double temp = alpha;
+        long double temp = alpha;
         this->alpha = beta;  // need this to make reassignment stick outside of this block of code
         this->beta = temp;
         if ((beta > M_PI_2) || (alpha < 0)) {
@@ -58,22 +58,26 @@ void SectorSieve::setSieveArray() {
     if (verbose) {
         cerr << "Building sieve array..." << endl;
     }
-    for (uint32_t a = 0; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
+    // Putting something in at a = 0, and crossing that something off.
+    heightShifts.push_back(1);
+    sieveArray.emplace_back(1, false);
+
+    for (uint32_t a = 1; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
         // Vertical offset from y-axis to sector.
-        heightShifts.push_back(ceil(tan(alpha - tolerance) * a));
+        heightShifts.push_back(int32_t(ceil(tan(alpha) * a - tolerance)));
 
         // a-value of intersection
         uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t b;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
-            b = int32_t(tan(beta) * a) - int32_t(ceil(tan(alpha) * a)) + 1;
+            // Do not include any point on the ray theta = beta.
+            b = int32_t(floor(tan(beta) * a + tolerance)) - heightShifts[a];
         } else {
-            b = isqrt(x - a * a) - int32_t(ceil(tan(alpha) * a)) + 1;
+            b = isqrt(x - a * a) - int32_t(ceil(tan(alpha) * a - tolerance)) + 1;
         }
         vector<bool> column(b, true);  // Create a vector of size b with all values true.
         sieveArray.push_back(column);
     }
-    sieveArray[0][0] = false;  // crossing off 0; it's in every sector
     if (alpha == 0) {
         sieveArray[1][0] = false;  // crossing off 1 (it's not prime)
     }
@@ -88,15 +92,15 @@ void SectorSieve::crossOffMultiples(gint g) {
     // First form a mini sector indexed by c and d. Imagining this sector as a
     // slice of pizza, there are three possible configurations for which point
     // on the pizza with tip at origin has largest x-value.
-    uint64_t intersectionc1 = isqrt(x / (g.norm() * (1 + pow(tan(beta - g.arg() + tolerance), 2))));
-    uint64_t intersectionc2 = isqrt(x / (g.norm() * (1 + pow(tan(alpha - g.arg() + tolerance), 2))));
+    uint64_t intersectionc1 = isqrt(x / (g.norm() * (1 + pow(tan(beta - g.arg()), 2))));
+    uint64_t intersectionc2 = isqrt(x / (g.norm() * (1 + pow(tan(alpha - g.arg()), 2))));
     uint64_t maxIntersectionc = max(intersectionc1, intersectionc2);
     uint64_t cUpper = max(maxIntersectionc, (uint64_t)isqrt(x / g.norm()));
     // Using 64 bits for c since we'll need to square it below.
     for (uint64_t c = 1; c <= cUpper; c++) {  //ignoring c, d = 0, 0
-        int32_t d = ceil(max(tan(alpha - g.arg() - tolerance) * c, -sqrt(x / g.norm() - c * c)));
+        int32_t d = ceil(max(tan(alpha - g.arg()) * c - tolerance, -(long double)sqrt(x / g.norm() - c * c)));
         // Subtract tolerance since arg(z) strictly less than beta.
-        int32_t dUpper = floor(min(tan(beta - g.arg() - tolerance) * c, sqrt(x / g.norm() - c * c)));
+        int32_t dUpper = floor(min(tan(beta - g.arg()) * c - tolerance, (long double)sqrt(x / g.norm() - c * c)));
         int32_t u = g.a * c - g.b * d;  // u = ac - bd
         int32_t v = g.b * c + g.a * d;  // v = bc + ad
         for (; d <= dUpper; d++) {
@@ -135,13 +139,13 @@ void SectorSieve::setBigPrimes() {
         uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t bUpper;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
-            bUpper = int32_t(tan(beta) * a) - int32_t(ceil(tan(alpha) * a));
+            bUpper = int32_t(tan(beta) * a) - heightShifts[a];
         } else {
-            bUpper = isqrt(x - a * a) - int32_t(ceil(tan(alpha) * a));
+            bUpper = isqrt(x - a * a) - heightShifts[a];
         }
         for (int32_t b = 0; b <= bUpper; b++) {
             if (sieveArray[a][b]) {
-                gint g(a, uint32_t (b + ceil(tan(alpha) * a)));  // pushing back up into actual sector
+                gint g(a, uint32_t (b + heightShifts[a]));  // pushing back up into actual sector
                 bigPrimes.push_back(g);
             }
         }

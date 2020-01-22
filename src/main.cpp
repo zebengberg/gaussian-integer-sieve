@@ -7,7 +7,7 @@
 using namespace std;
 
 int main() {
-    SectorSieve o(pow(10, 10), .1001, .1002);
+    SectorSieve o(pow(10, 9), 0, M_PI_4);
     o.run();
     o.setBigPrimes();
 }

@@ -6,9 +6,9 @@ using namespace std;
 class SectorSieve : public SieveTemplate<bool> {
 private:
     uint64_t x;
-    double alpha, beta;
+    long double alpha, beta;
     // Only need tolerance when alpha or beta is close to rational multiple of pi.
-    const double tolerance = pow(10, -10);
+    const long double tolerance = pow(10, -6);
     vector<int32_t> heightShifts;
 
 public:
