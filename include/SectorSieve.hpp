@@ -8,7 +8,7 @@ private:
     uint64_t x;
     long double alpha, beta;
     // Only need tolerance when alpha or beta is close to rational multiple of pi.
-    const long double tolerance = pow(10, -6);
+    const long double tolerance = pow(10, -8);
     vector<int32_t> heightShifts;
 
 public:

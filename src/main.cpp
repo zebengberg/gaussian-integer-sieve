@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include "../include/OctantSieve.hpp"
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/BlockSieve.hpp"
@@ -7,16 +8,41 @@
 using namespace std;
 
 // Delete after debugging
-int main2() {
-    SectorSieve s(100000, .1, .2);
-    s.run();
-    s.setBigPrimes();
-    s.printBigPrimes();
-    return 0;
+int main() {
+    uint64_t x = pow(2, 25);
+    random_device rd;
+    uniform_real_distribution<double> distReal(0.0, M_PI_4 - 0.01);
+    while (true) {
+        double alpha = distReal(rd);
+        double beta = distReal(rd);
+        if (beta < alpha) {
+            double temp = beta;
+            beta = alpha;
+            alpha = temp;
+        }
+        cout << alpha << " " << beta << endl;
+
+        SectorSieve s(x, alpha, beta, false);
+        s.run();
+        vector<gint> sP = s.getBigPrimes(false);  // not sorting yet
+
+        OctantDonutSieve d(x, false);
+        d.run();
+        vector<gint> dP = d.getBigPrimes();
+
+        // Removing gints outside of sector
+        auto res = remove_if(dP.begin(), dP.end(), [&](gint g) { return (g.arg() >= beta) || (g.arg() < alpha); });
+        dP.erase(res, dP.end());
+
+        // Sorting generated primes and checking if two lists are equal.
+        sort(sP.begin(), sP.end());
+        sort(dP.begin(), dP.end());
+        assert(sP == dP);
+    }
 }
 
 
-int main(int argc, const char* argv[]) {
+int main2(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;

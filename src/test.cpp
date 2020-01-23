@@ -46,14 +46,14 @@ int main() {
     cout << " | block | # of primes | block sieve time | block donut sieve time | " << endl;
     cout << " |-------|-------------|------------------|------------------------| " << endl;
 
-    default_random_engine generator;
+    random_device rd;
     uniform_int_distribution<int> distInt(1,9);
     for (int j = 1; j <= 5; j++) {
         // Arbitrary testing parameters.
-        uint32_t x = distInt(generator) * pow(10, 6);
-        uint32_t y = distInt(generator) * pow(10, 6);
-        uint32_t dx = distInt(generator) * 100;
-        uint32_t dy = distInt(generator) * 100;
+        uint32_t x = distInt(rd) * pow(10, 6);
+        uint32_t y = distInt(rd) * pow(10, 6);
+        uint32_t dx = distInt(rd) * 100;
+        uint32_t dy = distInt(rd) * 100;
 
         auto startTime = chrono::high_resolution_clock::now();
         BlockSieve b(x, y, dx, dy, false);
@@ -84,17 +84,19 @@ int main() {
         assert(bP == dP);
     }
 
-    cout << "\nTiming Sector Sieve\n" << endl;
+    cout << "\nTesting and Timing Sector Sieve\n" << endl;
     cout << " | alpha | beta | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|------------|-------------|------| " << endl;
-    uniform_real_distribution<double> distReal(0.0, M_PI_4 - 0.01);
-    for (int j = 25; j <= 30; j++) {
+    uniform_real_distribution<double> distReal(0.0, M_PI_4);
+    for (int j = 20; j <= 27; j++) {
         uint64_t x = pow(2, j);
-        double alpha = distReal(generator);
-        double beta = distReal(generator);
-        double temp = max(alpha, beta);
-        alpha = min(alpha, beta);
-        beta = temp;
+        double alpha = distReal(rd);
+        double beta = distReal(rd);
+        if (beta < alpha) {
+            double temp = beta;
+            beta = alpha;
+            alpha = temp;
+        }
 
         auto startTime = chrono::high_resolution_clock::now();
         SectorSieve s(x, alpha, beta, false);
@@ -110,6 +112,42 @@ int main() {
              << " | " << sectorTime
              << " | " << endl;
 
+        OctantDonutSieve d(x, false);
+        d.run();
+        vector<gint> dP = d.getBigPrimes();
+        // Removing gints outside of sector
+        auto res = remove_if(dP.begin(), dP.end(), [&](gint g) { return (g.arg() >= beta) || (g.arg() < alpha); });
+        dP.erase(res, dP.end());
+
+        // Sorting generated primes and checking if two lists are equal.
+        sort(sP.begin(), sP.end());
+        sort(dP.begin(), dP.end());
+        assert(sP == dP);
     }
+
+    cout << "\nTiming Thin Sectors\n" << endl;
+    cout << " | alpha | beta | norm bound | # of primes | time | " << endl;
+    cout << " |-------|------|------------|-------------|------| " << endl;
+    for (int j = 30; j <= 35; j++) {
+        uint64_t x = pow(2, j);
+        double alpha = distReal(rd);
+        double beta = alpha + pow(2, 20 - j);
+
+        auto startTime = chrono::high_resolution_clock::now();
+        SectorSieve s(x, alpha, beta, false);
+        s.run();
+        vector<gint> sP = s.getBigPrimes(false);  // not sorting yet
+        auto endTime = chrono::high_resolution_clock::now();
+        auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
+        double sectorTime = double(totalTime.count()) / 1000.0;
+        cout << " | " << alpha
+             << " | " << beta
+             << " | 2^" << j
+             << " | " << sP.size()
+             << " | " << sectorTime
+             << " | " << endl;
+    }
+
     return 0;
 }
+

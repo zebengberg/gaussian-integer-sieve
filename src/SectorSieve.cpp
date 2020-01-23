@@ -75,10 +75,6 @@ void SectorSieve::setSieveArray() {
         } else {
             b = isqrt(x - a * a) - heightShifts[a] + 1;
         }
-        // Sometimes b ends up negative; we must avoid this.
-        if (b < 0) {
-            b = 1;
-        }
         vector<bool> column(b, true);  // Create a vector of size b with all values true.
         sieveArray.push_back(column);
     }
