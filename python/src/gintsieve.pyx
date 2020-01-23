@@ -161,6 +161,21 @@ cpdef angular_dist(uint64_t x, uint32_t n_sectors):
 
 cpdef sector_race(uint64_t x, double a, double b, double c, double d, uint32_t n_bins):
     """Generate n_bins checkpoints for the race pi(x, a, b) - pi(x, c, d)."""
-    return sectorRace(x, a, b, c, d, n_bins)
+    if (b - a) - (d - c) > 0.0000001:
+        print('Unfair race; try again with two equal-sized intervals.')
+        return
+    for angle in [a, b, c, d]:
+        if angle < 0 or angle > 3.14159265358979/4:
+            print('Stay inside the first octant')
+            return
 
+    bins = sectorRace(x, a, b, c, d, n_bins)
+    norm_checkpoints = [k * x // n_bins for k in range(1, n_bins + 1)]
 
+    plt.subplots(figsize=(8, 8))
+    plt.plot(norm_checkpoints, bins, 'b-')
+    plt.title('Gaussian prime race in sectors')
+    plt.xlabel('$x$')
+    plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(a, b, c, d))
+    plt.axhline(0, color='red')
+    plt.show()

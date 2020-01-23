@@ -13,7 +13,7 @@ int main() {
     cout << " | norm bound | # of primes including associates | octant sieve time | octant donut sieve time | " << endl;
     cout << " |------------|----------------------------------|-------------------|-------------------------| " << endl;
 
-    for (int j = 20; j <= 25; j++) {
+    for (int j = 20; j <= 22; j++) { // change to 30
         auto startTime = chrono::high_resolution_clock::now();
         OctantSieve o(pow(2, j), false);
         o.run();
@@ -48,7 +48,7 @@ int main() {
 
     random_device rd;
     uniform_int_distribution<int> distInt(1,9);
-    for (int j = 1; j <= 5; j++) {
+    for (int j = 1; j <= 3; j++) { // change to 10
         // Arbitrary testing parameters.
         uint32_t x = distInt(rd) * pow(10, 6);
         uint32_t y = distInt(rd) * pow(10, 6);
@@ -85,15 +85,15 @@ int main() {
     }
 
     cout << "\nTesting and Timing Sector Sieve\n" << endl;
-    cout << " | alpha | beta | norm bound | # of primes | time | " << endl;
-    cout << " |-------|------|------------|-------------|------| " << endl;
-    uniform_real_distribution<double> distReal(0.0, M_PI_4);
-    for (int j = 20; j <= 27; j++) {
+    cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
+    cout << " |-------|------|--------------|------------|-------------|------| " << endl;
+    uniform_real_distribution<long double> distReal(0.0, M_PI_4);
+    for (int j = 20; j <= 22; j++) {  // change to 30
         uint64_t x = pow(2, j);
-        double alpha = distReal(rd);
-        double beta = distReal(rd);
+        long double alpha = distReal(rd);
+        long double beta = distReal(rd);
         if (beta < alpha) {
-            double temp = beta;
+            long double temp = beta;
             beta = alpha;
             alpha = temp;
         }
@@ -107,6 +107,7 @@ int main() {
         double sectorTime = double(totalTime.count()) / 1000.0;
         cout << " | " << alpha
              << " | " << beta
+             << " | " << beta - alpha
              << " | 2^" << j
              << " | " << sP.size()
              << " | " << sectorTime
@@ -126,9 +127,9 @@ int main() {
     }
 
     cout << "\nTiming Thin Sectors\n" << endl;
-    cout << " | alpha | beta | norm bound | # of primes | time | " << endl;
-    cout << " |-------|------|------------|-------------|------| " << endl;
-    for (int j = 30; j <= 35; j++) {
+    cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
+    cout << " |-------|------|--------------|------------|-------------|------| " << endl;
+    for (int j = 30; j <= 35; j++) {  // change to 38?
         uint64_t x = pow(2, j);
         double alpha = distReal(rd);
         double beta = alpha + pow(2, 20 - j);
@@ -142,6 +143,7 @@ int main() {
         double sectorTime = double(totalTime.count()) / 1000.0;
         cout << " | " << alpha
              << " | " << beta
+             << " | 2^" << 20 - j
              << " | 2^" << j
              << " | " << sP.size()
              << " | " << sectorTime

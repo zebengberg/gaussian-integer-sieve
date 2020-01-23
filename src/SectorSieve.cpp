@@ -12,7 +12,7 @@ using namespace std;
 
 
 // Using an initializer list in the constructor.
-SectorSieve::SectorSieve(uint64_t x, double alpha, double beta, bool verbose)
+SectorSieve::SectorSieve(uint64_t x, long double alpha, long double beta, bool verbose)
 // Calling SieveTemplate constructor to set maxNorm = N(upper right corner)
         : SieveTemplate<bool>(x, verbose)
         , x(x)  // norm bound
@@ -62,12 +62,12 @@ void SectorSieve::setSieveArray() {
     heightShifts.push_back(1);
     sieveArray.emplace_back(1, false);
 
-    for (uint32_t a = 1; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
+    for (uint64_t a = 1; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
         // Vertical offset from y-axis to sector.
         heightShifts.push_back(int32_t(ceil(tan(alpha) * a - tolerance)));
 
         // a-value of intersection
-        uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
+        uint64_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t b;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
             // Do not include any point on the ray theta = beta.
@@ -134,9 +134,9 @@ void SectorSieve::setBigPrimes() {
     if (verbose) {
         cerr << "Gathering primes after sieve..." << endl;
     }
-    for (uint32_t a = 0; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
+    for (uint64_t a = 0; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
         // a-value of intersection
-        uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
+        uint64_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t bUpper;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
             bUpper = int32_t(tan(beta) * a) - heightShifts[a];
@@ -160,9 +160,9 @@ uint64_t SectorSieve::getCountBigPrimes() {
         cerr << "Counting primes after sieve..." << endl;
     }
     uint64_t count = 0;
-    for (uint32_t a = 0; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
+    for (uint64_t a = 0; a <= isqrt(x / (1 + pow(tan(alpha), 2) )); a++) {
         // a-value of intersection
-        uint32_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
+        uint64_t intersection = isqrt(x / (1 + pow(tan(beta), 2)));
         int32_t bUpper;  // represents the height of the column at a in sieveArray
         if (a <= intersection) {
             bUpper = int32_t(tan(beta) * a) - heightShifts[a];

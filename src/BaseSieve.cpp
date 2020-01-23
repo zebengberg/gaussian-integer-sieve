@@ -123,11 +123,14 @@ void SieveBase::setSmallPrimesFromFile() {
 template <>
 void SieveTemplate<bool>::printSieveArrayInfo() {
     uint64_t totalSize = sizeof(sieveArray);
+    uint64_t nEntries = 0;
     for (const auto& column : sieveArray) {
         totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
+        nEntries += column.size();
     }
     totalSize /= pow(10, 6);  // convert to MB
     cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
+    cerr << "Sieve array total number of entries: " << nEntries << endl;
 }
 
 template <>
