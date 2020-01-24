@@ -43,7 +43,9 @@ cpdef gprimes_as_np(uint64_t x):
     # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
     cdef view.array primes = <np.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
-    return np_primes
+    # De-flattening array.
+    np_primes = np_primes.reshape(size // 2, 2)
+    return np_primes.transpose()
 
 cpdef gprimes_sector_as_np(uint64_t x, double alpha, double beta):
     both = gPrimesInSectorAsArray(x, alpha, beta)
@@ -52,7 +54,9 @@ cpdef gprimes_sector_as_np(uint64_t x, double alpha, double beta):
     # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
     cdef view.array primes = <np.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
-    return np_primes
+    # De-flattening array.
+    np_primes = np_primes.reshape(size // 2, 2)
+    return np_primes.transpose()
 
 cpdef gprimes_block_as_np(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     both = gPrimesInBlockAsArray(x, y, dx, dy)
@@ -61,7 +65,9 @@ cpdef gprimes_block_as_np(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
     cdef view.array primes = <np.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
-    return np_primes
+    # De-flattening array.
+    np_primes = np_primes.reshape(size // 2, 2)
+    return np_primes.transpose()
 
 
 
@@ -170,12 +176,50 @@ cpdef sector_race(uint64_t x, double a, double b, double c, double d, uint32_t n
             return
 
     bins = sectorRace(x, a, b, c, d, n_bins)
-    norm_checkpoints = [k * x // n_bins for k in range(1, n_bins + 1)]
+    norms = [k * x // n_bins for k in range(1, n_bins + 1)]
 
     plt.subplots(figsize=(8, 8))
-    plt.plot(norm_checkpoints, bins, 'b-')
+    plt.plot(norms, bins, 'b-')
     plt.title('Gaussian prime race in sectors')
     plt.xlabel('$x$')
     plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(a, b, c, d))
     plt.axhline(0, color='red')
     plt.show()
+
+class SectorRace:
+    """Class to wrap Gaussian prime races."""
+    def __init__(self, x, a, b, c, d, n_bins=1000):
+        if (b - a) - (d - c) > 0.0000001:
+            raise ValueError('Unfair race; try again with two equal-sized intervals.')
+        for angle in [a, b, c, d]:
+            if angle < 0 or angle > np.pi / 4:
+                raise ValueError('Stay inside the first octant.')
+
+        self.x = x
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.n_bins = n_bins
+
+        self.norm_data = sectorRace(x, a, b, c, d, n_bins)
+        self.norms = [k * x // n_bins for k in range(1, n_bins + 1)]
+
+    def plot_race(self):
+        plt.subplots(figsize=(8, 8))
+        plt.plot(self.norms, self.norm_data, 'b-')
+        plt.title('Gaussian prime race in sectors')
+        plt.xlabel('$x$')
+        plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(self.a, self.b, self.c, self.d))
+        plt.axhline(0, color='red')
+        plt.show()
+
+    def hist(self):
+        """Plot Shanks-style histogram of race progress."""
+        pass
+
+    def density(self):
+        """Calculate log-density of race leader."""
+        pass
+
+

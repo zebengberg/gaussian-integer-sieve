@@ -6,6 +6,7 @@
 #include "../include/BlockSieve.hpp"
 #include <iostream>
 #include <cmath>
+#include <numeric>
 
 
 // Getting Gaussian primes upto a given norm. Python will hold these as a list
@@ -183,6 +184,7 @@ vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, 
     cerr << "Running Sector Sieves...\n" << endl;
     s1.run();
     s2.run();
+    // Not sorting big primes.
     vector<gint> p1 = s1.getBigPrimes(false);
     vector<gint> p2 = s2.getBigPrimes(false);
 
@@ -197,10 +199,8 @@ vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, 
     for (gint g : p2) {
         normData[g.norm() * nBins / x]--;
     }
+    // Taking cumulative sum and overwriting normData with it.
+    partial_sum(normData.begin(), normData.end(), normData.begin());
 
     return normData;
 }
-
-// log density
-//    cum sum
-//    shanks histogram

@@ -62,6 +62,9 @@ void SieveBase::sortBigPrimes() {
         cerr << "Sorting primes by norm..." << endl;
     }
     sort(bigPrimes.begin(), bigPrimes.end());
+    if (verbose) {
+        cerr << "Done sorting." << endl;
+    }
 }
 
 void SieveBase::printBigPrimes() {
@@ -136,11 +139,14 @@ void SieveTemplate<bool>::printSieveArrayInfo() {
 template <>
 void SieveTemplate<uint32_t>::printSieveArrayInfo() {
     uint64_t totalSize = sizeof(sieveArray);
+    uint64_t nEntries = 0;
     for (const auto& column : sieveArray) {
         totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
+        nEntries += column.size() * 32;
     }
     totalSize /= pow(10, 6);  // convert to MB
     cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
+    cerr << "Sieve array total number of entries: " << nEntries << endl;
 }
 
 template <>
