@@ -23,4 +23,4 @@ pair<uint32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, u
 
 // Histogram of angles of primes to norm.
 vector<uint64_t> angularDistribution(uint64_t, uint32_t);
-vector<int32_t> sectorRace(uint64_t, double, double, double, double, uint32_t);
+int32_t * sectorRace(uint64_t, double, double, double, double, uint32_t);

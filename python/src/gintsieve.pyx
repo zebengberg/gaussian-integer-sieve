@@ -1,10 +1,10 @@
 # cython: language_level=3
 
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
 from cython cimport view
 import matplotlib.pyplot as plt
-from libc.stdint cimport uint32_t, uint64_t
+from libc.stdint cimport uint32_t, uint64_t, int32_t
 
 from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
     gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
@@ -41,7 +41,7 @@ cpdef gprimes_as_np(uint64_t x):
     cdef uint32_t *ptr = both.first
     cdef uint64_t size = both.second
     # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
-    cdef view.array primes = <np.uint32_t[:size]> ptr
+    cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
     np_primes = np_primes.reshape(size // 2, 2)
@@ -51,8 +51,8 @@ cpdef gprimes_sector_as_np(uint64_t x, double alpha, double beta):
     both = gPrimesInSectorAsArray(x, alpha, beta)
     cdef uint32_t *ptr = both.first
     cdef uint64_t size = both.second
-    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
-    cdef view.array primes = <np.uint32_t[:size]> ptr
+    # Casting c++ pointer returned by gPrimesInSectorAsArray to a memory view object
+    cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
     np_primes = np_primes.reshape(size // 2, 2)
@@ -62,8 +62,8 @@ cpdef gprimes_block_as_np(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     both = gPrimesInBlockAsArray(x, y, dx, dy)
     cdef uint32_t *ptr = both.first
     cdef uint64_t size = both.second
-    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
-    cdef view.array primes = <np.uint32_t[:size]> ptr
+    # Casting c++ pointer returned by gPrimesInBlockAsArray to a memory view object
+    cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
     np_primes = np_primes.reshape(size // 2, 2)
@@ -128,33 +128,6 @@ class GintList(list):
         """Convert list of tuples to list of complex numbers."""
         return [complex(pair[0], pair[1]) for pair in self]
 
-    def to_np(self):
-        """Convert list of tuples to np.array."""
-        return np.array(self).transpose()
-
-    def sector_race(self, a, b, c, d):
-        """Gaussian prime race in sectors."""
-        if b < a or d < c or a < 0 or c < 0 or b > np.pi/2 or d > np.pi/2:
-            raise ValueError('Check your intervals.')
-        p = self.to_np()
-        norms = p[0] ** 2 + p[1] ** 2
-        angles = np.arctan2(p[0], p[1])
-        runner1 = ((angles > a) & (angles < b)).cumsum()
-        runner2 = ((angles > c) & (angles < d)).cumsum()
-
-        plt.subplots(figsize=(8, 8))
-        plt.plot(norms, runner1 - runner2, 'b-')
-        plt.title('Gaussian prime race in sectors')
-        plt.xlabel('norm')
-        plt.ylabel('$\pi({}, {}) - \pi({}, {})$'.format(a, b, c, d))
-        plt.axhline(0, color='red')
-        plt.show()
-
-
-
-cpdef moat():
-    # get prmes in block
-    pass
 
 cpdef angular_dist(uint64_t x, uint32_t n_sectors):
     """Make histogram of number of Gaussian primes up to norm x in equispaced sectors."""
@@ -165,29 +138,8 @@ cpdef angular_dist(uint64_t x, uint32_t n_sectors):
     plt.show()
     return data
 
-cpdef sector_race(uint64_t x, double a, double b, double c, double d, uint32_t n_bins):
-    """Generate n_bins checkpoints for the race pi(x, a, b) - pi(x, c, d)."""
-    if (b - a) - (d - c) > 0.0000001:
-        print('Unfair race; try again with two equal-sized intervals.')
-        return
-    for angle in [a, b, c, d]:
-        if angle < 0 or angle > 3.14159265358979/4:
-            print('Stay inside the first octant')
-            return
-
-    bins = sectorRace(x, a, b, c, d, n_bins)
-    norms = [k * x // n_bins for k in range(1, n_bins + 1)]
-
-    plt.subplots(figsize=(8, 8))
-    plt.plot(norms, bins, 'b-')
-    plt.title('Gaussian prime race in sectors')
-    plt.xlabel('$x$')
-    plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(a, b, c, d))
-    plt.axhline(0, color='red')
-    plt.show()
-
 class SectorRace:
-    """Class to wrap Gaussian prime races."""
+    """Class to hold data on Gaussian prime races."""
     def __init__(self, x, a, b, c, d, n_bins=1000):
         if (b - a) - (d - c) > 0.0000001:
             raise ValueError('Unfair race; try again with two equal-sized intervals.')
@@ -195,31 +147,54 @@ class SectorRace:
             if angle < 0 or angle > np.pi / 4:
                 raise ValueError('Stay inside the first octant.')
 
-        self.x = x
         self.a = a
         self.b = b
         self.c = c
         self.d = d
+        self.x = x
+
         self.n_bins = n_bins
+        self.bin_width = self.x // self.n_bins
+        self.norms = np.linspace(self.bin_width, self.x, self.n_bins)
+        normalizer = lambda x: np.sqrt(x) / np.log(x)
+        self.normalize = normalizer(self.norms)
 
-        self.norm_data = sectorRace(x, a, b, c, d, n_bins)
-        self.norms = [k * x // n_bins for k in range(1, n_bins + 1)]
 
-    def plot_race(self):
+
+        cdef int32_t *ptr = sectorRace(x, a, b, c, d, n_bins)
+        cdef view.array norm_data = <cnp.int32_t[:n_bins]> ptr
+        self.norm_data = np.asarray(norm_data)
+
+
+
+
+    def plot_race(self, normalize=True):
+        """Plot """
         plt.subplots(figsize=(8, 8))
         plt.plot(self.norms, self.norm_data, 'b-')
+        if normalize:
+            plt.plot(self.norms, self.normalize, 'r-')
+            plt.plot(self.norms, -self.normalize, 'r-')
+
         plt.title('Gaussian prime race in sectors')
         plt.xlabel('$x$')
         plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(self.a, self.b, self.c, self.d))
         plt.axhline(0, color='red')
         plt.show()
 
-    def hist(self):
+    def hist(self, bins='auto'):
         """Plot Shanks-style histogram of race progress."""
-        pass
+        shanks = self.norm_data / self.normalize
+        plt.hist(shanks, bins=bins)
+        plt.show()
 
     def density(self):
-        """Calculate log-density of race leader."""
-        pass
-
+        """Approximate log-density of how often first sector leads on interval [1, x]."""
+        leader = np.where(self.norm_data > 0, 1, 0)
+        ties = np.where(self.norm_data == 0, 0.5, 0)
+        weights = np.arange(1, self.n_bins + 1)
+        weights = 1 / weights
+        d = np.sum(weights * (leader + ties))
+        d /= np.sum(weights)
+        return d
 

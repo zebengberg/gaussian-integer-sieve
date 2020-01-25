@@ -8,7 +8,7 @@
 using namespace std;
 
 // Delete after debugging
-int main() {
+int main2() {
     random_device rd;
     uniform_real_distribution<long double> distReal(0.0, M_PI_4 - 0.01);
     for (int j = 32; j <= 36; j++) {
@@ -25,7 +25,7 @@ int main() {
 }
 
 
-int main2(int argc, const char* argv[]) {
+int main(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
@@ -251,9 +251,6 @@ int main2(int argc, const char* argv[]) {
 
 
 ///* TODO
-// * write tests.cpp file and benchmarks file
-// * write race.cpp file
-// * use this to get results of race, possible load as np
 // * publish to pip
 // rewrite readme
 // * /

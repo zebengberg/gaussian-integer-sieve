@@ -13,11 +13,11 @@ cdef extern from '../../include/cython_bindings.hpp':
     uint64_t gPrimesInSectorCount(uint64_t, double, double)
     uint64_t gPrimesInBlockCount(uint32_t, uint32_t, uint32_t, uint32_t)
 
-    # Couldn't figure out how to use a pointer to uint32_t.
+    # Couldn't figure out how to use a pointer to uint32_t inside pair
     # Instead using unsigned int, which is a 32 bit integer in cython
     pair[unsigned int *, uint64_t] gPrimesToNormAsArray(uint64_t)
     pair[unsigned int *, uint64_t] gPrimesInSectorAsArray(uint64_t, double, double)
     pair[unsigned int *, uint64_t] gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, uint32_t)
 
     vector[uint64_t] angularDistribution(uint64_t, uint32_t)
-    vector[int32_t] sectorRace(uint64_t, double, double, double, double, uint32_t)
+    int32_t * sectorRace(uint64_t, double, double, double, double, uint32_t)

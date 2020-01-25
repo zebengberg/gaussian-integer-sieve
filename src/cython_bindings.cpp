@@ -104,7 +104,8 @@ pair<uint32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
     // Creating a 1-dimensional array to hold big primes; this way we can avoid
     // an array of pointers which might be needed for 2d array.
     uint64_t size = gintP.size();
-    auto *P = new uint32_t[2 * size];  // declaring the array
+    // Declaring the array; keyword new allows array to persist until explicitly deleted.
+    auto *P = new uint32_t[2 * size];
     for (uint64_t i = 0; i < size; i++) {
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
@@ -168,8 +169,8 @@ vector<uint64_t> angularDistribution(uint64_t x, uint32_t nSectors) {
     return sectors;
 }
 
-
-vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, double delta, uint32_t nBins) {
+// Getting sector race data upto given norm. Return pointer to an array.
+int32_t * sectorRace(uint64_t x, double alpha, double beta, double gamma, double delta, uint32_t nBins) {
     if ((beta - alpha) - (delta - gamma) > 0.0000001) {
         cerr << "Unfair race; try again with two equal-sized intervals." << endl;
         exit(1);
@@ -189,9 +190,9 @@ vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, 
     vector<gint> p2 = s2.getBigPrimes(false);
 
     cerr << "Collecting norm data from sieved primes..." << endl;
-    // Collecting norm data
-    // Creating a vector of length x / spacing of all 0s
+    // Collecting norm data by creating an vector of all 0s with length nBins
     vector<int32_t> normData(nBins, 0);
+
     // Incrementing for gints in first sector; decrementing for gints in second sector.
     for (gint g : p1) {
         normData[g.norm() * nBins / x]++;
@@ -202,5 +203,13 @@ vector<int32_t> sectorRace(uint64_t x, double alpha, double beta, double gamma, 
     // Taking cumulative sum and overwriting normData with it.
     partial_sum(normData.begin(), normData.end(), normData.begin());
 
-    return normData;
+    // Putting normData contents into an array which will be fed into memory view object in cython
+    // Don't think this line of thinking is optimal...
+    // The new keyword prevents array contents from turning into garbage.
+    auto *data = new int32_t[nBins];  // declaring the array
+    for (uint32_t i = 0; i < nBins; i++) {
+        data[i] = normData[i];
+    }
+    // Returning pointer.
+    return data;
 }

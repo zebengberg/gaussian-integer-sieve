@@ -13,7 +13,7 @@ int main() {
     cout << " | norm bound | # of primes including associates | octant sieve time | octant donut sieve time | " << endl;
     cout << " |------------|----------------------------------|-------------------|-------------------------| " << endl;
 
-    for (int j = 20; j <= 22; j++) { // change to 30
+    for (int j = 20; j <= 30; j++) {
         auto startTime = chrono::high_resolution_clock::now();
         OctantSieve o(pow(2, j), false);
         o.run();
@@ -47,11 +47,11 @@ int main() {
     cout << " |-------|-------------|------------------|------------------------| " << endl;
 
     random_device rd;
-    uniform_int_distribution<int> distInt(1,9);
-    for (int j = 1; j <= 3; j++) { // change to 10
+    uniform_int_distribution<int> distInt(1, 9);
+    for (int j = 1; j <= 10; j++) {
         // Arbitrary testing parameters.
-        uint32_t x = distInt(rd) * pow(10, 6);
-        uint32_t y = distInt(rd) * pow(10, 6);
+        uint32_t x = distInt(rd) * pow(10, 7);
+        uint32_t y = distInt(rd) * pow(10, 7);
         uint32_t dx = distInt(rd) * 100;
         uint32_t dy = distInt(rd) * 100;
 
@@ -88,7 +88,7 @@ int main() {
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
     uniform_real_distribution<long double> distReal(0.0, M_PI_4);
-    for (int j = 20; j <= 22; j++) {  // change to 30
+    for (int j = 20; j <= 30; j++) {
         uint64_t x = pow(2, j);
         long double alpha = distReal(rd);
         long double beta = distReal(rd);
@@ -129,7 +129,7 @@ int main() {
     cout << "\nTiming Thin Sectors\n" << endl;
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
-    for (int j = 30; j <= 35; j++) {  // change to 38?
+    for (int j = 30; j <= 40; j++) {
         uint64_t x = pow(2, j);
         double alpha = distReal(rd);
         double beta = alpha + pow(2, 20 - j);
@@ -152,4 +152,3 @@ int main() {
 
     return 0;
 }
-
