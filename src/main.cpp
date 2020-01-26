@@ -7,23 +7,6 @@
 #include "../include/SectorSieve.hpp"
 using namespace std;
 
-// Delete after debugging
-int main2() {
-    random_device rd;
-    uniform_real_distribution<long double> distReal(0.0, M_PI_4 - 0.01);
-    for (int j = 32; j <= 36; j++) {
-        uint64_t x = pow(2, j);
-        long double alpha = distReal(rd);
-        long double beta = alpha + pow(2, 18 - j);
-        cout << j << " " << alpha << " " << beta << endl;
-        SectorSieve s(x, alpha, beta, true);
-        s.run();
-        vector<gint> sP = s.getBigPrimes(false);
-        s.printSieveArrayInfo();
-        cout << sP.size() << "\n" << endl;
-    }
-}
-
 
 int main(int argc, const char* argv[]) {
     if (argc < 2) {
@@ -247,10 +230,3 @@ int main(int argc, const char* argv[]) {
     }
     return 0;
 }
-
-
-
-///* TODO
-// * publish to pip
-// rewrite readme
-// * /

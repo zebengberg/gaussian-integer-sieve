@@ -10,7 +10,7 @@ SieveBase::SieveBase(uint64_t maxNorm, bool verbose)
     // initializer list
     : maxNorm(maxNorm)
     , verbose(verbose)
-    {
+{
     progress = 0.0;
     // Using PNT to make approximate progress bar.
     totalProgress = log(log(maxNorm)) - log(2.0);
