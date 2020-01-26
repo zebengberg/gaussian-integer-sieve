@@ -19,17 +19,15 @@ cdef extern from '../../include/cython_bindings.hpp':
     # Couldn't figure out how to use a pointer to uint32_t inside pair
     # Instead using unsigned int, which is a 32 bit integer in cython
     pair[intptr, uint64_t] gPrimesToNormAsArray(uint64_t)
-    pair[intptr, uint64_t] gPrimesInSectorAsArray(uint64_t, double, double)
+    pair[intptr, uint64_t] gPrimesInSectorAsArray(uint64_t, long double, long double)
     pair[intptr, uint64_t] gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, uint32_t)
 
     vector[uint64_t] angularDistribution(uint64_t, uint32_t)
 
+    # Using this class to transfer race data to numpy
     cdef cppclass SectorRace:
         SectorRace() except +
         SectorRace(uint64_t, uint64_t, long double, long double, long double, long double) except +
         pair[intptr, uint64_t] getFirstSector()
         pair[intptr, uint64_t] getSecondSector()
         int32_t * getNormData()
-
-
-

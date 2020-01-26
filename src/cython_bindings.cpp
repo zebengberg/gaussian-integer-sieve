@@ -25,7 +25,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesToNorm(uint64_t x) {
     vector<pair<uint32_t, uint32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-    cout << "Copying sieve array to python list of tuples...." << endl;
+    cerr << "Copying sieve array to python list of tuples...." << endl;
     return pairP;
 }
 
@@ -44,7 +44,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesInSector(uint64_t x, double alpha, doubl
     vector<pair<uint32_t, uint32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-    cout << "Copying sieve array to python list of tuples...." << endl;
+    cerr << "Copying sieve array to python list of tuples...." << endl;
     return pairP;
 }
 
@@ -63,7 +63,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesInBlock(uint32_t x, uint32_t y, uint32_t
     vector<pair<uint32_t, uint32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-    cout << "Copying sieve array to python list of tuples...." << endl;
+    cerr << "Copying sieve array to python list of tuples...." << endl;
     return pairP;
 }
 
@@ -110,7 +110,6 @@ pair<uint32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
     }
-    cout << P << endl;
     return pair<uint32_t *, uint64_t> {P, 2 * size};
 }
 
@@ -127,7 +126,6 @@ pair<uint32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t x, double alpha, doub
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
     }
-    cout << P << endl;
     return pair<uint32_t *, uint64_t> {P, 2 * size};
 }
 
@@ -144,7 +142,6 @@ pair<uint32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t x, uint32_t y, uint32_
         P[2 * i] = gintP[i].a;
         P[2 * i + 1] = gintP[i].b;
     }
-    cout << P << endl;
     return pair<uint32_t *, uint64_t> {P, 2 * size};
 }
 
@@ -155,7 +152,7 @@ vector<uint64_t> angularDistribution(uint64_t x, uint32_t nSectors) {
     OctantDonutSieve s(x);
     s.run();
     vector<gint> gintP = s.getBigPrimes(false);  // not sorting
-    cout << "Putting primes into bins according to their angle...." << endl;
+    cerr << "Putting primes into bins according to their angle...." << endl;
     for (gint g : gintP) {
         double angle = g.arg();
         auto sector = uint32_t(nSectors * angle / M_PI_4);

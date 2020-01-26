@@ -44,8 +44,8 @@ cpdef gprimes(uint64_t x):
     cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2)
-    return np_primes.transpose()
+    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    return Gints(np_primes, x)
 
 cpdef gprimes_sector(uint64_t x, double alpha, double beta):
     both = gPrimesInSectorAsArray(x, alpha, beta)
@@ -55,8 +55,8 @@ cpdef gprimes_sector(uint64_t x, double alpha, double beta):
     cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2)
-    return np_primes.transpose()
+    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    return Gints(np_primes, x, alpha, beta)
 
 cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     both = gPrimesInBlockAsArray(x, y, dx, dy)
@@ -66,8 +66,8 @@ cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     cdef view.array primes = <cnp.uint32_t[:size]> ptr
     cdef np_primes = np.asarray(primes)
     # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2)
-    return np_primes.transpose()
+    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    return Gints(np_primes, x, y, dx, dy)
 
 cpdef angular_dist(uint64_t x, uint32_t n_sectors):
     """Make histogram of number of Gaussian primes up to norm x in equispaced sectors."""
@@ -93,8 +93,8 @@ class Gints(np.ndarray):
             obj.dy = x3
             obj.sieve = 'block'
         elif x2 != -1:
-            obj.alpha = min(x1, x2)
-            obj.beta = max(x1, x2)
+            obj.alpha = x1
+            obj.beta = x2
             obj.sieve = 'sector'
         else:
             obj.sieve = 'to_norm'
@@ -107,34 +107,35 @@ class Gints(np.ndarray):
         """Convert 2d array into a 1d array of complex numbers."""
         return self[0, :] + 1j * self[1, :]
 
-    def visualize(self, full_disk=False, save=False):
+    def plot(self, full_disk=False, save=False):
         """Plot Gaussian primes with Matplotlib."""
 
-        reals = [p[0] for p in self]
-        imags = [p[1] for p in self]
-
+        reals = self[0]
+        imags = self[1]
         plt.subplots(figsize=(8, 8))
 
-        if self.sieve == 'to_norm':
+        if self.sieve == 'block':
+            # Plotting block.
+            plt.plot(reals, imags, 'ro', markersize=400 / max(self.dx, self.dy))
+        else:
             # Drawing x and y axes.
             plt.axhline(0, color='red')
             plt.axvline(0, color='red')
 
-            if full_disk:
-                # Filling out second quadrant.
-                reals, imags = reals + [-t for t in imags], imags + reals
-
-                # Filling out third and fourth quadrants.
-                reals += [-t for t in reals]
-                imags += [-t for t in imags]
+            if self.sieve == 'to_norm' and full_disk:
+                reals.dtype = np.int32  # casting from unsigned to signed
+                imags.dtype = np.int32
 
                 plt.plot(reals, imags, 'bo', markersize=100 / (self.x ** .5))
+                plt.plot(imags, -reals, 'bo', markersize=100 / (self.x ** .5))
+                plt.plot(-reals, -imags, 'bo', markersize=100 / (self.x ** .5))
+                plt.plot(-imags, reals, 'bo', markersize=100 / (self.x ** .5))
 
             else:
                 plt.plot(reals, imags, 'bo', markersize=200 / (self.x ** .5))
-        else:
-            # Plotting segment.
-            plt.plot(reals, imags, 'ro', markersize=300 / self.z)
+                if self.sieve == 'sector':
+                    for angle in [self.alpha, self.beta]:
+                        plt.plot([0, np.cos(angle) * self.x ** 0.5], [0, np.sin(angle) * self.x ** 0.5], 'g-')
 
         if save:
             plt.savefig('sieve_visual.png')
@@ -146,17 +147,17 @@ class Gints(np.ndarray):
 class SectorRaceWrapper:
     """Wrapper class to hold data on Gaussian prime races."""
 
-    def __init__(self, x, a, b, c, d, n_bins=1000):
-        if (b - a) - (d - c) > 0.0000001:
+    def __init__(self, x, alpha, beta, gamma, delta, n_bins=1000):
+        if (beta - alpha) - (delta - gamma) > 0.0000001:
             raise ValueError('Unfair race; try again with two equal-sized intervals.')
-        for angle in [a, b, c, d]:
+        for angle in [alpha, beta, gamma, delta]:
             if angle < 0 or angle > np.pi / 4:
                 raise ValueError('Stay inside the first octant.')
 
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+        self.delta = delta
         self.x = x
 
         self.n_bins = n_bins
@@ -166,7 +167,7 @@ class SectorRaceWrapper:
         self.normalize = normalizer(self.norms)
 
         # Taking what is needed from cpp class
-        race = new SectorRace(x, n_bins, a, b, c, d)
+        race = new SectorRace(x, n_bins, alpha, beta, gamma, delta)
 
         s = race.getFirstSector()
         cdef uint32_t *ptr = s.first
@@ -190,7 +191,7 @@ class SectorRaceWrapper:
         del race
 
     def plot_race(self, normalize=True):
-        """Plot """
+        """Plot norms against the difference pi(sector1) - pi(sector2)."""
         plt.subplots(figsize=(8, 8))
         plt.plot(self.norms, self.norm_data, 'b-')
         if normalize:
@@ -199,11 +200,11 @@ class SectorRaceWrapper:
 
         plt.title('Gaussian prime race in sectors')
         plt.xlabel('$x$')
-        plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(self.a, self.b, self.c, self.d))
+        plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(self.alpha, self.beta, self.gamma, self.delta))
         plt.axhline(0, color='red')
         plt.show()
 
-    def shanks(self, bins='auto'):
+    def plot_shanks(self, bins='auto'):
         """Plot Shanks-style histogram of race progress."""
         shanks = self.norm_data / self.normalize
         plt.hist(shanks, bins=bins)
@@ -219,3 +220,17 @@ class SectorRaceWrapper:
         d /= np.sum(weights)
         return d
 
+    def plot_sectors(self, save=False):
+        """Plot sectors in complex plane."""
+
+        plt.subplots(figsize=(8, 8))
+        plt.plot(self.sector1[0], self.sector1[1], 'ro', markersize=200 / (self.x ** .5))
+        plt.plot(self.sector2[0], self.sector2[1], 'bo', markersize=200 / (self.x ** .5))
+
+        for angle in [self.alpha, self.beta, self.gamma, self.delta]:
+            plt.plot([0, np.cos(angle) * self.x ** 0.5], [0, np.sin(angle) * self.x ** 0.5], 'g-')
+
+        if save:
+            plt.savefig('sieve_visual.png')
+
+        plt.show()
