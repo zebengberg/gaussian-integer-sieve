@@ -8,12 +8,12 @@ using namespace std;
 // Gaussian integer struct with 32-bit integer coordinates.
 struct gint {
     // Members are public by default in a struct.
-    uint32_t a, b;
-    gint(uint32_t a, uint32_t b) { this->a = a; this->b = b; }
+    int32_t a, b;
+    gint(int32_t a, int32_t b) { this->a = a; this->b = b; }
     uint64_t norm() { return uint64_t(a) * uint64_t(a) + uint64_t(b) * uint64_t(b); }
     double arg() { return atan2(b, a); }
     gint flip() { return gint{b, a}; }  // clang likes curly brace list initialization
-    pair<uint32_t, uint32_t> asPair() {return pair<uint32_t, uint32_t> {a, b}; }
+    pair<int32_t, int32_t> asPair() {return pair<int32_t, int32_t> {a, b}; }
     // Gives a total ordering; every two distinct gints are related by <.
     friend bool operator < (gint g1, gint g2) {
         uint64_t n1 = g1.norm();
@@ -26,6 +26,9 @@ struct gint {
     }
     friend bool operator == (gint g1, gint g2) {
         return (g1.a == g2.a) && (g1.b == g2.b);
+    }
+    friend gint operator + (gint g1, gint g2) {
+        return gint(g1.a + g2.a, g1.b + g2.b);
     }
 };
 
@@ -72,6 +75,7 @@ public:
     void printSieveArrayInfo();
     void printSieveArray();
     T getSieveArrayValue(uint32_t u, uint32_t v);
+    vector<vector<T>> getSieveArray();
 };
 
 

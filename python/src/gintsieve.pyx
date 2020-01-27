@@ -123,6 +123,7 @@ class Gints(np.ndarray):
             plt.axvline(0, color='red')
 
             if self.sieve == 'to_norm' and full_disk:
+                # TODO: possibly don't need to cast since changing gint struct
                 reals.dtype = np.int32  # casting from unsigned to signed
                 imags.dtype = np.int32
 

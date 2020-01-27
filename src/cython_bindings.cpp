@@ -4,6 +4,7 @@
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
 #include "../include/BlockSieve.hpp"
+#include "../include/OctantSieve.hpp"
 #include <iostream>
 #include <cmath>
 #include <numeric>
@@ -166,7 +167,7 @@ vector<uint64_t> angularDistribution(uint64_t x, uint32_t nSectors) {
     return sectors;
 }
 
-// For the rest of this source, we define public methods in SectorRace class.
+// Public methods in SectorRace class.
 SectorRace::SectorRace(uint64_t x, uint64_t nBins, long double alpha, long double beta, long double gamma, long double delta)
     // initializer list
     : x(x)
@@ -231,4 +232,46 @@ int32_t * SectorRace::getNormData() {
         data[i] = normData[i];
     }
     return data;
+}
+
+
+// Public methods in Moat class.
+void Moat::setNeighbors() {
+    for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
+        for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
+            if (u * u + v * v <= jumpSize) {
+                neighbors.emplace_back(gint(u, v));
+            }
+        }
+    }
+}
+
+void Moat::explore() {
+    uint32_t count = 0;
+    while (!toExplore.empty()) {
+        gint p = toExplore.back();
+        toExplore.pop_back();
+        for (gint q : neighbors) {
+            gint g = p + q;
+            // Checking if inside first octant and prime
+            if ((g.a >= 0) && (g.b >= 0) && (g.b <= g.a) && sieveArray[g.a][g.b]) {
+                toExplore.push_back(g);
+                sieveArray[g.a][g.b] = false;
+            }
+        }
+        explored.push_back(p);
+        count++;
+        if (count % 10 == 0) {
+            cerr << '.';
+        }
+        if (count % 1000 == 0) {
+            cerr << endl;
+        }
+    }
+}
+
+void Moat::setSieveArray() {
+    OctantSieve o(10000);
+    o.run();
+    sieveArray = o.getSieveArray();
 }

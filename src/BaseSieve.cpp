@@ -218,6 +218,15 @@ uint32_t SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v) {
     return sieveArray.at(u).at(v);
 }
 
+template<>
+vector<vector<bool>> SieveTemplate<bool>::getSieveArray() {
+    return sieveArray;
+}
+
+template <>
+vector<vector<uint32_t>> SieveTemplate<uint32_t>::getSieveArray() {
+    return sieveArray;
+}
 
 
 

@@ -38,3 +38,17 @@ public:
     pair<uint32_t *, uint64_t> getSecondSector();
     int32_t * getNormData();
 };
+
+
+class Moat {
+private:
+    double jumpSize;
+    vector<gint> neighbors, toExplore, explored;
+    vector<vector<bool>> sieveArray;
+
+public:
+    Moat(double jumpSize) : jumpSize(jumpSize) {}
+    void setSieveArray();
+    void setNeighbors();
+    void explore();
+};
