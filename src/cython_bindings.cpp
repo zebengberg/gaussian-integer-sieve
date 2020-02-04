@@ -10,9 +10,27 @@
 #include <numeric>
 
 
+// Creating a 1-dimensional arrays to hold big primes; this way we can avoid
+// an array of pointers which might be needed for 2d array. This will be fed
+// into a memory view object a la cython to give numpy access. The keyword
+// "new" will prevent the array from decaying into garbage.
+// This function is called in various functions below.
+pair<int32_t *, uint64_t> gintVectorToArray(vector<gint> v) {
+    // Creating a 1-dimensional array to hold big primes; this way we can avoid
+    // an array of pointers which might be needed for 2d array.
+    uint64_t size = v.size();
+    auto *a = new int32_t[2 * size];  // declaring the array
+    for (uint64_t i = 0; i < size; i++) {
+        a[2 * i] = v[i].a;
+        a[2 * i + 1] = v[i].b;
+    }
+    return pair<int32_t *, uint64_t> {a, 2 * size};
+}
+
+
 // Getting Gaussian primes upto a given norm. Python will hold these as a list
 // of tuples. Each tuples holds the real and imaginary parts of each prime.
-vector<pair<uint32_t, uint32_t>> gPrimesToNorm(uint64_t x) {
+vector<pair<int32_t, int32_t>> gPrimesToNorm(uint64_t x) {
     if (x >= pow(2, 30)) {
         cerr << "Large norm bound makes copying C++ containers to python\n"
              << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
@@ -23,7 +41,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesToNorm(uint64_t x) {
     OctantDonutSieve s(x, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    vector<pair<uint32_t, uint32_t>> pairP;
+    vector<pair<int32_t, int32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
     cerr << "Copying sieve array to python list of tuples...." << endl;
@@ -31,7 +49,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesToNorm(uint64_t x) {
 }
 
 //  Getting Gaussian primes in sector upto a given norm.
-vector<pair<uint32_t, uint32_t>> gPrimesInSector(uint64_t x, double alpha, double beta) {
+vector<pair<int32_t, int32_t>> gPrimesInSector(uint64_t x, double alpha, double beta) {
     if (x >= pow(2, 30)) {
         cerr << "Large norm bound makes copying C++ containers to python\n"
              << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
@@ -42,7 +60,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesInSector(uint64_t x, double alpha, doubl
     SectorSieve s(x, alpha, beta, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    vector<pair<uint32_t, uint32_t>> pairP;
+    vector<pair<int32_t, int32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
     cerr << "Copying sieve array to python list of tuples...." << endl;
@@ -50,7 +68,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesInSector(uint64_t x, double alpha, doubl
 }
 
 // Gaussian integers in block defined by intervals [x, x + dx) and [y, y + dy).
-vector<pair<uint32_t, uint32_t>> gPrimesInBlock(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
+vector<pair<int32_t, int32_t>> gPrimesInBlock(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
     if (dx * dy >= pow(2, 30)) {
         cerr << "Large norm bound makes copying C++ containers to python\n"
              << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
@@ -61,7 +79,7 @@ vector<pair<uint32_t, uint32_t>> gPrimesInBlock(uint32_t x, uint32_t y, uint32_t
     BlockSieve s(x, y, dx, dy, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    vector<pair<uint32_t, uint32_t>> pairP;
+    vector<pair<int32_t, int32_t>> pairP;
     pairP.resize(gintP.size());
     transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
     cerr << "Copying sieve array to python list of tuples...." << endl;
@@ -98,52 +116,27 @@ uint64_t gPrimesInBlockCount(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
 // Getting Gaussian primes upto a given norm. Passing a pointer to an array in
 // c++, so data is not explicitly copied between memory controlled by c++ and
 // python.
-pair<uint32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
+pair<int32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
     OctantDonutSieve s(x);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    // Creating a 1-dimensional array to hold big primes; this way we can avoid
-    // an array of pointers which might be needed for 2d array.
-    uint64_t size = gintP.size();
-    // Declaring the array; keyword new allows array to persist until explicitly deleted.
-    auto *P = new uint32_t[2 * size];
-    for (uint64_t i = 0; i < size; i++) {
-        P[2 * i] = gintP[i].a;
-        P[2 * i + 1] = gintP[i].b;
-    }
-    return pair<uint32_t *, uint64_t> {P, 2 * size};
+    return gintVectorToArray(gintP);
 }
 
 // Getting Gaussian primes in sector upto given norm. Return pointer to an array.
-pair<uint32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t x, double alpha, double beta) {
+pair<int32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t x, double alpha, double beta) {
     SectorSieve s(x, alpha, beta);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    // Creating a 1-dimensional array to hold big primes; this way we can avoid
-    // an array of pointers which might be needed for 2d array.
-    uint64_t size = gintP.size();
-    auto *P = new uint32_t[2 * size];  // declaring the array
-    for (uint64_t i = 0; i < size; i++) {
-        P[2 * i] = gintP[i].a;
-        P[2 * i + 1] = gintP[i].b;
-    }
-    return pair<uint32_t *, uint64_t> {P, 2 * size};
+    return gintVectorToArray(gintP);
 }
 
 // Getting Gaussian primes in block. Return pointer to an array.
-pair<uint32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
+pair<int32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
     BlockSieve s(x, y, dx, dy);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
-    // Creating a 1-dimensional array to hold big primes; this way we can avoid
-    // an array of pointers which might be needed for 2d array.
-    uint64_t size = gintP.size();
-    auto *P = new uint32_t[2 * size];  // declaring the array
-    for (uint64_t i = 0; i < size; i++) {
-        P[2 * i] = gintP[i].a;
-        P[2 * i + 1] = gintP[i].b;
-    }
-    return pair<uint32_t *, uint64_t> {P, 2 * size};
+    return gintVectorToArray(gintP);
 }
 
 // Getting statistics on the angular distribution of Gaussian primes to norm.
@@ -201,28 +194,12 @@ void SectorRace::setNormData() {
     partial_sum(normData.begin(), normData.end(), normData.begin());
 }
 
-// Creating a 1-dimensional arrays to hold big primes; this way we can avoid
-// an array of pointers which might be needed for 2d array. This will be fed
-// into a memory view object a la cython to give numpy access. The keyword
-// "new" will prevent the array from decaying into garbage.
-pair<uint32_t *, uint64_t> SectorRace::getFirstSector() {
-    uint64_t size = firstSector.size();
-    auto *P = new uint32_t[2 * size];  // declaring the array
-    for (uint64_t i = 0; i < size; i++) {
-        P[2 * i] = firstSector[i].a;
-        P[2 * i + 1] = firstSector[i].b;
-    }
-    return pair<uint32_t *, uint64_t> {P, 2 * size};
+pair<int32_t *, uint64_t> SectorRace::getFirstSector() {
+    return gintVectorToArray(firstSector);
 }
 
-pair<uint32_t *, uint64_t> SectorRace::getSecondSector() {
-    uint64_t size = secondSector.size();
-    auto *P = new uint32_t[2 * size];  // declaring the array
-    for (uint64_t i = 0; i < size; i++) {
-        P[2 * i] = secondSector[i].a;
-        P[2 * i + 1] = secondSector[i].b;
-    }
-    return pair<uint32_t *, uint64_t> {P, 2 * size};
+pair<int32_t *, uint64_t> SectorRace::getSecondSector() {
+    return gintVectorToArray(secondSector);
 }
 
 // Putting normData contents into an array; see comment above on memory view.
@@ -235,18 +212,36 @@ int32_t * SectorRace::getNormData() {
 }
 
 
-// Public methods in Moat class.
-void Moat::setNeighbors() {
+// Public methods in OctantMoat class.
+OctantMoat::OctantMoat(uint64_t x, double jumpSize) : x(x), jumpSize(jumpSize)
+{
+    setSieveArray();
+    setNeighbors();
+    setToExplore();
+    explore();
+}
+
+void OctantMoat::setSieveArray() {
+    OctantSieve o(x);
+    o.run();
+    sieveArray = o.getSieveArray();
+}
+
+void OctantMoat::setNeighbors() {
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
-            if (u * u + v * v <= jumpSize) {
+            if (u * u + v * v <= jumpSize * jumpSize) {
                 neighbors.emplace_back(gint(u, v));
             }
         }
     }
 }
 
-void Moat::explore() {
+void OctantMoat::setToExplore() {
+    toExplore.emplace_back(gint(0, 0));
+}
+
+void OctantMoat::explore() {
     uint32_t count = 0;
     while (!toExplore.empty()) {
         gint p = toExplore.back();
@@ -270,8 +265,18 @@ void Moat::explore() {
     }
 }
 
-void Moat::setSieveArray() {
-    OctantSieve o(10000);
-    o.run();
-    sieveArray = o.getSieveArray();
+pair<int32_t *, uint64_t> OctantMoat::getExplored() {
+    return gintVectorToArray(explored);
+}
+
+pair<int32_t *, uint64_t> OctantMoat::getUnexplored() {
+    vector<gint> unexplored;
+    for (uint32_t u = 0; u < sieveArray.size(); u++) {
+        for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
+            if (sieveArray[u][v]) {
+                unexplored.emplace_back(u, v);
+            }
+        }
+    }
+    return gintVectorToArray(unexplored);
 }

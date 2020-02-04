@@ -4,13 +4,13 @@ from libc.stdint cimport uint32_t, uint64_t, int32_t
 cimport numpy as np
 
 # Work around for bug; see https://github.com/cython/cython/issues/534
-ctypedef uint32_t * intptr
+ctypedef int32_t * intptr
 
 
 cdef extern from '../../include/cython_bindings.hpp':
-    vector[pair[uint32_t, uint32_t]] gPrimesToNorm(uint64_t)
-    vector[pair[uint32_t, uint32_t]] gPrimesInSector(uint64_t, double, double)
-    vector[pair[uint32_t, uint32_t]] gPrimesInBlock(uint32_t, uint32_t, uint32_t, uint32_t)
+    vector[pair[int32_t, int32_t]] gPrimesToNorm(uint64_t)
+    vector[pair[int32_t, int32_t]] gPrimesInSector(uint64_t, double, double)
+    vector[pair[int32_t, int32_t]] gPrimesInBlock(uint32_t, uint32_t, uint32_t, uint32_t)
 
     uint64_t gPrimesToNormCount(uint64_t)
     uint64_t gPrimesInSectorCount(uint64_t, double, double)
@@ -30,4 +30,10 @@ cdef extern from '../../include/cython_bindings.hpp':
         SectorRace(uint64_t, uint64_t, long double, long double, long double, long double) except +
         pair[intptr, uint64_t] getFirstSector()
         pair[intptr, uint64_t] getSecondSector()
-        int32_t * getNormData()
+        intptr getNormData()
+
+    cdef cppclass OctantMoat:
+        OctantMoat() except +
+        OctantMoat(uint64_t, double) except +
+        pair[intptr, uint64_t] getExplored()
+        pair[intptr, uint64_t] getUnexplored()

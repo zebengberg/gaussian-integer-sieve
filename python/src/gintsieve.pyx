@@ -5,11 +5,28 @@ cimport numpy as cnp
 from cython cimport view
 import matplotlib.pyplot as plt
 from libc.stdint cimport uint32_t, uint64_t, int32_t
+from libcpp.pair cimport pair
 
 from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
     gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
     gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray,\
-    angularDistribution, SectorRace
+    angularDistribution, SectorRace, OctantMoat
+
+
+
+
+ctypedef int32_t * intptr
+cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
+    """Unpack a C++ pair holding a pointer and size into a 2D numpy array of unsigned longs."""
+    cdef intptr ptr = p.first
+    cdef uint64_t size = p.second
+    cdef view.array a = <cnp.int32_t[:size]> ptr  # casting to a memory view object
+    # De-flattening and chaining methods to get 2d numpy array.
+    return np.asarray(a).reshape(size // 2, 2).transpose()
+
+
+
+
 
 # cpdef gprimes(uint64_t x):
 #     """Generate a GintList object of primes up to norm x."""
@@ -24,6 +41,8 @@ from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
 #     """Generate a GintList object of primes up to norm x in given sector."""
 #     return GintList(gPrimesInBlock(x, y, dx, dy), x, y, dx, dy)
 
+# TODO: consider removing above functions, test everything, cnp vs np and cdef, cpdef, etc. be explicit
+
 cpdef count_gprimes(uint64_t x):
     """Count primes up to norm x."""
     return gPrimesToNormCount(x)
@@ -37,36 +56,18 @@ cpdef count_gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     return gPrimesInBlockCount(x, y, dx, dy)
 
 cpdef gprimes(uint64_t x):
-    both = gPrimesToNormAsArray(x)
-    cdef uint32_t *ptr = both.first
-    cdef uint64_t size = both.second
-    # Casting c++ pointer returned by gPrimesToNormArray to a memory view object
-    cdef view.array primes = <cnp.uint32_t[:size]> ptr
-    cdef np_primes = np.asarray(primes)
-    # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    p = gPrimesToNormAsArray(x)
+    np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x)
 
 cpdef gprimes_sector(uint64_t x, double alpha, double beta):
-    both = gPrimesInSectorAsArray(x, alpha, beta)
-    cdef uint32_t *ptr = both.first
-    cdef uint64_t size = both.second
-    # Casting c++ pointer returned by gPrimesInSectorAsArray to a memory view object
-    cdef view.array primes = <cnp.uint32_t[:size]> ptr
-    cdef np_primes = np.asarray(primes)
-    # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    p = gPrimesInSectorAsArray(x, alpha, beta)
+    np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, alpha, beta)
 
 cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
-    both = gPrimesInBlockAsArray(x, y, dx, dy)
-    cdef uint32_t *ptr = both.first
-    cdef uint64_t size = both.second
-    # Casting c++ pointer returned by gPrimesInBlockAsArray to a memory view object
-    cdef view.array primes = <cnp.uint32_t[:size]> ptr
-    cdef np_primes = np.asarray(primes)
-    # De-flattening array.
-    np_primes = np_primes.reshape(size // 2, 2).transpose()
+    p = gPrimesInBlockAsArray(x, y, dx, dy)
+    np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, y, dx, dy)
 
 cpdef angular_dist(uint64_t x, uint32_t n_sectors):
@@ -80,7 +81,7 @@ cpdef angular_dist(uint64_t x, uint32_t n_sectors):
 
 
 
-# Read https://docs.scipy.org/doc/numpy/user/basics.subclassing.html for subclasses of np.ndarray
+# Read https://docs.scipy.org/doc/numpy/user/basics.subclassing.html for subclassing np.ndarray
 class Gints(np.ndarray):
     """Class to wrap sieved arrays."""
 
@@ -123,10 +124,7 @@ class Gints(np.ndarray):
             plt.axvline(0, color='red')
 
             if self.sieve == 'to_norm' and full_disk:
-                # TODO: possibly don't need to cast since changing gint struct
-                reals.dtype = np.int32  # casting from unsigned to signed
-                imags.dtype = np.int32
-
+                # Rotating around the four quadrants.
                 plt.plot(reals, imags, 'bo', markersize=100 / (self.x ** .5))
                 plt.plot(imags, -reals, 'bo', markersize=100 / (self.x ** .5))
                 plt.plot(-reals, -imags, 'bo', markersize=100 / (self.x ** .5))
@@ -171,24 +169,16 @@ class SectorRaceWrapper:
         race = new SectorRace(x, n_bins, alpha, beta, gamma, delta)
 
         s = race.getFirstSector()
-        cdef uint32_t *ptr = s.first
-        cdef uint64_t size = s.second
-        cdef view.array primes = <cnp.uint32_t[:size]> ptr  # casting to a memory view object
-        # De-flattening and chaining methods to get 2d numpy array.
-        self.sector1 = np.asarray(primes).reshape(size // 2, 2).transpose()
+        self.sector1 = ptr_to_np_array(s)
 
         s = race.getSecondSector()
-        ptr = s.first
-        size = s.second
-        primes = <cnp.uint32_t[:size]> ptr  # casting to a memory view object
-        # De-flattening and chaining methods to get 2d numpy array.
-        self.sector2 = np.asarray(primes).reshape(size // 2, 2).transpose()
+        self.sector2 = ptr_to_np_array(s)
 
         cdef int32_t * race_ptr = race.getNormData()
         cdef view.array norm_data = <cnp.int32_t[:n_bins]> race_ptr  # casting to a memory view object
         self.norm_data = np.asarray(norm_data)
 
-        # Deleting cpp instance
+        # Deleting cpp instance; not sure if this is useful.
         del race
 
     def plot_race(self, normalize=True):
@@ -235,3 +225,23 @@ class SectorRaceWrapper:
             plt.savefig('sieve_visual.png')
 
         plt.show()
+
+
+cpdef moat_wrapper(x, jump_size):
+    """Wrapper function to hold Gaussian moat explorations."""
+
+    # Taking what is needed from cpp class
+    moat = new OctantMoat(x, jump_size)
+
+    p = moat.getExplored()
+    explored = ptr_to_np_array(p)
+
+    p = moat.getUnexplored()
+    unexplored = ptr_to_np_array(p)
+
+    plt.subplots(figsize=(11, 8))  # ratio should be sqrt(2) : 1
+    plt.plot(explored[0], explored[1], 'ro', markersize=100 / (x ** .5))
+    plt.plot(unexplored[0], unexplored[1], 'bo', markersize=100 / (x ** .5))
+    plt.show()
+
+
