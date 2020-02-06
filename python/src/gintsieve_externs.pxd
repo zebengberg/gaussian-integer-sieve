@@ -8,6 +8,7 @@ ctypedef int32_t * intptr
 
 
 cdef extern from '../../include/cython_bindings.hpp':
+    # TODO: possibly delete these three if don't want to offer native python support
     vector[pair[int32_t, int32_t]] gPrimesToNorm(uint64_t)
     vector[pair[int32_t, int32_t]] gPrimesInSector(uint64_t, double, double)
     vector[pair[int32_t, int32_t]] gPrimesInBlock(uint32_t, uint32_t, uint32_t, uint32_t)
@@ -16,8 +17,6 @@ cdef extern from '../../include/cython_bindings.hpp':
     uint64_t gPrimesInSectorCount(uint64_t, double, double)
     uint64_t gPrimesInBlockCount(uint32_t, uint32_t, uint32_t, uint32_t)
 
-    # Couldn't figure out how to use a pointer to uint32_t inside pair
-    # Instead using unsigned int, which is a 32 bit integer in cython
     pair[intptr, uint64_t] gPrimesToNormAsArray(uint64_t)
     pair[intptr, uint64_t] gPrimesInSectorAsArray(uint64_t, long double, long double)
     pair[intptr, uint64_t] gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, uint32_t)
@@ -32,10 +31,12 @@ cdef extern from '../../include/cython_bindings.hpp':
         pair[intptr, uint64_t] getSecondSector()
         intptr getNormData()
 
+    # Using this class to transfer moat data to numpy
     cdef cppclass OctantMoat:
         OctantMoat() except +
         OctantMoat(uint64_t, double) except +
-        void explore()
-        pair[intptr, uint64_t] getExplored()
+        void exploreComponent(int32_t, int32_t)
+        void exploreAllComponents()
+        pair[intptr, uint64_t] getCurrentComponent()
         pair[intptr, uint64_t] getUnexplored()
-        vector[vector[pair[int32_t, int32_t]]] getAllComponents()
+        vector[pair[intptr, uint64_t]] getAllComponents()

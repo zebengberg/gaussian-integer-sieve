@@ -219,7 +219,6 @@ OctantMoat::OctantMoat(uint64_t x, double jumpSize) : x(x), jumpSize(jumpSize)
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
     jumpSize += tolerance;
-
     OctantSieve o(x);
     o.run();
     sieveArray = o.getSieveArray();
@@ -239,7 +238,8 @@ void OctantMoat::setNearestNeighbors() {
 }
 
 // Depth first search exploring the connected component of starting_g
-void OctantMoat::exploreComponent(gint starting_g) {
+void OctantMoat::exploreComponent(int32_t a, int32_t b) {
+    gint starting_g(a, b);
     // reset current component
     currentComponent.clear();
     vector<gint> toExplore;
@@ -261,7 +261,7 @@ void OctantMoat::exploreComponent(gint starting_g) {
             } else {
                 // Checking if we have punched through without encountering a moat when starting at 0, 0
                 if (!starting_g.a && !starting_g.b) {
-                    cerr << "Traversed outside of the norm bound!" << endl;
+                    cerr << "\nTraversed outside of the norm bound!" << endl;
                     cerr << "Failed to find a moat of size " << jumpSize << endl;
                     exit(1);
                 }
@@ -276,6 +276,7 @@ void OctantMoat::exploreComponent(gint starting_g) {
             cerr << endl;
         }
     }
+    cout << endl;
 }
 
 pair<int32_t *, uint64_t> OctantMoat::getCurrentComponent() {
@@ -299,28 +300,14 @@ void OctantMoat::exploreAllComponents() {
     for (uint32_t u = 0; u < sieveArray.size(); u++) {
         for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
             if (sieveArray[u][v]) {
-                exploreComponent(gint(u, v));
-                vector<pair<int32_t, int32_t>> componentAsPairs;
-                for (gint g : currentComponent) {
-                    componentAsPairs.push_back(g.asPair());
-                }
-                allComponents.push_back(componentAsPairs);
+                exploreComponent(u, v);
+                allComponents.push_back(gintVectorToArray(currentComponent));
             }
         }
     }
 }
 
-// Much slower to convert vector object to python object compared with pointer to array
-vector<vector<pair<int32_t, int32_t>>> OctantMoat::getAllComponents() {
+// Python will convert this to a list of pointers to arrays.
+vector<pair<int32_t *, uint64_t>> OctantMoat::getAllComponents() {
     return allComponents;
-}
-
-
-int main() {
-    OctantMoat m(1000000, 3.2);
-    m.exploreAllComponents();
-    vector<vector<pair<int32_t, int32_t>>> components = m.getAllComponents();
-    for (auto &component : components) {
-        cout << component.size() << endl;
-    }
 }

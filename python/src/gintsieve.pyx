@@ -227,18 +227,17 @@ class SectorRaceWrapper:
         plt.show()
 
 
-cpdef moat_explore(x, jump_size):
-    """Wrapper function to hold Gaussian moat explorations."""
-
+cpdef moat_explore_starting_origin(x, jump_size):
+    """Calculate connected component of moat graph starting at origin."""
     # Taking what is needed from cpp class
     moat = new OctantMoat(x, jump_size)
-    moat.explore()
+    moat.exploreComponent(0, 0)
 
-    p = moat.getExplored()
-    explored = ptr_to_np_array(p)
+    ptr_pair = moat.getCurrentComponent()
+    explored = ptr_to_np_array(ptr_pair)
 
-    p = moat.getUnexplored()
-    unexplored = ptr_to_np_array(p)
+    ptr_pair = moat.getUnexplored()
+    unexplored = ptr_to_np_array(ptr_pair)
 
     plt.subplots(figsize=(11, 8))  # ratio should be sqrt(2) : 1
     plt.plot(explored[0], explored[1], 'ro', markersize=200 / (x ** .5))
@@ -246,12 +245,17 @@ cpdef moat_explore(x, jump_size):
     plt.show()
 
 
-cpdef moat_components(x, jump_size):
+cpdef moat_components_in_octant(x, jump_size):
+    """Calculate all moat graph connected components in the first octant."""
     # Taking what is needed from cpp class
     moat = new OctantMoat(x, jump_size)
+    moat.exploreAllComponents()
+    ptr_pairs = moat.getAllComponents()
 
-    # Super slow conversion from vector of vector of pairs of ints to
-    # list of list of tuples of python numbers.
-    components = moat.getAllComponents()
+    components = [ptr_to_np_array(ptr_pair) for ptr_pair in ptr_pairs]
     return components
+
+cpdef moat_explore_along_strip(x, jump_size):
+    """Search for a moat along the vertical strip at Re(z) = x."""
+    pass
 
