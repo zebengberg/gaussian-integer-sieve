@@ -227,11 +227,12 @@ class SectorRaceWrapper:
         plt.show()
 
 
-cpdef moat_wrapper(x, jump_size):
+cpdef moat_explore(x, jump_size):
     """Wrapper function to hold Gaussian moat explorations."""
 
     # Taking what is needed from cpp class
     moat = new OctantMoat(x, jump_size)
+    moat.explore()
 
     p = moat.getExplored()
     explored = ptr_to_np_array(p)
@@ -240,8 +241,17 @@ cpdef moat_wrapper(x, jump_size):
     unexplored = ptr_to_np_array(p)
 
     plt.subplots(figsize=(11, 8))  # ratio should be sqrt(2) : 1
-    plt.plot(explored[0], explored[1], 'ro', markersize=100 / (x ** .5))
-    plt.plot(unexplored[0], unexplored[1], 'bo', markersize=100 / (x ** .5))
+    plt.plot(explored[0], explored[1], 'ro', markersize=200 / (x ** .5))
+    plt.plot(unexplored[0], unexplored[1], 'bo', markersize=200 / (x ** .5))
     plt.show()
 
+
+cpdef moat_components(x, jump_size):
+    # Taking what is needed from cpp class
+    moat = new OctantMoat(x, jump_size)
+
+    # Super slow conversion from vector of vector of pairs of ints to
+    # list of list of tuples of python numbers.
+    components = moat.getAllComponents()
+    return components
 

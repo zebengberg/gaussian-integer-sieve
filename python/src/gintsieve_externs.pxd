@@ -35,5 +35,7 @@ cdef extern from '../../include/cython_bindings.hpp':
     cdef cppclass OctantMoat:
         OctantMoat() except +
         OctantMoat(uint64_t, double) except +
+        void explore()
         pair[intptr, uint64_t] getExplored()
         pair[intptr, uint64_t] getUnexplored()
+        vector[vector[pair[int32_t, int32_t]]] getAllComponents()

@@ -48,14 +48,16 @@ private:
     uint64_t x;
     double jumpSize;
     vector<vector<bool>> sieveArray;
-    vector<gint> neighbors, toExplore, explored;
+    vector<gint> nearestNeighbors, currentComponent;
+    vector<vector<pair<int32_t, int32_t>>> allComponents;
 
 public:
     OctantMoat(uint64_t, double);
-    void setSieveArray();
-    void setNeighbors();
-    void setToExplore();
-    void explore();
-    pair<int32_t *, uint64_t> getExplored();
+    void setNearestNeighbors();
+    void exploreComponent(gint p);
+    void exploreAllComponents();
+    pair<int32_t *, uint64_t> getCurrentComponent();
     pair<int32_t *, uint64_t> getUnexplored();
+    // Could instead pass this as a vector of pairs of pointer, size
+    vector<vector<pair<int32_t, int32_t>>> getAllComponents();
 };

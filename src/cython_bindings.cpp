@@ -15,6 +15,7 @@
 // into a memory view object a la cython to give numpy access. The keyword
 // "new" will prevent the array from decaying into garbage.
 // This function is called in various functions below.
+// In the cython file gintsieve.pyx, there is an inverse function to this one.
 pair<int32_t *, uint64_t> gintVectorToArray(vector<gint> v) {
     // Creating a 1-dimensional array to hold big primes; this way we can avoid
     // an array of pointers which might be needed for 2d array.
@@ -26,7 +27,6 @@ pair<int32_t *, uint64_t> gintVectorToArray(vector<gint> v) {
     }
     return pair<int32_t *, uint64_t> {a, 2 * size};
 }
-
 
 // Getting Gaussian primes upto a given norm. Python will hold these as a list
 // of tuples. Each tuples holds the real and imaginary parts of each prime.
@@ -212,63 +212,77 @@ int32_t * SectorRace::getNormData() {
 }
 
 
+
 // Public methods in OctantMoat class.
 OctantMoat::OctantMoat(uint64_t x, double jumpSize) : x(x), jumpSize(jumpSize)
 {
-    setSieveArray();
-    setNeighbors();
-    setToExplore();
-    explore();
-}
+    // using tolerance with jumpSize
+    double tolerance = pow(10, -3);
+    jumpSize += tolerance;
 
-void OctantMoat::setSieveArray() {
     OctantSieve o(x);
     o.run();
     sieveArray = o.getSieveArray();
+    setNearestNeighbors();
 }
 
-void OctantMoat::setNeighbors() {
+
+void OctantMoat::setNearestNeighbors() {
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
-            if (u * u + v * v <= jumpSize * jumpSize) {
-                neighbors.emplace_back(gint(u, v));
+            // u and v shouldn't both be 0
+            if (u * u + v * v <= jumpSize * jumpSize && (u || v)) {  // not both 0
+                nearestNeighbors.emplace_back(u, v);
             }
         }
     }
 }
 
-void OctantMoat::setToExplore() {
-    toExplore.emplace_back(gint(0, 0));
-}
+// Depth first search exploring the connected component of starting_g
+void OctantMoat::exploreComponent(gint starting_g) {
+    // reset current component
+    currentComponent.clear();
+    vector<gint> toExplore;
+    toExplore.push_back(starting_g);
+    sieveArray[starting_g.a][starting_g.b] = false;
 
-void OctantMoat::explore() {
     uint32_t count = 0;
     while (!toExplore.empty()) {
         gint p = toExplore.back();
         toExplore.pop_back();
-        for (gint q : neighbors) {
+        for (const gint &q : nearestNeighbors) {
             gint g = p + q;
-            // Checking if inside first octant and prime
-            if ((g.a >= 0) && (g.b >= 0) && (g.b <= g.a) && sieveArray[g.a][g.b]) {
-                toExplore.push_back(g);
-                sieveArray[g.a][g.b] = false;
+            if (g.norm() <= x) {
+                // Checking if inside first octant and prime
+                if ((g.a >= 0) && (g.b >= 0) && (g.b <= g.a) && sieveArray[g.a][g.b]) {
+                    toExplore.push_back(g);
+                    sieveArray[g.a][g.b] = false;  // indicating that g has been visited
+                }
+            } else {
+                // Checking if we have punched through without encountering a moat when starting at 0, 0
+                if (!starting_g.a && !starting_g.b) {
+                    cerr << "Traversed outside of the norm bound!" << endl;
+                    cerr << "Failed to find a moat of size " << jumpSize << endl;
+                    exit(1);
+                }
             }
         }
-        explored.push_back(p);
+        currentComponent.push_back(p);
         count++;
-        if (count % 10 == 0) {
+        if (count % 100 == 0) {
             cerr << '.';
         }
-        if (count % 1000 == 0) {
+        if (count % 8000 == 0) {
             cerr << endl;
         }
     }
 }
 
-pair<int32_t *, uint64_t> OctantMoat::getExplored() {
-    return gintVectorToArray(explored);
+pair<int32_t *, uint64_t> OctantMoat::getCurrentComponent() {
+    return gintVectorToArray(currentComponent);
 }
 
+// The sieve array was modified in explore(), and this methods gets primes still marked true.
 pair<int32_t *, uint64_t> OctantMoat::getUnexplored() {
     vector<gint> unexplored;
     for (uint32_t u = 0; u < sieveArray.size(); u++) {
@@ -279,4 +293,34 @@ pair<int32_t *, uint64_t> OctantMoat::getUnexplored() {
         }
     }
     return gintVectorToArray(unexplored);
+}
+
+void OctantMoat::exploreAllComponents() {
+    for (uint32_t u = 0; u < sieveArray.size(); u++) {
+        for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
+            if (sieveArray[u][v]) {
+                exploreComponent(gint(u, v));
+                vector<pair<int32_t, int32_t>> componentAsPairs;
+                for (gint g : currentComponent) {
+                    componentAsPairs.push_back(g.asPair());
+                }
+                allComponents.push_back(componentAsPairs);
+            }
+        }
+    }
+}
+
+// Much slower to convert vector object to python object compared with pointer to array
+vector<vector<pair<int32_t, int32_t>>> OctantMoat::getAllComponents() {
+    return allComponents;
+}
+
+
+int main() {
+    OctantMoat m(1000000, 3.2);
+    m.exploreAllComponents();
+    vector<vector<pair<int32_t, int32_t>>> components = m.getAllComponents();
+    for (auto &component : components) {
+        cout << component.size() << endl;
+    }
 }
