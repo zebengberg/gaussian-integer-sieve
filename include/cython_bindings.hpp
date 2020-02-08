@@ -42,21 +42,6 @@ public:
     int32_t * getNormData();
 };
 
-// Gather data for Gaussian moat problem.
-class OctantMoat {
-private:
-    uint64_t x;
-    double jumpSize;
-    vector<vector<bool>> sieveArray;
-    vector<gint> nearestNeighbors, currentComponent;
-    vector<pair<int32_t *, uint64_t>> allComponents;
+// Gather moat data.
+pair<int32_t *, uint64_t> getMoatComponentAtOrigin(uint64_t);
 
-public:
-    OctantMoat(uint64_t, double);
-    void setNearestNeighbors();
-    void exploreComponent(int32_t, int32_t);
-    void exploreAllComponents();
-    pair<int32_t *, uint64_t> getCurrentComponent();
-    pair<int32_t *, uint64_t> getUnexplored();
-    vector<pair<int32_t *, uint64_t>> getAllComponents();
-};

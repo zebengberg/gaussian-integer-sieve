@@ -63,7 +63,7 @@ int main(int argc, const char* argv[]) {
                  << "                        donut sieve, the sieve array consists of Gaussian integers\n"
                  << "                        coprime to 2 and 5. This optional can be used with --octant\n"
                  << "                        and --block, and is often significantly faster.\n"
-                 << std::endl;
+                 << endl;
             return 1;
         }
 

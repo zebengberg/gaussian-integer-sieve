@@ -11,7 +11,7 @@ CC = clang++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
 # Main executables.
-TARGETS = gintsieve gintsieve_test
+TARGETS = gintsieve gintsieve_test gintmoat
 
 # Variables with some relevant files.
 CORE = src/BaseSieve.cpp src/OctantSieve.cpp include/BaseSieve.hpp include/OctantSieve.hpp
@@ -22,11 +22,11 @@ EXTENDED = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 EVERYTHING = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 	   	     src/BlockSieve.cpp src/BlockDonutSieve.cpp src/SectorSieve.cpp \
 		     include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp \
-		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp
+		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp \
 
-# All object files but main.o and tests.o
+# All object files from sources in EVERYTHING
 OBJECTS = opt/BaseSieve.o opt/OctantSieve.o opt/OctantDonutSieve.o \
-          opt/BlockSieve.o opt/BlockDonutSieve.o opt/SectorSieve.o
+          opt/BlockSieve.o opt/BlockDonutSieve.o opt/SectorSieve.o \
 
 
 # Telling make to compile every object.
@@ -55,22 +55,28 @@ opt/BlockDonutSieve.o: $(EXTENDED) src/BlockDonutSieve.cpp include/BlockDonutSie
 opt/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
 	$(CC) $(CFLAGS) src/SectorSieve.cpp -o $@
 
-opt/main.o: $(EVERYTHING) src/main.cpp
-	$(CC) $(CFLAGS) src/main.cpp -o $@
+opt/gintsieve.o: $(EVERYTHING) src/gintsieve.cpp
+	$(CC) $(CFLAGS) src/gintsieve.cpp -o $@
 
 opt/test.o: $(EVERYTHING) src/test.cpp
 	$(CC) $(CFLAGS) src/test.cpp -o $@
 
-gintsieve: $(OBJECTS) opt/main.o
+opt/Moat.o: $(CORE) src/Moat.cpp
+	$(CC) $(CFLAGS) src/Moat.cpp -o $@
+
+gintsieve: $(OBJECTS) opt/gintsieve.o
 	$(CC) -o $@ $^
 
 gintsieve_test: $(OBJECTS) opt/test.o
 	$(CC) -o $@ $^
 
+gintmoat: $(OBJECTS) opt/Moat.o
+	$(CC) -o $@ $^
+
 
 .PHONY: clean
 clean:
-	rm -r opt/ gintsieve gintsieve_test
+	rm -r opt/ gintsieve gintsieve_test moat
 
 .PHONY: test
 test:

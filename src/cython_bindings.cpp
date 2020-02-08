@@ -4,7 +4,7 @@
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
 #include "../include/BlockSieve.hpp"
-#include "../include/OctantSieve.hpp"
+#include "../include/Moat.hpp"
 #include <iostream>
 #include <cmath>
 #include <numeric>
@@ -212,102 +212,23 @@ int32_t * SectorRace::getNormData() {
 }
 
 
-
-// Public methods in OctantMoat class.
-OctantMoat::OctantMoat(uint64_t x, double jumpSize) : x(x), jumpSize(jumpSize)
-{
-    // using tolerance with jumpSize
-    double tolerance = pow(10, -3);
-    jumpSize += tolerance;
-    OctantSieve o(x);
-    o.run();
-    sieveArray = o.getSieveArray();
-    setNearestNeighbors();
+// Wrapper functions to access moat class.
+pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> getComponentAtOrigin(uint64_t x, double jumpSize) {
+    OctantMoat m(x, jumpSize);
+    m.exploreComponent(0, 0);
+    vector<gint> explored = m.getCurrentComponent();
+    vector<gint> unexplored = m.getUnexplored();
+    return pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> {gintVectorToArray(explored), gintVectorToArray(unexplored)};
 }
 
-
-void OctantMoat::setNearestNeighbors() {
-    for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
-        for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
-            // u and v shouldn't both be 0
-            if (u * u + v * v <= jumpSize * jumpSize && (u || v)) {  // not both 0
-                nearestNeighbors.emplace_back(u, v);
-            }
-        }
+vector<pair<int32_t *, uint64_t>> getAllComponentsInOctant(uint64_t x, double jumpSize) {
+    OctantMoat m(x, jumpSize);
+    m.exploreComponent(0, 0);
+    vector<vector<gint>> allComponents = m.getAllComponents();
+    vector<pair<int32_t *, uint64_t>> toReturn;
+    toReturn.reserve(allComponents.size());  // pre-allocating size
+    for (const vector<gint>& v : allComponents) {
+        toReturn.push_back(gintVectorToArray(v));
     }
-}
-
-// Depth first search exploring the connected component of starting_g
-void OctantMoat::exploreComponent(int32_t a, int32_t b) {
-    gint starting_g(a, b);
-    // reset current component
-    currentComponent.clear();
-    vector<gint> toExplore;
-    toExplore.push_back(starting_g);
-    sieveArray[starting_g.a][starting_g.b] = false;
-
-    uint32_t count = 0;
-    while (!toExplore.empty()) {
-        gint p = toExplore.back();
-        toExplore.pop_back();
-        for (const gint &q : nearestNeighbors) {
-            gint g = p + q;
-            if (g.norm() <= x) {
-                // Checking if inside first octant and prime
-                if ((g.a >= 0) && (g.b >= 0) && (g.b <= g.a) && sieveArray[g.a][g.b]) {
-                    toExplore.push_back(g);
-                    sieveArray[g.a][g.b] = false;  // indicating that g has been visited
-                }
-            } else {
-                // Checking if we have punched through without encountering a moat when starting at 0, 0
-                if (!starting_g.a && !starting_g.b) {
-                    cerr << "\nTraversed outside of the norm bound!" << endl;
-                    cerr << "Failed to find a moat of size " << jumpSize << endl;
-                    exit(1);
-                }
-            }
-        }
-        currentComponent.push_back(p);
-        count++;
-        if (count % 100 == 0) {
-            cerr << '.';
-        }
-        if (count % 8000 == 0) {
-            cerr << endl;
-        }
-    }
-    cout << endl;
-}
-
-pair<int32_t *, uint64_t> OctantMoat::getCurrentComponent() {
-    return gintVectorToArray(currentComponent);
-}
-
-// The sieve array was modified in explore(), and this methods gets primes still marked true.
-pair<int32_t *, uint64_t> OctantMoat::getUnexplored() {
-    vector<gint> unexplored;
-    for (uint32_t u = 0; u < sieveArray.size(); u++) {
-        for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
-            if (sieveArray[u][v]) {
-                unexplored.emplace_back(u, v);
-            }
-        }
-    }
-    return gintVectorToArray(unexplored);
-}
-
-void OctantMoat::exploreAllComponents() {
-    for (uint32_t u = 0; u < sieveArray.size(); u++) {
-        for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
-            if (sieveArray[u][v]) {
-                exploreComponent(u, v);
-                allComponents.push_back(gintVectorToArray(currentComponent));
-            }
-        }
-    }
-}
-
-// Python will convert this to a list of pointers to arrays.
-vector<pair<int32_t *, uint64_t>> OctantMoat::getAllComponents() {
-    return allComponents;
+    return toReturn;
 }
