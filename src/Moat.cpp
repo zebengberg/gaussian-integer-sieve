@@ -6,12 +6,15 @@ using namespace std;
 
 
 // Public methods in OctantMoat class.
-OctantMoat::OctantMoat(uint64_t normBound, double jumpSize) : normBound(normBound), jumpSize(jumpSize)
+OctantMoat::OctantMoat(uint64_t normBound, double jumpSize, bool verbose)
+    : normBound(normBound)
+    , jumpSize(jumpSize)
+    , verbose(verbose)
 {
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
-    jumpSize += tolerance;
-    OctantSieve o(normBound);
+    this->jumpSize += tolerance;
+    OctantSieve o(normBound, verbose);
     o.run();
     sieveArray = o.getSieveArray();
     setNearestNeighbors();
@@ -22,7 +25,9 @@ void OctantMoat::setNearestNeighbors() {
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
             // u and v shouldn't both be 0
-            if (u * u + v * v <= jumpSize * jumpSize && (u || v)) {  // not both 0
+            // apart from the prime 1 + i, u and v should have same parity
+            // recall that c++ calculates (-3) % 2 as -1
+            if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
                 nearestNeighbors.emplace_back(u, v);
             }
         }
@@ -35,8 +40,22 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
     // reset current component
     currentComponent.clear();
     vector<gint> toExplore;
-    toExplore.push_back(starting_g);
-    sieveArray[starting_g.a][starting_g.b] = false;
+
+
+    // The gint starting_g must either be zero or a prime.
+    if (starting_g.a || starting_g.b) {  // prime
+        toExplore.push_back(starting_g);
+        currentComponent.push_back(starting_g);
+        sieveArray[starting_g.a][starting_g.b] = false;
+    } else {  // zero
+        if (jumpSize > sqrt(2)) {
+            currentComponent.emplace_back(1, 1);
+            currentComponent.emplace_back(2, 1);
+            sieveArray[1][1] = false;
+            sieveArray[2][1] = false;
+            toExplore.emplace_back(2, 1);
+        }
+    }
 
     uint32_t count = 0;
     while (!toExplore.empty()) {
@@ -47,8 +66,9 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
             if (g.norm() <= normBound) {
                 // Checking if inside first octant and prime
                 if ((g.a >= 0) && (g.b >= 0) && (g.b <= g.a) && sieveArray[g.a][g.b]) {
-                    toExplore.push_back(g);
+                    currentComponent.push_back(g);
                     sieveArray[g.a][g.b] = false;  // indicating that g has been visited
+                    toExplore.push_back(g);
                 }
             } else {
                 // Checking if we have punched through without encountering a moat when starting at 0, 0
@@ -59,13 +79,14 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
                 }
             }
         }
-        currentComponent.push_back(p);
         count++;
-        if (count % 100 == 0) {
-            cerr << '.';
-        }
-        if (count % 8000 == 0) {
-            cerr << endl;
+        if (verbose) {
+            if (count % 1000 == 0) {
+                cerr << '.';
+            }
+            if (count % 100000 == 0) {
+                cerr << endl;
+            }
         }
     }
     cout << endl;
@@ -74,8 +95,9 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
 uint32_t OctantMoat::getComponentSize() {
     return currentComponent.size();
 }
-uint64_t OctantMoat::getComponentMaxNorm() {
-    return max_element(currentComponent.begin(), currentComponent.end())->norm();
+
+gint OctantMoat::getComponentMaxElement() {
+    return *max_element(currentComponent.begin(), currentComponent.end());
 };
 
 vector<gint> OctantMoat::getCurrentComponent() {
@@ -172,7 +194,9 @@ int main(int argc, const char* argv[]) {
                 jumpSize = stod(arg);
             }
         } else {  // Getting the parameter x.
-            x = stoull(arg);
+            if (isdigit(arg.front())) {
+                x = stoull(arg);
+            }
         }
     }
 
@@ -193,7 +217,8 @@ int main(int argc, const char* argv[]) {
             m.printCurrentComponent();
         }
         cerr << "The discovered component has size: " << m.getComponentSize() << endl;
-        cerr << "The furthest out prime has norm: " << m.getComponentMaxNorm() << endl;
+        gint g = m.getComponentMaxElement();
+        cerr << "The furthest out prime in component has coordinates: " << g.a << " " << g.b << endl;
     }
     if (vertical) {
         cerr << "\nNot yet implemented!" << endl;

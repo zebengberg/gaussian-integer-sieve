@@ -9,16 +9,17 @@ class OctantMoat {
 private:
     uint64_t normBound;
     double jumpSize;
+    bool verbose;
     vector<vector<bool>> sieveArray;
     vector<gint> nearestNeighbors, currentComponent;
     vector<vector<gint>> allComponents;
 
 public:
-    OctantMoat(uint64_t, double);
+    OctantMoat(uint64_t, double, bool = true);
     void setNearestNeighbors();
     void exploreComponent(int32_t, int32_t);
     uint32_t getComponentSize();
-    uint64_t getComponentMaxNorm();
+    gint getComponentMaxElement();
     void exploreAllComponents();
     vector<gint> getCurrentComponent();
     void printCurrentComponent();
