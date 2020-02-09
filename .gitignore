@@ -8,7 +8,7 @@ CMakeLists.txt
 
 # binaries and object files
 gintsieve
-gintsieve_test
+ginttest
 gintmoat
 opt/
 *.so

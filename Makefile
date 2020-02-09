@@ -11,7 +11,7 @@ CC = clang++
 CFLAGS = -c -std=c++11 -stdlib=libc++
 
 # Main executables.
-TARGETS = gintsieve gintsieve_test gintmoat
+TARGETS = gintsieve ginttest gintmoat
 
 # Variables with some relevant files.
 CORE = src/BaseSieve.cpp src/OctantSieve.cpp include/BaseSieve.hpp include/OctantSieve.hpp
@@ -22,11 +22,14 @@ EXTENDED = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 EVERYTHING = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 	   	     src/BlockSieve.cpp src/BlockDonutSieve.cpp src/SectorSieve.cpp \
 		     include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp \
-		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp \
+		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp
+
+MOAT = src/Moat.cpp include/Moat.hpp
 
 # All object files from sources in EVERYTHING
 OBJECTS = opt/BaseSieve.o opt/OctantSieve.o opt/OctantDonutSieve.o \
           opt/BlockSieve.o opt/BlockDonutSieve.o opt/SectorSieve.o \
+          opt/Moat.o
 
 
 # Telling make to compile every object.
@@ -55,29 +58,34 @@ opt/BlockDonutSieve.o: $(EXTENDED) src/BlockDonutSieve.cpp include/BlockDonutSie
 opt/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
 	$(CC) $(CFLAGS) src/SectorSieve.cpp -o $@
 
-opt/gintsieve.o: $(EVERYTHING) src/gintsieve.cpp
-	$(CC) $(CFLAGS) src/gintsieve.cpp -o $@
-
-opt/test.o: $(EVERYTHING) src/test.cpp
-	$(CC) $(CFLAGS) src/test.cpp -o $@
-
 opt/Moat.o: $(CORE) src/Moat.cpp
 	$(CC) $(CFLAGS) src/Moat.cpp -o $@
 
+# Building to-be executables into objects
+opt/gintsieve.o: $(EVERYTHING) src/gintsieve.cpp
+	$(CC) $(CFLAGS) src/gintsieve.cpp -o $@
+
+opt/gintmoat.o: $(CORE) $(MOAT) src/gintmoat.cpp
+	$(CC) $(CFLAGS) src/gintmoat.cpp -o $@
+
+opt/ginttest.o: $(EVERYTHING) $(MOAT) src/ginttest.cpp
+	$(CC) $(CFLAGS) src/ginttest.cpp -o $@
+
+# Linking objects to executables
 gintsieve: $(OBJECTS) opt/gintsieve.o
 	$(CC) -o $@ $^
 
-gintsieve_test: $(OBJECTS) opt/test.o
+ginttest: $(OBJECTS) opt/Moat.o opt/ginttest.o
 	$(CC) -o $@ $^
 
-gintmoat: $(OBJECTS) opt/Moat.o
+gintmoat: $(OBJECTS) opt/gintmoat.o
 	$(CC) -o $@ $^
 
 
 .PHONY: clean
 clean:
-	rm -r opt/ gintsieve gintsieve_test moat
+	rm -r opt/ gintsieve ginttest gintmoat
 
 .PHONY: test
 test:
-	./gintsieve_test
+	./ginttest
