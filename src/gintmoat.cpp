@@ -3,7 +3,12 @@
 
 
 
-int main(int argc, const char* argv[]) {
+int main() {
+    VerticalMoat v(1000000, 3.2);
+    v.exploreBlock();
+}
+
+int main2(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
         cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
@@ -71,7 +76,6 @@ int main(int argc, const char* argv[]) {
     }
 
     if (origin) {
-        cerr << "\nExploring the connected component starting at the origin.\n" << endl;
         if (!x) {
             x = 1000000;
         }

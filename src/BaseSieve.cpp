@@ -122,6 +122,10 @@ void SieveBase::setSmallPrimesFromFile() {
     f.close();
 }
 
+void SieveBase::setSmallPrimesFromReference(const vector<gint>& v) {
+    smallPrimes = v;
+}
+
 
 // Specializations of SieveTemplate methods
 

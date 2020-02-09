@@ -32,14 +32,15 @@ class VerticalMoat {
 private:
     uint32_t realPart;
     double jumpSize;
+    bool verbose;
     uint64_t normBound;
-    vector<gint> smallPrimes;
+    vector<gint> sievingPrimes;
     uint32_t x;
     uint32_t y;
     uint32_t dx;
     uint32_t dy;
 
 public:
-    VerticalMoat(uint32_t, double);
-    void explore();
+    VerticalMoat(uint32_t, double, bool = true);
+    void exploreBlock();
 };

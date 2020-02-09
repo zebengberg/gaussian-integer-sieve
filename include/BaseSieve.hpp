@@ -47,6 +47,7 @@ protected:
 public:
     explicit SieveBase(uint64_t, bool);  // constructor; will be called in derived classes
     void setSmallPrimesFromFile();
+    void setSmallPrimesFromReference(const vector<gint>&);
     void sieve();  // crossing off all multiples of small primes
     void printProgress(gint);
     void sortBigPrimes();

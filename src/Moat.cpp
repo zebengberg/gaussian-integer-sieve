@@ -1,6 +1,8 @@
 #include <iostream>
 #include "../include/Moat.hpp"
 #include "../include/OctantSieve.hpp"
+#include "../include/OctantDonutSieve.hpp"
+#include "../include/BlockSieve.hpp"
 using namespace std;
 
 
@@ -48,6 +50,9 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
         currentComponent.push_back(starting_g);
         sieveArray[starting_g.a][starting_g.b] = false;
     } else {  // zero
+        if (verbose) {
+            cerr << "\nExploring the connected component starting at the origin.\n" << endl;
+        }
         if (jumpSize > sqrt(2)) {
             currentComponent.emplace_back(1, 1);
             currentComponent.emplace_back(2, 1);
@@ -81,15 +86,15 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
         }
         count++;
         if (verbose) {
-            if (count % 1000 == 0) {
+            if (count % 10000 == 0) {
                 cerr << '.';
             }
-            if (count % 100000 == 0) {
-                cerr.flush();
+            if (count % (80 * 10000) == 0) {
+                cerr << endl;
             }
         }
     }
-    cout << endl;
+    cerr << endl;
 }
 
 uint32_t OctantMoat::getComponentSize() {
@@ -134,7 +139,39 @@ void OctantMoat::exploreAllComponents() {
     }
 }
 
-// Python will convert this to a list of pointers to arrays.
 vector<vector<gint>> OctantMoat::getAllComponents() {
     return allComponents;
+}
+
+
+
+
+VerticalMoat::VerticalMoat(uint32_t realPart, double jumpSize, bool verbose)
+    : realPart(realPart)
+    , jumpSize(jumpSize)
+    , verbose(verbose)
+{
+    normBound = 2 * realPart;
+    OctantDonutSieve d(normBound);
+    d.run();
+    sievingPrimes = d.getBigPrimes();  // to be passed into all instances of BlockSieve
+    x = realPart - (realPart % 10);
+    y = 0;
+    dx = 100;
+    dy = 200;
+}
+
+void VerticalMoat::exploreBlock() {
+    // Doing all the sieving
+    BlockSieve b(x, y, dx, dy);
+    vector<gint> smallPrimes;
+    for (gint g : sievingPrimes) {
+        if (g.norm() <= pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2)) {
+            smallPrimes.push_back(g);
+        }
+    }
+    b.setSmallPrimesFromReference(smallPrimes);
+    b.setSieveArray();
+    b.sieve();
+    b.printSieveArray();
 }
