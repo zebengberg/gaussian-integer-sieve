@@ -14,6 +14,7 @@ SieveBase::SieveBase(uint64_t maxNorm, bool verbose)
     progress = 0.0;
     // Using PNT to make approximate progress bar.
     totalProgress = log(log(maxNorm)) - log(2.0);
+    discreteProgress = 0;
 }
 
 void SieveBase::sieve() {
@@ -28,7 +29,7 @@ void SieveBase::sieve() {
     auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
     double printTime = double(totalTime.count()) / 1000.0;
     if (verbose) {
-        cerr << "Done sieving. Total time for sieving: " << printTime << " seconds." << endl;
+        cerr << "\nDone sieving. Total time for sieving: " << printTime << " seconds." << endl;
     }
 }
 
@@ -36,11 +37,12 @@ void SieveBase::printProgress(gint g) {
     int barSize = 80;
     progress += 1.0 / double(g.norm());
     int barPos = int(double(barSize) * progress / totalProgress);
-    cerr << "[";
-    for (int i = 0; i < barPos; i++) { cerr << "|"; }
-    for (int i = barPos; i <= barSize; i++) { cerr << " "; }
-    cerr << "]\r";
-    cerr.flush();
+    if (barPos > discreteProgress) {
+        for (uint32_t i = 0; i < barPos - discreteProgress; i++) {
+            cerr << ".";
+        }
+        discreteProgress = barPos;
+    }
 }
 
 void SieveBase::run() {

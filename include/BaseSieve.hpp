@@ -39,6 +39,7 @@ protected:
     const uint64_t maxNorm;
     double progress;
     double totalProgress;
+    uint32_t discreteProgress;
     bool verbose;
     vector<gint> smallPrimes;
     vector<gint> bigPrimes;

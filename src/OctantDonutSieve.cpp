@@ -122,6 +122,9 @@ void OctantDonutSieve::crossOffMultiples(gint g) {
     } else {
         setTrue(g.b, g.a);
     }
+    if (verbose) {
+        printProgress(g);
+    }
 }
 
 void OctantDonutSieve::setFalse(uint32_t u, uint32_t v) {
