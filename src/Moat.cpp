@@ -145,13 +145,23 @@ vector<vector<gint>> OctantMoat::getAllComponents() {
 
 
 
+
+// Need to first define static member variables here in source.
+bool BlockMoat::verbose;
+double BlockMoat::jumpSize;
+int32_t BlockMoat::dx;
+int32_t BlockMoat::dy;
+uint64_t BlockMoat::sievingPrimesNormBound;
+vector<gint> BlockMoat::sievingPrimes;
+vector<gint> BlockMoat::nearestNeighbors;
+
 // Call this static setter method before any instances of this class are created.
 void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
-    BlockMoat::verbose = vb;
-    BlockMoat::jumpSize = js;
-    BlockMoat::dx = 100;
-    BlockMoat::dy = 100;
-    BlockMoat::sievingPrimesNormBound = 2 * realPart;
+    verbose = vb;
+    jumpSize = js;
+    dx = 100;
+    dy = 1000;
+    sievingPrimesNormBound = 2 * realPart;
 
     // Setting nearest neighbors.
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
@@ -160,7 +170,7 @@ void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
             // apart from the prime 1 + i, u and v should have same parity
             // recall that c++ calculates (-3) % 2 as -1
             if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
-                BlockMoat::nearestNeighbors.emplace_back(u, v);
+                nearestNeighbors.emplace_back(u, v);
             }
         }
     }
@@ -168,16 +178,23 @@ void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
     // Setting sieving primes.
     OctantDonutSieve d(sievingPrimesNormBound);
     d.run();
-    BlockMoat::sievingPrimes = d.getBigPrimes();
+    sievingPrimes = d.getBigPrimes();
 }
 
 // Constructor
 BlockMoat::BlockMoat(int32_t x, int32_t y)
     // Calling BlockSieve's constructor
-    : BlockSieve(x, y, dx, dy, verbose)
+    : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
     , x(x)
     , y(y)
-{ upperWallYPunch = dy; }
+{
+    upperWallYPunch = dy;
+    countVisited = 0;
+    farthestRight = 0;
+    if (verbose) {
+        cerr << "Working within block with lower left corner at: " << x << " " << y << endl;
+    }
+}
 
 // Cannot call virtual methods of BlockSieve parent from BlockMoat constructor.
 void BlockMoat::callSieve() {
@@ -206,6 +223,7 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
         gint p = toExplore.back();
         toExplore.pop_back();
         sieveArray[p.a][p.b] = false;  // indicating a visit
+        countVisited++;
         for (const gint &q : nearestNeighbors) {
             gint g = p + q;
 
@@ -237,7 +255,10 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
             // If we are not interacting with the boundary, keep exploring. The
             // check g.a < dx is somewhat redundant.
             if ((g.a >= 0) && (g.a < dx) && (g.b >= 0) && (g.b < dy) && sieveArray[g.a][g.b]) {
-                    toExplore.push_back(g);
+                toExplore.push_back(g);
+                if ((!upperWallFlag) && (g.a > farthestRight)) {
+                    farthestRight = g.a;
+                }
             }
         }
     }
@@ -296,6 +317,10 @@ pair<int32_t, int32_t> BlockMoat::getNextBlock() {
         return {x + dx, y};
     } else {
         exploreUpperWall();
+        if (verbose) {
+            cerr << "Largest real-part reached starting from left hand wall: " << farthestRight << endl;
+            cerr << "Number of visited primes: " << countVisited << "\n" << endl;
+        }
         return {x, y + upperWallYPunch};
     }
 }
@@ -306,7 +331,7 @@ void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
     int32_t x = realPart;
     int32_t y = 0;
 
-    while(y < x) {
+    while (y < x) {
         // TODO: Check if this object needs to be explicitly destructed
         BlockMoat b(x, y);
         b.callSieve();

@@ -43,6 +43,8 @@ private:
     int32_t x;
     int32_t y;
     int32_t upperWallYPunch;
+    uint64_t countVisited;
+    int32_t farthestRight;
 
 public:
     // Call this static setter method before any instances of this class are created.

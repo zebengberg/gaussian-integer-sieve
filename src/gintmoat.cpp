@@ -4,7 +4,7 @@
 
 
 int main() {
-    verticalMoat(10000, 2.3);
+    verticalMoat(1000, 3.3);
 }
 
 int main2(int argc, const char* argv[]) {
