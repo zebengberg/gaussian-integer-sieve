@@ -157,11 +157,16 @@ vector<gint> BlockMoat::nearestNeighbors;
 
 // Call this static setter method before any instances of this class are created.
 void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
+    if (vb) {
+        cerr << "Setting static variables..." << endl;
+    }
     verbose = vb;
     jumpSize = js;
-    dx = 100;
-    dy = 1000;
-    sievingPrimesNormBound = 2 * realPart;
+    dx = 1000;
+    dy = 10000;
+    // Bound on the norm of pre-computed primes. The factor 1.2 gives some
+    // wiggle room in case there are many moves to the right.
+    sievingPrimesNormBound = uint64_t(1.2 * (sqrt(2) * realPart + dx * dy));
 
     // Setting nearest neighbors.
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
@@ -175,7 +180,9 @@ void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
         }
     }
 
-    // Setting sieving primes.
+    if (verbose) {
+        cerr << "Precomputing sieving primes." << endl;
+    }
     OctantDonutSieve d(sievingPrimesNormBound);
     d.run();
     sievingPrimes = d.getBigPrimes();
@@ -192,15 +199,22 @@ BlockMoat::BlockMoat(int32_t x, int32_t y)
     countVisited = 0;
     farthestRight = 0;
     if (verbose) {
-        cerr << "Working within block with lower left corner at: " << x << " " << y << endl;
+        cerr << "Working within block having lower left corner at: " << x << " " << y << endl;
     }
 }
 
 // Cannot call virtual methods of BlockSieve parent from BlockMoat constructor.
 void BlockMoat::callSieve() {
+    // Checking to make sure there are enough primes within sievingPrimes
+    gint g = sievingPrimes.back();
+    if (g.norm() < isqrt(maxNorm)) {
+        cerr << "Not enough pre-computed primes in static variable sievingPrimes..." << endl;
+        exit(1);
+    }
+
     vector<gint> smallPrimes;
     for (gint g : sievingPrimes) {
-        if (g.norm() <= pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2)) {
+        if (g.norm() <= maxNorm) {
             smallPrimes.push_back(g);
         }
     }
@@ -246,7 +260,7 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
                     if (verbose) {
                         cerr << "Punched through right wall at: " << g.a << " " << g.b << endl;
                         cerr << "Started this exploration at: " << a << " " << b << endl;
-                        cerr << "Moving exploration block to the right..." << endl;
+                        cerr << "Moving exploration block to the right...\n" << endl;
                     }
                     return true;
                 }
@@ -330,13 +344,25 @@ void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
     BlockMoat::setStatics(realPart, jumpSize, verbose);
     int32_t x = realPart;
     int32_t y = 0;
+    int32_t consecutiveStepsRight = 0;
 
     while (y < x) {
         // TODO: Check if this object needs to be explicitly destructed
         BlockMoat b(x, y);
         b.callSieve();
         pair<int32_t, int32_t> p = b.getNextBlock();
+        if (p.first != x) {
+            consecutiveStepsRight++;
+        } else {
+            consecutiveStepsRight = 0;
+        }
+        if (consecutiveStepsRight > 10) {
+            cerr << "Stepped right ten times in a row!" << endl;
+            exit(1);
+        }
         x = p.first;
         y = p.second;
     }
+    cerr << "Gaussian moat present from real-axis to boundary of the first octant." << endl;
+    cerr << "The connected component arising from a jump size of " << jumpSize << " is finite." << endl;
 }

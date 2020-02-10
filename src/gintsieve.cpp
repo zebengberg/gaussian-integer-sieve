@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, const char* argv[]) {
     if (argc < 2) {
         cerr << "\n";
-        cerr << "Cannot understand input. Use -h optional flag for help.\n" << endl;
+        cerr << "Not enough parameters passed. Use -h optional flag for help.\n" << endl;
         return 1;
     }
 
