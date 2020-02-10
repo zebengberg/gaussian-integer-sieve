@@ -4,8 +4,13 @@
 
 
 int main() {
-    VerticalMoat v(1000000, 3.2);
-    v.exploreBlock();
+    VerticalMoat v(700000, 5);
+    v.setSieveArray();
+    v.printSieveArray();
+    cerr << endl;
+    v.exploreLeftWall();
+    //v.exploreUpperWall();
+    v.printSieveArray();
 }
 
 int main2(int argc, const char* argv[]) {

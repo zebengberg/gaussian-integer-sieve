@@ -34,13 +34,23 @@ private:
     double jumpSize;
     bool verbose;
     uint64_t normBound;
-    vector<gint> sievingPrimes;
-    uint32_t x;
-    uint32_t y;
-    uint32_t dx;
-    uint32_t dy;
+    int32_t x;
+    int32_t y;
+    int32_t dx;
+    int32_t dy;
+    // These two vectors could be made static, but they do also depend on realPart and jumpSize.
+    vector<gint> sievingPrimes, nearestNeighbors;
+    vector<gint> currentComponent;
+    vector<vector<bool>> sieveArray;
 
 public:
     VerticalMoat(uint32_t, double, bool = true);
-    void exploreBlock();
+    void setNearestNeighbors();
+    void setSieveArray();
+    void printSieveArray();
+    int exploreAtGint(int32_t, int32_t);
+    void exploreLeftWall();
+    void exploreUpperWall();
+
+
 };
