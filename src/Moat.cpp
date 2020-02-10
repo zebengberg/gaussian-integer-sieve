@@ -2,7 +2,6 @@
 #include "../include/Moat.hpp"
 #include "../include/OctantSieve.hpp"
 #include "../include/OctantDonutSieve.hpp"
-#include "../include/BlockSieve.hpp"
 using namespace std;
 
 
@@ -103,7 +102,7 @@ uint32_t OctantMoat::getComponentSize() {
 
 gint OctantMoat::getComponentMaxElement() {
     return *max_element(currentComponent.begin(), currentComponent.end());
-};
+}
 
 vector<gint> OctantMoat::getCurrentComponent() {
     return currentComponent;
@@ -146,113 +145,173 @@ vector<vector<gint>> OctantMoat::getAllComponents() {
 
 
 
-VerticalMoat::VerticalMoat(uint32_t realPart, double jumpSize, bool verbose)
-    : realPart(realPart)
-    , jumpSize(jumpSize)
-    , verbose(verbose)
-{
-    normBound = 2 * realPart;
-    OctantDonutSieve d(normBound);
-    d.run();
-    sievingPrimes = d.getBigPrimes();  // to be passed into all instances of BlockSieve
-    x = realPart - (realPart % 10);  // must be a multiple of 10
-    y = 0;
-    dx = 100;
-    dy = 20;
-    setNearestNeighbors();
-}
+// Call this static setter method before any instances of this class are created.
+void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
+    BlockMoat::verbose = vb;
+    BlockMoat::jumpSize = js;
+    BlockMoat::dx = 100;
+    BlockMoat::dy = 100;
+    BlockMoat::sievingPrimesNormBound = 2 * realPart;
 
-void VerticalMoat::setNearestNeighbors() {
+    // Setting nearest neighbors.
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
             // u and v shouldn't both be 0
             // apart from the prime 1 + i, u and v should have same parity
             // recall that c++ calculates (-3) % 2 as -1
             if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
-                VerticalMoat::nearestNeighbors.emplace_back(u, v);
+                BlockMoat::nearestNeighbors.emplace_back(u, v);
             }
         }
     }
+
+    // Setting sieving primes.
+    OctantDonutSieve d(sievingPrimesNormBound);
+    d.run();
+    BlockMoat::sievingPrimes = d.getBigPrimes();
 }
 
-void VerticalMoat::setSieveArray(){
-    BlockSieve b(x, y, dx, dy);
+// Constructor
+BlockMoat::BlockMoat(int32_t x, int32_t y)
+    // Calling BlockSieve's constructor
+    : BlockSieve(x, y, dx, dy, verbose)
+    , x(x)
+    , y(y)
+{ upperWallYPunch = dy; }
+
+// Cannot call virtual methods of BlockSieve parent from BlockMoat constructor.
+void BlockMoat::callSieve() {
     vector<gint> smallPrimes;
     for (gint g : sievingPrimes) {
         if (g.norm() <= pow((uint64_t)(x + dx - 1), 2) + pow((uint64_t)(y + dy - 1), 2)) {
             smallPrimes.push_back(g);
         }
     }
-    b.setSmallPrimesFromReference(smallPrimes);
-    b.setSieveArray();
-    b.sieve();
-    sieveArray = b.getSieveArray();
+    setSmallPrimesFromReference(smallPrimes);
+    setSieveArray();
+    sieve();
 }
 
-void VerticalMoat::printSieveArray() {
-    for (int32_t b = dy - 1; b >= 0; b--) {
-        string row;
-        for (int32_t a = 0; a < dx; a++) {
-            row += sieveArray[a][b] ? '*' : '-';
-        }
-        cerr << row << endl;
-    }
-}
 
-int VerticalMoat::exploreAtGint(int32_t a, int32_t b) {
-    // The gint starting_g must be prime; ignoring 1 + i
-    gint starting_g(a, b);
-    // reset current component
-    currentComponent.clear();
+// Set upperWallFlag to true if exploring from upper wall.
+// If in left wall explore mode, return true if punch through the right wall
+// and otherwise return false. If in upper wall explore mode, return false.
+bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
+    // Because of parity constraint in nearestNeighbors, this method will
+    // never visit the ramifying prime 1 + i.
     vector<gint> toExplore;
-    toExplore.push_back(starting_g);
-    currentComponent.push_back(starting_g);
-    sieveArray[starting_g.a][starting_g.b] = false;
+    toExplore.emplace_back(a, b);
 
-    uint32_t count = 0;
-    while (!toExplore.empty()) {
+    do {
         gint p = toExplore.back();
         toExplore.pop_back();
+        sieveArray[p.a][p.b] = false;  // indicating a visit
         for (const gint &q : nearestNeighbors) {
             gint g = p + q;
-            // Checking if inside block and prime
-            if (g.a >= dx) {
-                if (verbose) {
-                    cerr << "We have punched through the block at: " << g.a << " " << g.b << endl;
-                    cerr << "We started this exploration at: " << a << " " << b << endl;
+
+            // Checking if we've punched through
+            if (upperWallFlag) {
+                if (g.a >= dx) {
+                    if (p.b < upperWallYPunch) {
+                        upperWallYPunch = p.b;
+                    }
                 }
-                return 1;
-            } else if ((g.a >= 0) && (g.b >= 0) && (g.b < dy) && sieveArray[g.a][g.b]) {
-                currentComponent.push_back(g);
-                sieveArray[g.a][g.b] = false;  // indicating that g has been visited
-                toExplore.push_back(g);
+                if (g.b < 0) {  // If blocks are tall enough, this should never happen
+                    cerr << "Punched through LOWER wall at: " << g.a << " " << g.b << endl;
+                    cerr << "Started this exploration at: " << a << " " << b << endl;
+                    // For debugging purposes
+                    printSieveArray();
+                    exit(1);
+                }
+            } else {
+                if (g.a >= dx) {
+                    if (verbose) {
+                        cerr << "Punched through right wall at: " << g.a << " " << g.b << endl;
+                        cerr << "Started this exploration at: " << a << " " << b << endl;
+                        cerr << "Moving exploration block to the right..." << endl;
+                    }
+                    return true;
+                }
+            }
+
+            // If we are not interacting with the boundary, keep exploring. The
+            // check g.a < dx is somewhat redundant.
+            if ((g.a >= 0) && (g.a < dx) && (g.b >= 0) && (g.b < dy) && sieveArray[g.a][g.b]) {
+                    toExplore.push_back(g);
             }
         }
     }
-    return 0;
+    while (!toExplore.empty());
+    return false;
 }
 
-void VerticalMoat::exploreLeftWall() {
+
+// ALGORITHM:
+// Left wall portion.
+// Explore all components emanating from a gint within jumpSize of left wall
+// of the current block. Use the sieve array to mark any gint that has been
+// visited along the way. If we punch through the right-hand side of the block,
+// immediately stop and replace current block with one to the right. If this
+// punching through happens repeatedly, consider starting with a larger
+// real part.
+// Upper wall portion.
+// Using the same component search as above, start search gints emanating from
+// within jumpSize of the upper wall of the current block. We will never punch
+// through the left wall because these primes have already been visited. If we
+// punch through the bottom wall, immediately stop and debug. If the block
+// we are searching within is much more tall than wide, this should not occur.
+// Track the y-coordinates of all gints encountered within jumpSize of the right
+// wall. The minimum of these y-coordinates will be the starting y-value of the
+// next block to be explored.
+
+// Return true if punch through right wall.
+bool BlockMoat::exploreLeftWall() {
     for (int32_t a = 0; a < jumpSize; a++) {
         for (int32_t b = 0; b < dy; b++) {
             if (sieveArray[a][b]) {
-                if (exploreAtGint(a, b)) {  // check if we've punched through block
-                    // force a break out of double for loop
-                    b = dy;
-                    a = jumpSize;
+                // Check if we've punched through block.
+                if (exploreAtGint(a, b)) {
+                    // Break out of this function with return.
+                    return true;
                 }
             }
         }
     }
+    return false;
 }
 
-void VerticalMoat::exploreUpperWall() {
+
+void BlockMoat::exploreUpperWall() {
     for (int32_t b = dy - 1; b >= dy - jumpSize; b--) {
         for (int32_t a = 0; a < dx; a++) {
             if (sieveArray[a][b]) {
-                exploreAtGint(a, b);
+                exploreAtGint(a, b, true);
             }
         }
     }
 }
 
+pair<int32_t, int32_t> BlockMoat::getNextBlock() {
+    if (exploreLeftWall()) { // punched through right wall
+        return {x + dx, y};
+    } else {
+        exploreUpperWall();
+        return {x, y + upperWallYPunch};
+    }
+}
+
+// Function to use BlockMoat.
+void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
+    BlockMoat::setStatics(realPart, jumpSize, verbose);
+    int32_t x = realPart;
+    int32_t y = 0;
+
+    while(y < x) {
+        // TODO: Check if this object needs to be explicitly destructed
+        BlockMoat b(x, y);
+        b.callSieve();
+        pair<int32_t, int32_t> p = b.getNextBlock();
+        x = p.first;
+        y = p.second;
+    }
+}

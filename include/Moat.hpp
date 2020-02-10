@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "../include/BaseSieve.hpp"
+#include "../include/BlockSieve.hpp"
 using namespace std;
 
 
@@ -28,29 +29,31 @@ public:
 };
 
 
-class VerticalMoat {
+// Derived from BlockSieve
+class BlockMoat : public BlockSieve {
 private:
-    uint32_t realPart;
-    double jumpSize;
-    bool verbose;
-    uint64_t normBound;
+    // Static variables.
+    static bool verbose;
+    static double jumpSize;
+    static int32_t dx, dy;
+    static uint64_t sievingPrimesNormBound;
+    static vector<gint> sievingPrimes, nearestNeighbors;
+
+    // Instance variables.
     int32_t x;
     int32_t y;
-    int32_t dx;
-    int32_t dy;
-    // These two vectors could be made static, but they do also depend on realPart and jumpSize.
-    vector<gint> sievingPrimes, nearestNeighbors;
-    vector<gint> currentComponent;
-    vector<vector<bool>> sieveArray;
+    int32_t upperWallYPunch;
 
 public:
-    VerticalMoat(uint32_t, double, bool = true);
-    void setNearestNeighbors();
-    void setSieveArray();
-    void printSieveArray();
-    int exploreAtGint(int32_t, int32_t);
-    void exploreLeftWall();
+    // Call this static setter method before any instances of this class are created.
+    static void setStatics(int32_t, double, bool = true);
+
+    BlockMoat(int32_t, int32_t);
+    void callSieve();
+    bool exploreAtGint(int32_t, int32_t, bool = false);
+    bool exploreLeftWall();
     void exploreUpperWall();
-
-
+    pair<int32_t, int32_t> getNextBlock();
 };
+
+void verticalMoat(int32_t, double, bool = true);

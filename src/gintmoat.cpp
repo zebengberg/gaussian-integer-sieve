@@ -4,13 +4,7 @@
 
 
 int main() {
-    VerticalMoat v(700000, 5);
-    v.setSieveArray();
-    v.printSieveArray();
-    cerr << endl;
-    v.exploreLeftWall();
-    //v.exploreUpperWall();
-    v.printSieveArray();
+    verticalMoat(10000, 2.3);
 }
 
 int main2(int argc, const char* argv[]) {
@@ -94,7 +88,7 @@ int main2(int argc, const char* argv[]) {
         cerr << "The furthest out prime in component has coordinates: " << g.a << " " << g.b << endl;
     }
     if (vertical) {
-        cerr << "\nNot yet implemented!" << endl;
+        verticalMoat(x, jumpSize, verbose);
     }
     return 0;
 }
