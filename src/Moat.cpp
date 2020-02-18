@@ -146,7 +146,7 @@ vector<vector<gint>> OctantMoat::getAllComponents() {
 
 
 
-// Need to first define static member variables here in source.
+// Need to first declare static member variables here in source.
 bool BlockMoat::verbose;
 double BlockMoat::jumpSize;
 int32_t BlockMoat::dx;
@@ -289,6 +289,7 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
 // immediately stop and replace current block with one to the right. If this
 // punching through happens repeatedly, consider starting with a larger
 // real part.
+//
 // Upper wall portion.
 // Using the same component search as above, start search gints emanating from
 // within jumpSize of the upper wall of the current block. We will never punch
@@ -346,6 +347,7 @@ void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
     int32_t y = 0;
     int32_t consecutiveStepsRight = 0;
 
+    // TODO: Update values of dx and dy depending on the size of the real parts reached
     while (y < x) {
         // TODO: Check if this object needs to be explicitly destructed
         BlockMoat b(x, y);
@@ -365,4 +367,199 @@ void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
     }
     cerr << "Gaussian moat present from real-axis to boundary of the first octant." << endl;
     cerr << "The connected component arising from a jump size of " << jumpSize << " is finite." << endl;
+}
+
+
+
+
+// Function to count size of connected component at origin using many blocks
+// rather than a single gargantuan call to OctantMoat.
+
+// ALGORITHM:
+// Break the first octant into many trapezoidal vertical strips. Within each
+// vertical strip, instantiate a BlockMoat-type object to find all components
+// that eventually meader to the right wall of the block. Along this right
+// boundary, keep track of the size of the component as well as an ID for the
+// component ending there. Because the boundary is closer to a 1-dimensional
+// geometry object rather than the 2-dimensional block, tracking component
+// status along this boundary will require less storage.
+//
+// Exploring components in the next block, we simply start at the previous
+// boundary. We only care about persistent components that propagate to the
+// right. Islands and lakes will be forgotten with this algorithm; we only seek
+// to find the size of the component containing the origin. Counts will be
+// merged when components come together in future blocks.
+
+// Need to first declare static member variables here in source.
+bool SegmentedMoat::verbose;
+double SegmentedMoat::jumpSize;
+uint64_t SegmentedMoat::sievingPrimesNormBound;
+vector<gint> SegmentedMoat::sievingPrimes;
+vector<gint> SegmentedMoat::nearestNeighbors;
+
+// Call this static setter method before any instances of this class are created.
+void SegmentedMoat::setStatics(double js, bool vb) {
+    if (vb) {
+        cerr << "Setting static variables..." << endl;
+    }
+    verbose = vb;
+    jumpSize = js;
+
+    // Bound on the norm of pre-computed primes. Initial value is arbitrary.
+    sievingPrimesNormBound = uint64_t(pow(10, 8));
+    setSievingPrimes();
+
+    // Setting nearest neighbors.
+    for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
+        for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
+            // u and v shouldn't both be 0
+            // apart from the prime 1 + i, u and v should have same parity
+            // recall that c++ calculates (-3) % 2 as -1
+            if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
+                nearestNeighbors.emplace_back(u, v);
+            }
+        }
+    }
+}
+
+void SegmentedMoat::setSievingPrimes() {
+    if (verbose) {
+        cerr << "Precomputing sieving primes." << endl;
+    }
+    OctantDonutSieve d(sievingPrimesNormBound);
+    d.run();
+    sievingPrimes = d.getBigPrimes();
+}
+
+SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
+    // Calling BlockSieve's constructor
+    : BlockSieve(x, 0, dx, dy, false) // not letting this be verbose
+            , x(x)
+            , dx(dx)
+            , dy(dy)
+{
+    if (verbose) {
+        cerr << "Working within trapezoid having lower left corner at: " << x << " " << y << endl;
+    }
+}
+
+
+// Cannot call virtual methods of BlockSieve parent from BlockMoat constructor.
+void SegmentedMoat::callSieve() {
+    // Checking to make sure there are enough primes within sievingPrimes
+    gint g = sievingPrimes.back();
+    while (g.norm() < isqrt(maxNorm)) {
+        cerr << "Not enough pre-computed primes in static variable sievingPrimes." << endl;
+        cerr << "Doubling the norm bound on pre-computed primes and computing more..." << endl;
+        sievingPrimesNormBound *= 2;
+        setSievingPrimes();
+        g = sievingPrimes.back();
+    }
+
+    vector<gint> smallPrimes;
+    for (gint g : sievingPrimes) {
+        if (g.norm() <= maxNorm) {
+            smallPrimes.push_back(g);
+        }
+    }
+    setSmallPrimesFromReference(smallPrimes);
+    setSieveArray();
+    sieve();
+}
+
+void SegmentedMoat::exploreAtGint(gint g) {
+    vector<gint> toExplore;
+    toExplore.push_back(g);
+
+    do {
+        gint p = toExplore.back();
+        toExplore.pop_back();
+        sieveArray[p.a][p.b] = false;  // indicating a visit
+        countVisited++;
+        for (const gint &q : nearestNeighbors) {
+            gint g = p + q;
+
+            // Checking if we've punched through
+            if (upperWallFlag) {
+                if (g.a >= dx) {
+                    if (p.b < upperWallYPunch) {
+                        upperWallYPunch = p.b;
+                    }
+                }
+                if (g.b < 0) {  // If blocks are tall enough, this should never happen
+                    cerr << "Punched through LOWER wall at: " << g.a << " " << g.b << endl;
+                    cerr << "Started this exploration at: " << a << " " << b << endl;
+                    // For debugging purposes
+                    printSieveArray();
+                    exit(1);
+                }
+            } else {
+                if (g.a >= dx) {
+                    if (verbose) {
+                        cerr << "Punched through right wall at: " << g.a << " " << g.b << endl;
+                        cerr << "Started this exploration at: " << a << " " << b << endl;
+                        cerr << "Moving exploration block to the right...\n" << endl;
+                    }
+                    return true;
+                }
+            }
+
+            // If we are not interacting with the boundary, keep exploring. The
+            // check g.a < dx is somewhat redundant.
+            if ((g.a >= 0) && (g.a < dx) && (g.b >= 0) && (g.b < dy) && sieveArray[g.a][g.b]) {
+                toExplore.push_back(g);
+                if ((!upperWallFlag) && (g.a > farthestRight)) {
+                    farthestRight = g.a;
+                }
+            }
+        }
+    }
+    while (!toExplore.empty());
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+uint64_t segmentedMoat(double jumpSize, bool verbose) {
+    uint64_t count = 0;
+    uint32_t realPart = 0;  // lower left corner of current block
+    // size of each block; ideally should align to cache size, but this also
+    // needs to be large enough to hold more than boundary data
+    uint64_t blockSize = pow(10, 8);
+    int32_t dx = pow(10, 4);
+    int32_t dy = pow(10, 4);
+
+
+
+
+    BlockMoat b(realPart, 0);
+    b.callSieve();
+
+    vector<pair<vector<gint>, uint64_t>> oldBoundary;  // list of boundary gints, count
+    vector<pair<vector<gint>, uint64_t>> newBoundary;
+    for (const auto& component : oldBoundary) {
+        for (gint g : component.first) {
+            b.exploreAtGint(g.a)
+        }
+    }
+
+
+
 }
