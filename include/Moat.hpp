@@ -62,19 +62,30 @@ public:
 void verticalMoat(int32_t, double, bool = true);
 
 
+
+
 // Also derived from BlockSieve
 class SegmentedMoat : public BlockSieve {
 private:
     // Static variables.
     static bool verbose;
     static double jumpSize;
-    static uint64_t sievingPrimesNormBound, currentCount;
+    static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
-    static vector<pair<vector<gint>, uint64_t>> leftBoundary, rightBoundary;
+
+    // These containers hold all of the primes contained in a given graph component
+    // that are within jumpSize of the boundary of the sieve array.
+    // The inner vector<gint> is a vector of these primes, and the uint64_t
+    // is the ID of the component. The vector is indexed by components by
+    // coordinates of Gaussian integers.
+    static vector<vector<uint64_t>> leftBoundary, rightBoundary;
+
+    // Holding counts of component sizes. Individual components are indexed by
+    // unsigned longs.
+    static vector<uint64_t> componentSizes;
 
     // Instance variables.
     int32_t x, dx, dy;
-    vector<gint> currentComponent;
 
 public:
     static void setStatics(double, bool = true);
