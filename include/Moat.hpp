@@ -78,22 +78,24 @@ private:
     // The inner vector<gint> is a vector of these primes, and the uint64_t
     // is the ID of the component. The vector is indexed by components by
     // coordinates of Gaussian integers.
-    static vector<vector<uint64_t>> leftBoundary, rightBoundary;
+    static vector<vector<uint64_t>> leftBoundary;
 
     // Holding counts of component sizes. Individual components are indexed by
     // unsigned longs.
-    static vector<uint64_t> componentSizes;
+    static vector<uint64_t> componentCounts;
 
     // Instance variables.
     int32_t x, dx, dy;
+    vector<vector<uint64_t>> rightBoundary;
 
 public:
     static void setStatics(double, bool = true);
     static void setSievingPrimes();
     SegmentedMoat(int32_t, int32_t, int32_t);
     void callSieve();
-    void exploreAtGint(gint);
-
+    void exploreAtGint(gint, uint64_t);
+    void exploreLeftBoundary();
+    void exploreRightBoundary();
 };
 
 
