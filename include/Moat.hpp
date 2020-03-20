@@ -78,27 +78,25 @@ private:
     // The inner vector<gint> is a vector of these primes, and the uint64_t
     // is the ID of the component. The vector is indexed by components by
     // coordinates of Gaussian integers.
-    static vector<vector<uint64_t>> leftBoundary;
+    static vector<vector<uint32_t>> leftBoundary;
 
     // Holding counts of component sizes. Individual components are indexed by
     // unsigned longs.
     static vector<uint64_t> componentCounts;
+    static bool mainComponentPunchedThrough;  // flag to determine if main component has propagated
 
     // Instance variables.
     int32_t x, dx, dy;
-    vector<vector<uint64_t>> rightBoundary;
-
+    vector<vector<uint32_t>> rightBoundary;
 public:
     static void setStatics(double, bool = true);
     static void setSievingPrimes();
+    static uint64_t countComponent();
+
     SegmentedMoat(int32_t, int32_t, int32_t);
     void callSieve();
-    void exploreAtGint(gint, uint64_t);
+    void exploreAtGint(gint, uint32_t);
     void exploreLeftBoundary();
     void exploreRightBoundary();
+    void runSegment();
 };
-
-
-// Function to handle instances of SegmentedMoat.
-// TODO: Should this instead be a static method of BlockMoat?
-uint64_t countComponent(double, bool = true);
