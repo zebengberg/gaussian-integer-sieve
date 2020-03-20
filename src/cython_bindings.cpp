@@ -4,7 +4,7 @@
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
 #include "../include/BlockSieve.hpp"
-#include "../include/Moat.hpp"
+#include "Moat.hpp"
 #include <iostream>
 #include <cmath>
 #include <numeric>

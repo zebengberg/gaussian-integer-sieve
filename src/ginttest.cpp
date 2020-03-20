@@ -5,7 +5,7 @@
 #include "../include/BlockSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
-#include "../include/Moat.hpp"
+#include "Moat.hpp"
 using namespace std;
 
 

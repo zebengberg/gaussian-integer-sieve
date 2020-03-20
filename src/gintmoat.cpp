@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/Moat.hpp"
+#include "Moat.hpp"
 
 
 int main(int argc, const char* argv[]) {
