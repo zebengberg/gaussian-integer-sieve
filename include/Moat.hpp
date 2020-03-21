@@ -70,14 +70,13 @@ private:
     // Static variables.
     static bool verbose;
     static double jumpSize;
+    static uint64_t blockSize;  // the number of entries in the block of size dx by dy.
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
 
-    // These containers hold all of the primes contained in a given graph component
-    // that are within jumpSize of the boundary of the sieve array.
-    // The inner vector<gint> is a vector of these primes, and the uint64_t
-    // is the ID of the component. The vector is indexed by components by
-    // coordinates of Gaussian integers.
+    // The entry at a, b holds the ID number of the component containing the
+    // Gaussian prime corresponding to a, b.  Entries with value 0 are either
+    // not prime or haven't yet been assigned an ID.
     static vector<vector<uint32_t>> leftBoundary;
 
     // Holding counts of component sizes. Individual components are indexed by

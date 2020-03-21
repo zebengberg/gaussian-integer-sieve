@@ -35,6 +35,7 @@
 // Need to first declare static member variables here in the cpp source.
 bool SegmentedMoat::verbose;
 double SegmentedMoat::jumpSize;
+uint64_t SegmentedMoat::blockSize;
 uint64_t SegmentedMoat::sievingPrimesNormBound;
 vector<gint> SegmentedMoat::sievingPrimes;
 vector<gint> SegmentedMoat::nearestNeighbors;
@@ -50,15 +51,18 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     }
     verbose = vb;
 
-    jumpSize = js;
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
-    jumpSize += tolerance;
-
-    if (jumpSize < 3) {
+    jumpSize = js + tolerance;
+    if (jumpSize < 2) {
         cerr << "Jump size is too small; instead call OctantMoat." << endl;
         exit(1);
     }
+
+    // Can be optimized later.
+    // Ideally should align to cache size, but also needs to be large enough to
+    // hold more than solely the boundary data.
+    blockSize = pow(10, 6);
 
     // Bound on the norm of pre-computed primes. Initial value is arbitrary.
     sievingPrimesNormBound = uint64_t(pow(10, 8));
@@ -76,16 +80,50 @@ void SegmentedMoat::setStatics(double js, bool vb) {
         }
     }
 
-    // Setting leftBoundary to only contain origin.
+    // Setting leftBoundary by hand to contain small patch of primes around origin.
+    // Need jumpSize to be at least sqrt(2) to actually reach these small primes.
+    uint64_t patchCount = 0;
     for (uint32_t i = 0; i < jumpSize; i++) {
-        vector<uint32_t> column(1, 0);  // ID of 0 indicates unvisited
+        vector<uint32_t> column;
+        switch(i) {
+            case 0:
+                column = {0};  // origin is not prime
+                break;
+            case 1:
+                column = {0, 1};  // 1 + i prime
+                patchCount++;
+                break;
+            case 2:
+                column = {0, 1, 0};  // 2 + i prime
+                patchCount++;
+                break;
+            case 3:
+                column = {1, 0, 1, 0};  // 3 and 3 + 2i prime
+                patchCount += 2;
+                break;
+            case 4:
+                column = {0, 1, 0, 0, 0};  // 4 + i prime
+                patchCount++;
+                break;
+            case 5:
+                column = {0, 0, 1, 0, 1, 0};  // 5 + 2i and 5 + 4i prime
+                patchCount += 2;
+                break;
+            case 6:
+                column = {0, 1, 0, 0, 0, 1, 0};  // 6 + i and 6 + 5i prime
+                patchCount += 2;
+                break;
+            default:
+                cerr << "Patch around origin not big enough!" << endl;
+                exit(1);
+        }
         leftBoundary.push_back(column);
     }
-    leftBoundary[0][0] = 1;  // ID of component at origin is 1
+
 
     // Initializing component counts vector.
     componentCounts.push_back(0);
-    componentCounts.push_back(0);
+    componentCounts.push_back(patchCount);
 }
 
 void SegmentedMoat::setSievingPrimes() {
@@ -156,7 +194,11 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
         gint p = toExplore.back();
         toExplore.pop_back();
         sieveArray[p.a][p.b] = false;  // indicating a visit
+        cout << "exploring gint: " << p.a << " " << p.b << endl;
+        cout << "  current count: " << count << endl;
+
         if (p.a < jumpSize) {  // p is inside leftBoundary
+            cout << "  still in left boundary" << endl;
             uint64_t componentIndex = leftBoundary[p.a][p.b];
             if (componentIndex != startingComponentIndex) {  // merge counts!
                 count += componentCounts[componentIndex];
@@ -167,6 +209,7 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
         } else {  // haven't yet been to p
             count++;
             if (p.a >= floor(dy - jumpSize)) {  // p has punched through into right boundary!
+                cout << "  entered into right boundary" << endl;
                 if (startingComponentIndex == 1) {  // main component has successfully propagated
                     mainComponentPunchedThrough = true;
                 }
@@ -178,6 +221,7 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
         for (const gint &q : nearestNeighbors) {
             gint h = p + q;
             if (h.a >= 0 && h.a <= dx && h.b >= 0 && h.b <= dy && h.b <= h.a && sieveArray[h.a][h.b]) {
+                cout << "  pushing back: " << h.a << " " << h.b << endl;
                 toExplore.push_back(h);
             }
         }
@@ -191,9 +235,9 @@ void SegmentedMoat::exploreLeftBoundary() {
     // Going from gints with low component index to high component index.
     // Need to step through leftBoundary several times; consider re-engineering
     // if this is too slow.
-    for (uint32_t index = 0; index < componentCounts.size(); index++) {
+    for (uint32_t index = 1; index < componentCounts.size(); index++) {
         for (uint32_t a = 0; a < jumpSize; a++) {
-            for (uint32_t b = 0; b < dy; b++) {
+            for (uint32_t b = 0; b < leftBoundary[a].size(); b++) {
                 if (leftBoundary[a][b] == index) {
                     exploreAtGint(gint(a, b), index);
                 }
@@ -240,28 +284,30 @@ void SegmentedMoat::runSegment() {
 
 // Call this static method after setStatics() has been run.
 uint64_t SegmentedMoat::countComponent() {
+    cout << "printing left boundary ..." << endl;
+    for (int a = 0; a < jumpSize; a++) {
+        for (unsigned int value : leftBoundary[a]) {
+            cout << value << " ";
+        }
+        cout << endl;
+    }
+
     uint32_t x = 0;  // lower left corner of current block
-    // size of each block; ideally should align to cache size, but this also
-    // needs to be large enough to hold more than boundary data
-    // TODO: should blocksize be static?
-    uint64_t blockSize = pow(10, 8);
-    int32_t dx = pow(10, 4);
-    int32_t dy = pow(10, 4);
 
     do {
+        // Updating parameters to pass to instance of SegmentedMoat.
+        // Want: dx * dy = blockSize.
+        // Also need: dy = x + dx so that next block goes all the way up to line y = x in complex plane.
+        // Eliminating dy, these two equations give a quadratic in dx.
+        uint32_t dx = floor(sqrt(blockSize + x * x / 4.0) - x / 2.0);
+        uint32_t dy = x + dx;
+
         // calling instance
         SegmentedMoat s(x, dx, dy);
         s.callSieve();
         s.runSegment();
 
-        // Updating parameters for next call.
-        // Want: dx * dy = blockSize.
-        // Also need: dy = x + dx so that next block goes all the way up to line y = x in complex plane.
-        // Eliminating dy, these two equations give a quadratic in dx.
         x += dx - floor(jumpSize);
-        dx = floor(sqrt(blockSize + x * x / 4.0) - x / 2.0);
-        dy = x + dx;
-
     } while (mainComponentPunchedThrough);
     return componentCounts[1];
 }

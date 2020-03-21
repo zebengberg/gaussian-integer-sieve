@@ -2,7 +2,15 @@
 #include "Moat.hpp"
 
 
-int main(int argc, const char* argv[]) {
+int main() {
+    SegmentedMoat::setStatics(3);
+    SegmentedMoat::countComponent();
+}
+
+
+
+
+int main2(int argc, const char* argv[]) {
     if (argc < 3) {
         cerr << "\n";
         cerr << "Not enough parameters passed. Use -h optional flag for help.\n" << endl;
