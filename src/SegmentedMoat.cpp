@@ -55,14 +55,14 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     double tolerance = pow(10, -3);
     jumpSize = js + tolerance;
     if (jumpSize < 2) {
-        cerr << "Jump size is too small; instead call OctantMoat." << endl;
+        cout << "Jump size is too small; instead call OctantMoat." << endl;
         exit(1);
     }
 
     // Can be optimized later.
     // Ideally should align to cache size, but also needs to be large enough to
     // hold more than solely the boundary data.
-    blockSize = pow(10, 6);
+    blockSize = 900;
 
     // Bound on the norm of pre-computed primes. Initial value is arbitrary.
     sievingPrimesNormBound = uint64_t(pow(10, 8));
@@ -90,7 +90,7 @@ void SegmentedMoat::setStatics(double js, bool vb) {
                 column = {0};  // origin is not prime
                 break;
             case 1:
-                column = {0, 1};  // 1 + i prime
+                column = {0, 0};  // 1 + i prime, but we ignore it! look at parity of nearest neighbors
                 patchCount++;
                 break;
             case 2:
@@ -146,6 +146,11 @@ SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
         cerr << "Working within block having lower left corner at: " << x << " " << 0 << endl;
     }
 
+    if (2 * jumpSize > dx) {
+        cerr << "Blocksize not large enough to fit both boundaries within sieveArray!" << endl;
+        exit(1);
+    }
+
     // Setting rightBoundary to contain jumpSize-number of columns; should be
     // indexed by last jumpSize columns of the sieveArray.
     for (uint32_t i = 0; i < jumpSize; i++) {
@@ -189,18 +194,19 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
 
     vector<gint> toExplore;
     toExplore.push_back(g);
+    sieveArray[g.a][g.b] = false;  // indicating a visit
 
     do {
         gint p = toExplore.back();
         toExplore.pop_back();
-        sieveArray[p.a][p.b] = false;  // indicating a visit
-        cout << "exploring gint: " << p.a << " " << p.b << endl;
+        cout << "\nexploring gint: " << p.a << " " << p.b << endl;
         cout << "  current count: " << count << endl;
 
         if (p.a < jumpSize) {  // p is inside leftBoundary
             cout << "  still in left boundary" << endl;
             uint64_t componentIndex = leftBoundary[p.a][p.b];
             if (componentIndex != startingComponentIndex) {  // merge counts!
+                cout << "MERGING!!" << endl;
                 count += componentCounts[componentIndex];
                 // Setting count to 0 to avoid over count when we encounter other
                 // gints with index componentIndex.
@@ -208,21 +214,21 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
             }  // else, p is in the same component as g, and we've already counted contribution
         } else {  // haven't yet been to p
             count++;
-            if (p.a >= floor(dy - jumpSize)) {  // p has punched through into right boundary!
+            if (p.a >= floor(dx - jumpSize)) {  // p has punched through into right boundary!
                 cout << "  entered into right boundary" << endl;
                 if (startingComponentIndex == 1) {  // main component has successfully propagated
                     mainComponentPunchedThrough = true;
                 }
-                rightBoundary[p.a - floor(dy - jumpSize)][p.b] = startingComponentIndex;
-                count++;
+                rightBoundary[p.a - floor(dx - jumpSize)][p.b] = startingComponentIndex;
             }
         }
 
         for (const gint &q : nearestNeighbors) {
             gint h = p + q;
-            if (h.a >= 0 && h.a <= dx && h.b >= 0 && h.b <= dy && h.b <= h.a && sieveArray[h.a][h.b]) {
+            if (h.a >= 0 && h.a < dx && h.b >= 0 && h.b < dy && h.b <= x + h.a && sieveArray[h.a][h.b]) {
                 cout << "  pushing back: " << h.a << " " << h.b << endl;
                 toExplore.push_back(h);
+                sieveArray[h.a][h.b] = false;  // indicating a visit here so we don't push back h again
             }
         }
     } while (!toExplore.empty());
@@ -235,10 +241,14 @@ void SegmentedMoat::exploreLeftBoundary() {
     // Going from gints with low component index to high component index.
     // Need to step through leftBoundary several times; consider re-engineering
     // if this is too slow.
+    printSieveArray();
     for (uint32_t index = 1; index < componentCounts.size(); index++) {
+        cout << "\nEXPLORING GINTS WITH INDEX: " << index << endl;
         for (uint32_t a = 0; a < jumpSize; a++) {
-            for (uint32_t b = 0; b < leftBoundary[a].size(); b++) {
-                if (leftBoundary[a][b] == index) {
+            for (uint32_t b = 0; b < leftBoundary[a].size(); b++) {  // leftBoundary[a].size() is the previous value of dy
+                cout << "    trying gint with absolute coordinates " << a + x << " " << b << endl;
+                if (leftBoundary[a][b] == index && sieveArray[a][b]) {  // haven't visited on prior exploration
+                    cout << "\nNEW EXPLORATION: " << a << " " << b << endl;
                     exploreAtGint(gint(a, b), index);
                 }
             }
@@ -247,12 +257,13 @@ void SegmentedMoat::exploreLeftBoundary() {
 }
 
 void SegmentedMoat::exploreRightBoundary() {
-    for (uint32_t a = 0; a < jumpSize; a++) {
+    for (uint32_t a = floor(dx - jumpSize); a < dx; a++) {
         for (uint32_t b = 0; b < dy; b++) {
-            uint32_t aAbsolute = floor(dy - jumpSize) + a;
             // Checking if unvisited, prime, and within first octant.
-            if (rightBoundary[a][b] == 0 && sieveArray[aAbsolute][b] && b < aAbsolute) {
+            if (rightBoundary[a - floor(dx - jumpSize)][b] == 0 && sieveArray[a][b] && b < a + x) {
                 // Finding an available opening in segmentedCounts, or pushing new one.
+
+                cout << "\nNEW EXPLORATION: " << a << " " << b << endl;
                 uint32_t index = 1;
                 for (; index < componentCounts.size(); index++) {
                     if (componentCounts[index] == 0) {
@@ -262,39 +273,45 @@ void SegmentedMoat::exploreRightBoundary() {
                     }
                 }
                 if (index == componentCounts.size()) {  // appending new entry to vector
+                    cout << "  appending to end of component counts" << endl;
                     componentCounts.push_back(1);
                 }
-                exploreAtGint(gint(aAbsolute, b), index);
+                exploreAtGint(gint(a, b), index);
             }
         }
     }
 }
 
 void SegmentedMoat::runSegment() {
-    if (verbose) {
-        cerr << "Exploring left boundary..." << endl;
-    }
+
+    cout << "\nExploring left boundary...\n" << endl;
     exploreLeftBoundary();
-    if (verbose) {
-        cerr << "Exploring right boundary..." << endl;
-    }
+
+    cout << "\nExploring right boundary...\n" << endl;
     exploreRightBoundary();
+
     leftBoundary = rightBoundary;
+    cout << "\nprinting component counts..." << endl;
+    for (unsigned int value : componentCounts) {
+        cout << value << " ";
+    }
+    cout << endl;
 }
 
 // Call this static method after setStatics() has been run.
 uint64_t SegmentedMoat::countComponent() {
-    cout << "printing left boundary ..." << endl;
-    for (int a = 0; a < jumpSize; a++) {
-        for (unsigned int value : leftBoundary[a]) {
-            cout << value << " ";
-        }
-        cout << endl;
-    }
-
     uint32_t x = 0;  // lower left corner of current block
 
     do {
+        cout << "\nprinting left boundary ..." << endl;
+        for (int a = 0; a < jumpSize; a++) {
+            for (unsigned int value : leftBoundary[a]) {
+                cout << value << " ";
+            }
+            cout << endl;
+        }
+
+
         // Updating parameters to pass to instance of SegmentedMoat.
         // Want: dx * dy = blockSize.
         // Also need: dy = x + dx so that next block goes all the way up to line y = x in complex plane.
@@ -307,7 +324,8 @@ uint64_t SegmentedMoat::countComponent() {
         s.callSieve();
         s.runSegment();
 
-        x += dx - floor(jumpSize);
+        x += floor(dx - jumpSize);
+        cout << "NEW x: " << x << endl;
     } while (mainComponentPunchedThrough);
     return componentCounts[1];
 }
