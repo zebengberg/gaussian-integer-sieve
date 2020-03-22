@@ -166,7 +166,7 @@ int main() {
 
     m = OctantMoat(1000000, 3.2);
     m.exploreComponent(0, 0);
-    assert(m.getComponentSize() == 31221);
+    assert(m.getComponentSize() == 31221);  // typo p 330 in stroll paper; p 331 correct
     assert(m.getComponentMaxElement() == gint(976, 311));
 
     m = OctantMoat(10000000, 4);

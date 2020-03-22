@@ -80,13 +80,16 @@ private:
     static vector<vector<uint32_t>> leftBoundary;
 
     // Holding counts of component sizes. Individual components are indexed by
-    // unsigned longs.
+    // unsigned longs, the index of this vector.
     static vector<uint64_t> componentCounts;
-    static bool mainComponentPunchedThrough;  // flag to determine if main component has propagated
 
     // Instance variables.
     int32_t x, dx, dy;
     vector<vector<uint32_t>> rightBoundary;
+    // Holds status of components. If component has not propagated to right
+    // boundary or merged with another component, it can be forgotten.
+    vector<bool> hasComponentPropagated;
+
 public:
     static void setStatics(double, bool = true);
     static void setSievingPrimes();
@@ -98,4 +101,5 @@ public:
     void exploreLeftBoundary();
     void exploreRightBoundary();
     void runSegment();
+    bool hasMainComponentPropagated();
 };
