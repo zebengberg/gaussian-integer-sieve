@@ -103,3 +103,5 @@ public:
     void runSegment();
     bool hasMainComponentPropagated();
 };
+
+uint64_t getCount();

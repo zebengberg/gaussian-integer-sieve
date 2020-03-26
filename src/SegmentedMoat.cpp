@@ -64,7 +64,7 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     // Can be optimized later.
     // Ideally should align to cache size, but also needs to be large enough to
     // hold more than solely the boundary data.
-    blockSize = pow(10, 7);
+    blockSize = pow(10, 5);
 
     // Bound on the norm of pre-computed primes. Initial value is arbitrary.
     sievingPrimesNormBound = uint64_t(pow(10, 8));
@@ -204,14 +204,11 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
         gint p = toExplore.back();
         toExplore.pop_back();
 
-        cout << "  " << x + p.a << " " << p.b << " " << startingComponentIndex << endl;
-
-
+        //cout << "  " << x + p.a << " " << p.b << " " << startingComponentIndex << " " << toExplore.size() << endl;
 
         if (p.a < jumpSize) {  // p is inside leftBoundary, so it was counted in last iteration
             uint64_t componentIndex = leftBoundary[p.a][p.b];
             if (componentIndex != startingComponentIndex) {
-                //cout << "MERGING WITH " << componentIndex << endl;
                 // merge counts!
                 count += componentCounts[componentIndex];
 
@@ -230,18 +227,30 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
                     for (uint32_t b = 0; b < leftBoundary.at(a).size(); b++) {
                         if (leftBoundary.at(a).at(b) == componentIndex) {
                             leftBoundary.at(a).at(b) = startingComponentIndex;
-                            toExplore.emplace_back(a, b);
-                            sieveArray.at(a).at(b) = false;
+                            if (sieveArray[a][b]) {
+                                toExplore.emplace_back(a, b);
+                                sieveArray.at(a).at(b) = false;
+                            }
                         }
                     }
                 }
+
+                for (uint32_t a = 0; a < jumpSize; a++) {
+                    for (uint32_t b = 0; b < dy; b++) {
+                        if (rightBoundary[a][b] == componentIndex) {
+                            rightBoundary[a][b] = startingComponentIndex;
+                        }
+                    }
+                }
+
 
             }  // else, p is in the same component as g, and we've already counted contribution
         } else {  // haven't yet been to p
             count++;
             if (p.a >= floor(dx - jumpSize)) {  // p has punched through into right boundary!
-                hasComponentPropagated[startingComponentIndex] = true;
-                rightBoundary[p.a - floor(dx - jumpSize)][p.b] = startingComponentIndex;
+                hasComponentPropagated.at(startingComponentIndex) = true;
+                //cout << "    " << p.a - floor(dx - jumpSize) << " " << p.b << endl;
+                rightBoundary.at(p.a - floor(dx - jumpSize)).at(p.b) = startingComponentIndex;
             }
         }
 
@@ -304,6 +313,7 @@ void SegmentedMoat::exploreRightBoundary() {
                 // Made it through componentCounts without finding an available slot.
                 if (index == componentCounts.size()) {  // appending new entry to vector
                     componentCounts.push_back(0);
+                    hasComponentPropagated.push_back(true);  // since already in right boundary
                 }
                 exploreAtGint(gint(a, b), index);
             }
@@ -315,33 +325,19 @@ void SegmentedMoat::runSegment() {
     exploreLeftBoundary();
     exploreRightBoundary();
     leftBoundary = rightBoundary;
-
-    //cout << "\nprinting component counts..." << endl;
-    for (unsigned int value : componentCounts) {
-        //cout << value << " ";
-    }
-    //cout << endl;
 }
 
 bool SegmentedMoat::hasMainComponentPropagated() {
     return hasComponentPropagated[1];
 }
 
-// Call this static method after setStatics() has been run.
+// Call this function after setStatics() has been run.
+// This should not be a static function other will encounter memory issues.
 uint64_t SegmentedMoat::countComponent() {
     uint32_t x = 0;  // lower left corner of current block
-    bool hasMainComponentPropagated = false;
+    bool hasMainComponentPropagated;
 
     do {
-        //cout << "\nprinting left boundary ..." << endl;
-        for (int a = 0; a < jumpSize; a++) {
-            for (unsigned int value : leftBoundary[a]) {
-                //cout << value << " ";
-            }
-            //cout << endl;
-        }
-
-
         // Updating parameters dx and dy to pass to instance of SegmentedMoat.
         // Want: dx * dy = blockSize.
         // Also need: dy = x + dx so that next block goes all the way up to line y = x in complex plane.
@@ -350,7 +346,7 @@ uint64_t SegmentedMoat::countComponent() {
         uint32_t dy = x + dx;
 
         // calling instance
-        cout << "#######" << x << endl;
+        cout << x << " " << dx << " " << dy << endl;
         SegmentedMoat s(x, dx, dy);
         s.callSieve();
         s.runSegment();
@@ -360,4 +356,10 @@ uint64_t SegmentedMoat::countComponent() {
         x += floor(dx - jumpSize);
     } while (hasMainComponentPropagated);
     return componentCounts[1];
+}
+
+uint64_t getCount() {
+    SegmentedMoat::setStatics(4);
+    uint64_t s = SegmentedMoat::countComponent();
+    return s;
 }

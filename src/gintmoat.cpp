@@ -3,13 +3,8 @@
 
 
 int main() {
-    SegmentedMoat::setStatics(4);
-    uint64_t s = SegmentedMoat::countComponent();
+    uint64_t s = getCount();
     cout << "\n\nThe size of the component: " << s << endl;
-
-    //OctantMoat o(10000, 3.0, true);
-    //o.exploreComponent(0, 0);
-    //o.printCurrentComponent();
 }
 
 
