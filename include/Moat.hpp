@@ -70,25 +70,30 @@ private:
     // Static variables.
     static bool verbose;
     static double jumpSize;
+    static uint32_t previousdy;
     static uint64_t blockSize;  // the number of entries in the block of size dx by dy.
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
 
-    // The entry at a, b holds the ID number of the component containing the
-    // Gaussian prime corresponding to a, b.  Entries with value 0 are either
-    // not prime or haven't yet been assigned an ID.
-    static vector<vector<uint32_t>> leftBoundary;
+    // The index of the outer vector determines which component number the inner
+    // vector corresponds with.
+    static vector<vector<gint>> leftBoundary;
 
     // Holding counts of component sizes. Individual components are indexed by
     // unsigned longs, the index of this vector.
-    static vector<uint64_t> componentCounts;
+    static vector<uint64_t> componentSizes;
 
     // Instance variables.
     int32_t x, dx, dy;
-    vector<vector<uint32_t>> rightBoundary;
+    vector<vector<gint>> rightBoundary;
     // Holds status of components. If component has not propagated to right
     // boundary or merged with another component, it can be forgotten.
     vector<bool> hasComponentPropagated;
+    vector<vector<uint32_t>> leftComponentLookUp;
+
+    //debug
+    static vector<gint> checker;
+    static vector<int> checker2;
 
 public:
     static void setStatics(double, bool = true);
@@ -97,7 +102,7 @@ public:
 
     SegmentedMoat(int32_t, int32_t, int32_t);
     void callSieve();
-    void exploreAtGint(gint, uint32_t);
+    void exploreComponent(uint32_t, bool = true);
     void exploreLeftBoundary();
     void exploreRightBoundary();
     void runSegment();

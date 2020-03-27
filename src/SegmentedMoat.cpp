@@ -35,13 +35,16 @@
 // Need to first declare static member variables here in the cpp source.
 bool SegmentedMoat::verbose;
 double SegmentedMoat::jumpSize;
+uint32_t SegmentedMoat::previousdy;
 uint64_t SegmentedMoat::blockSize;
 uint64_t SegmentedMoat::sievingPrimesNormBound;
 vector<gint> SegmentedMoat::sievingPrimes;
 vector<gint> SegmentedMoat::nearestNeighbors;
-vector<vector<uint32_t>> SegmentedMoat::leftBoundary;
-vector<uint64_t> SegmentedMoat::componentCounts;
+vector<vector<gint>> SegmentedMoat::leftBoundary;
+vector<uint64_t> SegmentedMoat::componentSizes;
 
+vector<gint> SegmentedMoat::checker;
+vector<int> SegmentedMoat::checker2;
 
 // Call this static setter method before any instances of this class are created.
 void SegmentedMoat::setStatics(double js, bool vb) {
@@ -64,7 +67,7 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     // Can be optimized later.
     // Ideally should align to cache size, but also needs to be large enough to
     // hold more than solely the boundary data.
-    blockSize = pow(10, 5);
+    blockSize = pow(10, 9);
 
     // Bound on the norm of pre-computed primes. Initial value is arbitrary.
     sievingPrimesNormBound = uint64_t(pow(10, 8));
@@ -81,51 +84,42 @@ void SegmentedMoat::setStatics(double js, bool vb) {
             }
         }
     }
+    previousdy = floor(jumpSize);
 
-    // Setting leftBoundary by hand to contain small patch of primes around origin.
-    // Need jumpSize to be at least sqrt(2) to actually reach these small primes.
-    uint64_t patchCount = 0;
-    for (uint32_t i = 0; i < jumpSize; i++) {
-        vector<uint32_t> column;
-        switch(i) {
-            case 0:
-                column = {0};  // origin is not prime
-                break;
-            case 1:
-                column = {0, 0};  // 1 + i prime, but we ignore it! look at parity of nearest neighbors
-                patchCount++;
-                break;
-            case 2:
-                column = {0, 1, 0};  // 2 + i prime
-                patchCount++;
-                break;
-            case 3:
-                column = {1, 0, 1, 0};  // 3 and 3 + 2i prime
-                patchCount += 2;
-                break;
-            case 4:
-                column = {0, 1, 0, 0, 0};  // 4 + i prime
-                patchCount++;
-                break;
-            case 5:
-                column = {0, 0, 1, 0, 1, 0};  // 5 + 2i and 5 + 4i prime
-                patchCount += 2;
-                break;
-            case 6:
-                column = {0, 1, 0, 0, 0, 1, 0};  // 6 + i and 6 + 5i prime
-                patchCount += 2;
-                break;
-            default:
-                cerr << "Patch around origin not big enough!" << endl;
-                exit(1);
-        }
-        leftBoundary.push_back(column);
+    // Initializing leftBoundary to contain only 2 + i. Note that we need
+    // jumpSize to be at least sqrt(2) to actually reach this prime from the origin.
+    // Because of parity constraints in nearestNeighbors, we do not initialize with
+    // 1 + i, but we still count it in componentSizes.
+    vector<gint> component = {gint(2, 1)};
+    // Initializing componentSizes
+    componentSizes.push_back(2);  // primes 1 + i and 2 + i
+
+    // Throwing in more gints and updating componentSizes if jumpSize is larger
+    if (jumpSize > 3) {
+        component.emplace_back(3, 0);
+        component.emplace_back(3, 2);
+        componentSizes[0] += 2;
     }
+    if (jumpSize > 4) {
+        component.emplace_back(4, 1);
+        componentSizes[0]++;
+    }
+    if (jumpSize > 5) {
+        component.emplace_back(5, 2);
+        component.emplace_back(5, 4);
+        componentSizes[0] += 2;
+    }
+    leftBoundary.push_back(component);
 
 
-    // Initializing component counts vector.
-    componentCounts.push_back(0);
-    componentCounts.push_back(patchCount);
+
+//    OctantMoat o(10000000, jumpSize, false);
+//    o.exploreComponent(0, 0);
+//
+//    checker = o.getCurrentComponent();
+//
+//    //sort(checker.begin(), checker.end());
+//    checker2.resize(checker.size(), 0);
 }
 
 void SegmentedMoat::setSievingPrimes() {
@@ -143,13 +137,12 @@ SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
         , x(x)
         , dx(dx)
         , dy(dy)
-        , hasComponentPropagated(componentCounts.size(), false)  // no component propagated yet
+        , hasComponentPropagated(componentSizes.size(), false)  // no component propagated yet
 {
     if (verbose) {
-        // TODO: change this to cerr
-        // cout << "\n##################################################################" << endl;
-        // cout << "Working within block having lower left corner at: " << x << " " << 0 << endl;
-        // cout << "Size of block is: " << dx << " " << dy  << "\n" << endl;
+         cerr << "\n##################################################################" << endl;
+         cerr << "Working within block having lower left corner at: " << x << " " << 0 << endl;
+         cerr << "Size of block is: " << dx << " " << dy  << "\n" << endl;
     }
 
     if (2 * jumpSize > dx) {
@@ -157,11 +150,21 @@ SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
         exit(1);
     }
 
-    // Setting rightBoundary to contain jumpSize-number of columns; should be
-    // indexed by last jumpSize columns of the sieveArray.
-    for (uint32_t i = 0; i < jumpSize; i++) {
-        vector<uint32_t> column(dy, 0);  // 0 indicates unvisited
-        rightBoundary.push_back(column);
+
+
+
+    // Setting the 2D array holding component IDs within leftBoundary
+    for (uint32_t a = 0; a < jumpSize; a++) {
+        vector<uint32_t> column(previousdy, 0);  // should be previous dy
+        leftComponentLookUp.push_back(column);
+    }
+    for (uint32_t index = 0; index < leftBoundary.size(); index++) {
+        for (gint g : leftBoundary[index]) {
+            leftComponentLookUp[g.a][g.b] = index;
+        }
+        // Pushing empty vector onto rightBoundary for each distinct component
+        vector<gint> component;
+        rightBoundary.push_back(component);
     }
 }
 
@@ -189,68 +192,62 @@ void SegmentedMoat::callSieve() {
     sieve();
 }
 
-// Here g should be a gint in the left boundary of the sieve array. Convention
-// is to explore gint with smaller component index first so that merges go from
-// large index into small index.
-void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
-    // to the right boundary. If not, entire component count can be forgotten.
-    uint64_t count = 0;
-
+// Convention is to explore gint with smaller component index first so that
+// merges go from large index into small index.
+void SegmentedMoat::exploreComponent(uint32_t startingIndex, bool startingFromLeft) {
+    uint64_t count = 0;  // everything in leftBoundary has been counted previously
     vector<gint> toExplore;
-    toExplore.push_back(g);
-    sieveArray[g.a][g.b] = false;  // indicating a visit
+    if (startingFromLeft) {
+        toExplore = leftBoundary[startingIndex];
+    } else {  // removing singleton from rightBoundary since we'll push it back
+        toExplore = rightBoundary[startingIndex];
+        rightBoundary[startingIndex].clear();
+    }
+
+    // Indicating with sieveArray that these gints have been visited
+    for (gint g : toExplore) { sieveArray[g.a][g.b] = false; }
 
     do {
         gint p = toExplore.back();
         toExplore.pop_back();
 
-        //cout << "  " << x + p.a << " " << p.b << " " << startingComponentIndex << " " << toExplore.size() << endl;
+        // debug
+//        for (int i = 0; i < checker.size(); i++) {
+//            gint c = checker[i];
+//            c.a -= x;
+//            if (p == c) {
+//                checker2[i] = startingIndex;
+//            }
+//        }
+        //cout << "    " << x + p.a << " " << p.b << " " << startingIndex << " " << toExplore.size() << " " << count << endl;
 
-        if (p.a < jumpSize) {  // p is inside leftBoundary, so it was counted in last iteration
-            uint64_t componentIndex = leftBoundary[p.a][p.b];
-            if (componentIndex != startingComponentIndex) {
-                // merge counts!
-                count += componentCounts[componentIndex];
 
-                // Setting count to 0 to avoid over count when we encounter other
-                // gints with index componentIndex.
-                componentCounts[componentIndex] = 0;
+        // p is inside leftBoundary, so it was already counted in last iteration
+        if (p.a < jumpSize) {
+            uint32_t index = leftComponentLookUp[p.a][p.b];
+            if (index != startingIndex) {  // merging counts!
+                // Adding the count from componentIndex to the current count,
+                // then setting it to 0 to free it up for later use.
+                count += componentSizes[index];
+                componentSizes[index] = 0;
 
-                // Going through entire component discovered. Reassigning all of
-                // of their component IDs to startingComponentIndex. Pushing all
-                // such gints into the toExplore stack.
-                // We will end up explore p twice; p is only counted on the
-                // initial merge.
-                // TODO: Consider thinking of some faster way to implement this.
-                // TODO: some sort of malloc bug, possibly in here.
-                for (uint32_t a = 0; a < jumpSize; a++) {
-                    for (uint32_t b = 0; b < leftBoundary.at(a).size(); b++) {
-                        if (leftBoundary.at(a).at(b) == componentIndex) {
-                            leftBoundary.at(a).at(b) = startingComponentIndex;
-                            if (sieveArray[a][b]) {
-                                toExplore.emplace_back(a, b);
-                                sieveArray.at(a).at(b) = false;
-                            }
-                        }
-                    }
+                // Pushing new component on toExplore, and updating
+                // leftComponentLookUp. Because component indices are explored
+                // in increasing order, none of the pushed gints below will have
+                // been previously explored. We will end up exploring p twice;
+                // p is only counted on the initial merge.
+                for (gint g : leftBoundary[index]) {
+                    leftComponentLookUp[g.a][g.b] = startingIndex;
+                    toExplore.push_back(g);
+                    sieveArray[g.a][g.b] = false;
                 }
-
-                for (uint32_t a = 0; a < jumpSize; a++) {
-                    for (uint32_t b = 0; b < dy; b++) {
-                        if (rightBoundary[a][b] == componentIndex) {
-                            rightBoundary[a][b] = startingComponentIndex;
-                        }
-                    }
-                }
-
-
-            }  // else, p is in the same component as g, and we've already counted contribution
-        } else {  // haven't yet been to p
+            }
+        } else {  // haven't been to p in previous iteration
             count++;
-            if (p.a >= floor(dx - jumpSize)) {  // p has punched through into right boundary!
-                hasComponentPropagated.at(startingComponentIndex) = true;
-                //cout << "    " << p.a - floor(dx - jumpSize) << " " << p.b << endl;
-                rightBoundary.at(p.a - floor(dx - jumpSize)).at(p.b) = startingComponentIndex;
+            // p has punched through or started within the right boundary
+            if (p.a >= floor(dx - jumpSize)) {
+                hasComponentPropagated[startingIndex] = true;
+                rightBoundary[startingIndex].push_back(p);
             }
         }
 
@@ -264,34 +261,35 @@ void SegmentedMoat::exploreAtGint(gint g, uint32_t startingComponentIndex) {
     } while (!toExplore.empty());
 
     // Updating component count.
-    componentCounts[startingComponentIndex] += count;
+
+    componentSizes[startingIndex] += count;
 }
 
 void SegmentedMoat::exploreLeftBoundary() {
-    // First going through once to find gints with component index = 1.
-    for (uint32_t a = 0; a < jumpSize; a++) {
-        for (uint32_t b = 0; b < leftBoundary[a].size(); b++) {  // leftBoundary[a].size() is the previous value of dy
-            if (leftBoundary[a][b] == 1 && sieveArray[a][b]) {  // haven't visited on prior exploration
-                exploreAtGint(gint(a, b), 1);
-            }
+    // Stepping through the components in increasing order
+    for (uint32_t index = 0; index < leftBoundary.size(); index++) {
+        if (componentSizes[index]) {  // nonempty
+            exploreComponent(index);
         }
     }
 
-    // Now going through to find gints with component index > 1
-    for (uint32_t a = 0; a < jumpSize; a++) {
-        for (uint32_t b = 0; b < leftBoundary[a].size(); b++) {  // leftBoundary[a].size() is the previous value of dy
-            uint32_t index = leftBoundary[a][b];
-            if (index > 1 && sieveArray[a][b]) {
-                exploreAtGint(gint(a, b), index);
-            }
-        }
-    }
 
-    // Now cleaning up components with index > 1 which have not propagated
-    for (uint64_t index = 2; index < componentCounts.size(); index++) {
+
+
+
+    // Now cleaning up components with index > 0 which have not propagated
+    for (uint32_t index = 1; index < componentSizes.size(); index++) {
         if (!hasComponentPropagated[index]) {
-            //cout << "  removing component: " << index << endl;
-            componentCounts[index] = 0;
+            componentSizes[index] = 0;
+            //cout << "just killed: " << index << endl;
+
+//            for (int i = 0; i < checker.size(); i++) {
+//                if (checker2[i] == index) {
+//                    checker2[i] = 0;
+//                }
+//            }
+
+
         }
     }
 }
@@ -300,39 +298,55 @@ void SegmentedMoat::exploreRightBoundary() {
     for (uint32_t a = floor(dx - jumpSize); a < dx; a++) {
         for (uint32_t b = 0; b < dy; b++) {
             // Checking if unvisited, prime, and within first octant.
-            if (rightBoundary[a - floor(dx - jumpSize)][b] == 0 && sieveArray[a][b] && b < a + x) {
-                // Finding an available opening in segmentedCounts, or pushing new one.
+            if (sieveArray[a][b] && b < a + x) {
+                // Finding an available index, or pushing new one.
                 uint32_t index = 1;
-                for (; index < componentCounts.size(); index++) {
-                    if (componentCounts[index] == 0) {
+                for (; index < componentSizes.size(); index++) {
+                    if (componentSizes[index] == 0) {
                         // We found available index somewhere within componentCounts
                         // This will now be the index of this newly discovered component
                         break;
                     }
                 }
-                // Made it through componentCounts without finding an available slot.
-                if (index == componentCounts.size()) {  // appending new entry to vector
-                    componentCounts.push_back(0);
-                    hasComponentPropagated.push_back(true);  // since already in right boundary
+                // Made it through componentCounts without finding an available
+                // index. Creating a new one/
+                if (index == componentSizes.size()) {
+                    componentSizes.push_back(0);
+                    hasComponentPropagated.push_back(true);
+                    vector<gint> component;  // pushing empty component
+                    rightBoundary.push_back(component);
                 }
-                exploreAtGint(gint(a, b), index);
+                rightBoundary[index].emplace_back(a, b);
+                exploreComponent(index, false);
             }
         }
     }
 }
 
 void SegmentedMoat::runSegment() {
+
+
+
     exploreLeftBoundary();
     exploreRightBoundary();
+
+    // Updating the static variable leftBoundary for next iteration
     leftBoundary = rightBoundary;
+    for (auto & component : leftBoundary) {
+        for (auto & g : component) {
+            g.a -= floor(dx - jumpSize);  // modifying gint
+        }
+    }
+
+    // Updating static variable previousdy
+    previousdy = dy;
 }
 
 bool SegmentedMoat::hasMainComponentPropagated() {
-    return hasComponentPropagated[1];
+    return hasComponentPropagated[0];
 }
 
 // Call this function after setStatics() has been run.
-// This should not be a static function other will encounter memory issues.
 uint64_t SegmentedMoat::countComponent() {
     uint32_t x = 0;  // lower left corner of current block
     bool hasMainComponentPropagated;
@@ -346,7 +360,6 @@ uint64_t SegmentedMoat::countComponent() {
         uint32_t dy = x + dx;
 
         // calling instance
-        cout << x << " " << dx << " " << dy << endl;
         SegmentedMoat s(x, dx, dy);
         s.callSieve();
         s.runSegment();
@@ -355,11 +368,25 @@ uint64_t SegmentedMoat::countComponent() {
         // Updating x for next iteration
         x += floor(dx - jumpSize);
     } while (hasMainComponentPropagated);
-    return componentCounts[1];
+
+//    int count = 0;
+//    for (int i = 0; i < checker.size(); i++) {
+//        if (checker2[i] != 1) {
+//            gint g = checker[i];
+//            count++;
+//            cout << g.a << " " << g.b << endl;
+//        }
+//    }
+//    cout << "TOTAL COUNT OF SUSPECTS: " << count << endl;
+
+
+
+
+    return componentSizes[0];
 }
 
 uint64_t getCount() {
-    SegmentedMoat::setStatics(4);
+    SegmentedMoat::setStatics(4.9);
     uint64_t s = SegmentedMoat::countComponent();
     return s;
 }
