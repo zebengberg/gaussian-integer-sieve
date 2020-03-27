@@ -3,7 +3,8 @@
 
 
 int main() {
-    uint64_t s = getCount();
+    SegmentedMoat::setStatics(4.3);
+    uint64_t s = SegmentedMoat::getCountMainComponent();
     cout << "\n\nThe size of the component: " << s << endl;
 }
 

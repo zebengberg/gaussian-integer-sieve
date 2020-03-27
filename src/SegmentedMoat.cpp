@@ -43,8 +43,6 @@ vector<gint> SegmentedMoat::nearestNeighbors;
 vector<vector<gint>> SegmentedMoat::leftBoundary;
 vector<uint64_t> SegmentedMoat::componentSizes;
 
-vector<gint> SegmentedMoat::checker;
-vector<int> SegmentedMoat::checker2;
 
 // Call this static setter method before any instances of this class are created.
 void SegmentedMoat::setStatics(double js, bool vb) {
@@ -56,21 +54,30 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
     jumpSize = js + tolerance;
-    // TODO: left and right boundary can both be smaller in width
-    // They should both be floor(jumpSize - 1)
-    // TODO: This is a critical speedup.
-    if (jumpSize < 2) {
+
+    if (jumpSize < 3) {
         cerr << "Jump size is too small; instead call OctantMoat." << endl;
+        exit(1);
+    } else if (jumpSize >= 6) {
+        cerr << "Jump size is too large for this implementation!" << endl;
         exit(1);
     }
 
-    // Can be optimized later.
     // Ideally should align to cache size, but also needs to be large enough to
-    // hold more than solely the boundary data.
-    blockSize = pow(10, 9);
+    // hold more than solely the boundary data. Below are some parameters that
+    // have worked in tests.
+    if (jumpSize < 4) {
+        blockSize = pow(10, 6);
+    } else if (jumpSize < 4.1) {
+        blockSize = pow(10, 7);
+    } else if (jumpSize < 4.45) {
+        blockSize = pow(10, 8);
+    } else {
+        blockSize = pow(10, 9);
+    }
 
-    // Bound on the norm of pre-computed primes. Initial value is arbitrary.
-    sievingPrimesNormBound = uint64_t(pow(10, 8));
+    // Bound on the norm of pre-computed primes. Arbitrary initial value.
+    sievingPrimesNormBound = uint64_t(pow(10, 4));
     setSievingPrimes();
 
     // Setting nearest neighbors.
@@ -95,32 +102,23 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     componentSizes.push_back(2);  // primes 1 + i and 2 + i
 
     // Throwing in more gints and updating componentSizes if jumpSize is larger
-    if (jumpSize > 3) {
+    if (jumpSize - 1 > 3) {
         component.emplace_back(3, 0);
         component.emplace_back(3, 2);
         componentSizes[0] += 2;
     }
-    if (jumpSize > 4) {
+    if (jumpSize - 1 > 4) {
         component.emplace_back(4, 1);
         componentSizes[0]++;
     }
-    if (jumpSize > 5) {
+    if (jumpSize - 1 > 5) {
         component.emplace_back(5, 2);
         component.emplace_back(5, 4);
         componentSizes[0] += 2;
     }
     leftBoundary.push_back(component);
-
-
-
-//    OctantMoat o(10000000, jumpSize, false);
-//    o.exploreComponent(0, 0);
-//
-//    checker = o.getCurrentComponent();
-//
-//    //sort(checker.begin(), checker.end());
-//    checker2.resize(checker.size(), 0);
 }
+
 
 void SegmentedMoat::setSievingPrimes() {
     if (verbose) {
@@ -130,6 +128,7 @@ void SegmentedMoat::setSievingPrimes() {
     d.run();
     sievingPrimes = d.getBigPrimes();
 }
+
 
 SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
 // Calling BlockSieve's constructor
@@ -150,11 +149,8 @@ SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
         exit(1);
     }
 
-
-
-
     // Setting the 2D array holding component IDs within leftBoundary
-    for (uint32_t a = 0; a < jumpSize; a++) {
+    for (uint32_t a = 0; a < jumpSize - 1; a++) {
         vector<uint32_t> column(previousdy, 0);  // should be previous dy
         leftComponentLookUp.push_back(column);
     }
@@ -192,6 +188,7 @@ void SegmentedMoat::callSieve() {
     sieve();
 }
 
+
 // Convention is to explore gint with smaller component index first so that
 // merges go from large index into small index.
 void SegmentedMoat::exploreComponent(uint32_t startingIndex, bool startingFromLeft) {
@@ -211,19 +208,8 @@ void SegmentedMoat::exploreComponent(uint32_t startingIndex, bool startingFromLe
         gint p = toExplore.back();
         toExplore.pop_back();
 
-        // debug
-//        for (int i = 0; i < checker.size(); i++) {
-//            gint c = checker[i];
-//            c.a -= x;
-//            if (p == c) {
-//                checker2[i] = startingIndex;
-//            }
-//        }
-        //cout << "    " << x + p.a << " " << p.b << " " << startingIndex << " " << toExplore.size() << " " << count << endl;
-
-
         // p is inside leftBoundary, so it was already counted in last iteration
-        if (p.a < jumpSize) {
+        if (p.a < jumpSize - 1) {
             uint32_t index = leftComponentLookUp[p.a][p.b];
             if (index != startingIndex) {  // merging counts!
                 // Adding the count from componentIndex to the current count,
@@ -245,7 +231,7 @@ void SegmentedMoat::exploreComponent(uint32_t startingIndex, bool startingFromLe
         } else {  // haven't been to p in previous iteration
             count++;
             // p has punched through or started within the right boundary
-            if (p.a >= floor(dx - jumpSize)) {
+            if (p.a >= floor(dx - jumpSize + 1)) {
                 hasComponentPropagated[startingIndex] = true;
                 rightBoundary[startingIndex].push_back(p);
             }
@@ -261,9 +247,9 @@ void SegmentedMoat::exploreComponent(uint32_t startingIndex, bool startingFromLe
     } while (!toExplore.empty());
 
     // Updating component count.
-
     componentSizes[startingIndex] += count;
 }
+
 
 void SegmentedMoat::exploreLeftBoundary() {
     // Stepping through the components in increasing order
@@ -273,29 +259,17 @@ void SegmentedMoat::exploreLeftBoundary() {
         }
     }
 
-
-
-
-
     // Now cleaning up components with index > 0 which have not propagated
     for (uint32_t index = 1; index < componentSizes.size(); index++) {
         if (!hasComponentPropagated[index]) {
             componentSizes[index] = 0;
-            //cout << "just killed: " << index << endl;
-
-//            for (int i = 0; i < checker.size(); i++) {
-//                if (checker2[i] == index) {
-//                    checker2[i] = 0;
-//                }
-//            }
-
-
         }
     }
 }
 
+
 void SegmentedMoat::exploreRightBoundary() {
-    for (uint32_t a = floor(dx - jumpSize); a < dx; a++) {
+    for (uint32_t a = floor(dx - jumpSize + 1); a < dx; a++) {
         for (uint32_t b = 0; b < dy; b++) {
             // Checking if unvisited, prime, and within first octant.
             if (sieveArray[a][b] && b < a + x) {
@@ -324,30 +298,30 @@ void SegmentedMoat::exploreRightBoundary() {
 }
 
 void SegmentedMoat::runSegment() {
-
-
-
     exploreLeftBoundary();
-    exploreRightBoundary();
+    if (hasMainComponentPropagated()) {  // allows for early exit
+        exploreRightBoundary();
 
-    // Updating the static variable leftBoundary for next iteration
-    leftBoundary = rightBoundary;
-    for (auto & component : leftBoundary) {
-        for (auto & g : component) {
-            g.a -= floor(dx - jumpSize);  // modifying gint
+        // Updating the static variable leftBoundary for next iteration
+        leftBoundary = rightBoundary;
+        for (auto &component : leftBoundary) {
+            for (auto &g : component) {
+                g.a -= floor(dx - jumpSize + 1);  // modifying gint
+            }
         }
+        // Updating static variable previousdy
+        previousdy = dy;
     }
-
-    // Updating static variable previousdy
-    previousdy = dy;
 }
+
 
 bool SegmentedMoat::hasMainComponentPropagated() {
     return hasComponentPropagated[0];
 }
 
+
 // Call this function after setStatics() has been run.
-uint64_t SegmentedMoat::countComponent() {
+uint64_t SegmentedMoat::getCountMainComponent() {
     uint32_t x = 0;  // lower left corner of current block
     bool hasMainComponentPropagated;
 
@@ -356,7 +330,7 @@ uint64_t SegmentedMoat::countComponent() {
         // Want: dx * dy = blockSize.
         // Also need: dy = x + dx so that next block goes all the way up to line y = x in complex plane.
         // Eliminating dy, these two equations give a quadratic in dx.
-        uint32_t dx = floor(sqrt(blockSize + x * x / 4.0) - x / 2.0);
+        uint32_t dx = floor(sqrt(blockSize + double(x) * double(x) / 4.0) - double(x) / 2.0);
         uint32_t dy = x + dx;
 
         // calling instance
@@ -365,28 +339,8 @@ uint64_t SegmentedMoat::countComponent() {
         s.runSegment();
         hasMainComponentPropagated = s.hasMainComponentPropagated();
 
-        // Updating x for next iteration
-        x += floor(dx - jumpSize);
+        // updating x for next iteration
+        x += floor(dx - jumpSize + 1);
     } while (hasMainComponentPropagated);
-
-//    int count = 0;
-//    for (int i = 0; i < checker.size(); i++) {
-//        if (checker2[i] != 1) {
-//            gint g = checker[i];
-//            count++;
-//            cout << g.a << " " << g.b << endl;
-//        }
-//    }
-//    cout << "TOTAL COUNT OF SUSPECTS: " << count << endl;
-
-
-
-
     return componentSizes[0];
-}
-
-uint64_t getCount() {
-    SegmentedMoat::setStatics(4.9);
-    uint64_t s = SegmentedMoat::countComponent();
-    return s;
 }

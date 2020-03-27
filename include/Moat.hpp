@@ -71,9 +71,10 @@ private:
     static bool verbose;
     static double jumpSize;
     static uint32_t previousdy;
-    static uint64_t blockSize;  // the number of entries in the block of size dx by dy.
+    static uint64_t blockSize;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
+    static gint mainComponentMaxElement;
 
     // The index of the outer vector determines which component number the inner
     // vector corresponds with.
@@ -91,14 +92,11 @@ private:
     vector<bool> hasComponentPropagated;
     vector<vector<uint32_t>> leftComponentLookUp;
 
-    //debug
-    static vector<gint> checker;
-    static vector<int> checker2;
 
 public:
     static void setStatics(double, bool = true);
     static void setSievingPrimes();
-    static uint64_t countComponent();
+    static uint64_t getCountMainComponent();
 
     SegmentedMoat(int32_t, int32_t, int32_t);
     void callSieve();
@@ -108,5 +106,3 @@ public:
     void runSegment();
     bool hasMainComponentPropagated();
 };
-
-uint64_t getCount();
