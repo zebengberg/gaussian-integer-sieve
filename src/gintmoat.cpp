@@ -2,16 +2,7 @@
 #include "Moat.hpp"
 
 
-int main() {
-    SegmentedMoat::setStatics(4.3);
-    uint64_t s = SegmentedMoat::getCountMainComponent();
-    cout << "\n\nThe size of the component: " << s << endl;
-}
-
-
-
-
-int main2(int argc, const char* argv[]) {
+int main(int argc, const char* argv[]) {
     if (argc < 3) {
         cerr << "\n";
         cerr << "Not enough parameters passed. Use -h optional flag for help.\n" << endl;
@@ -19,28 +10,31 @@ int main2(int argc, const char* argv[]) {
     }
 
     bool vertical = false;
+    bool segmented = false;
     bool verbose = false;
     bool printPrimes = false;
-    bool write = false;
 
-    uint64_t x = 0;
     double jumpSize = 0;
+    uint64_t realPart = 0;
 
     for (int i = 1; i < argc; i++) {
         string arg = argv[i];
-        // Usage information.
 
+        // Usage information.
         if ((arg == "-h") || (arg == "--help")) {
             cerr << "\n";
-            cerr << "Usage: " << argv[0] << " x jumpSize [option1] [option2] ...\n"
+            cerr << "Usage: " << argv[0] << " jumpSize realPart [option1] [option2] ...\n"
                  << "Calculate the Gaussian prime moat with .\n"
-                 << "    jumpSize            The jump threshold under which primes are adjacent."
-                 << "    x                   The norm-bound of the search space or the \n"
-                 << "                        real-part of the vertical strip to explore.\n\n"
+                 << "    jumpSize            The jump threshold under which primes are adjacent.\n"
+                 << "    realPart            The real-part of the vertical strip to explore if in\n"
+                 << "                        vertical mode.\n\n"
                  << "Exploration modes:\n"
-                 << "    -o, --origin        Explore the connected component of the graph starting at the\n"
+                 << "    --origin            Explore the connected component of the graph starting at the\n"
                  << "                        origin. Search space holds Gaussian integers in the first\n"
                  << "                        octant. This is the default exploration mode.\n"
+                 << "    --segmented         Use a segmented approach to explore the connected component\n"
+                 << "                        starting the origin. Algorithm is similar to that in Tsuchimura\n"
+                 << "                        paper. This approach only counts the size of the component.\n"
                  << "    --vertical          Search for Gaussian moat along a thin vertical strip starting\n"
                  << "                        at real-part x.\n\n"
                  << "Options:\n"
@@ -53,38 +47,52 @@ int main2(int argc, const char* argv[]) {
         }
 
         // Getting flags
-        if ((arg == "-v") || (arg == "--verbose")) { verbose = true; }
+        if (arg == "--verbose") { verbose = true; }
         if ((arg == "-p") || (arg == "--printprimes")) { printPrimes = true; }
+        if (arg == "--segmented") { segmented = true; }
         if (arg == "--vertical") { vertical = true; }
 
-        // Parsing for jumpSize and x.
+        // Parsing for numerical input.
         if (isdigit(arg.front())) {
-            if (!x) {
-                x = stoull(arg);
-            } else {
+            if (jumpSize == 0.0) {
                 jumpSize = stod(arg);
+            } else
+                realPart = stoull(arg);
             }
         }
-    }
 
 
     if (verbose) { cerr << '\n' << endl; }
-    if ((jumpSize == 0.0) || !x) {  // If jumpSize hasn't been parsed, abort.
+    if (jumpSize == 0.0) {  // If jumpSize hasn't been parsed, abort.
         cerr << "\nCannot understand input. Use -h optional flag for help.\n" << endl;
         return 1;
     }
 
 
     if (vertical) {
+        if (realPart == 0) {
+            cerr << "\nCannot understand input. Use -h optional flag for help.\n" << endl;
+            return 1;
+        }
         if (verbose) {
             cerr << "Searching for moat in vertical strip..." << endl;
         }
-        verticalMoat(x, jumpSize, verbose);
+        // TODO: change to static method
+        verticalMoat(realPart, jumpSize, verbose);
+
+    } else if (segmented) {
+        if (verbose) {
+            cerr << "Searching for moat in segments starting at origin..." << endl;
+        }
+        SegmentedMoat::setStatics(jumpSize, verbose);
+        uint64_t s = SegmentedMoat::getCountMainComponent();
+        cerr << "\n\nThe main component has size: " << s << endl;
+
     } else {
         if (verbose) {
             cerr << "Searching for moat starting at origin..." << endl;
         }
-        OctantMoat m(x, jumpSize);
+        OctantMoat m(jumpSize, verbose);
         m.exploreComponent(0, 0);
         if (printPrimes) {
             m.printCurrentComponent();

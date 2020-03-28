@@ -8,15 +8,15 @@ using namespace std;
 // Gather data for Gaussian moat problem.
 class OctantMoat {
 private:
-    uint64_t normBound;
     double jumpSize;
     bool verbose;
+    uint64_t normBound;
     vector<vector<bool>> sieveArray;
     vector<gint> nearestNeighbors, currentComponent;
     vector<vector<gint>> allComponents;
 
 public:
-    OctantMoat(uint64_t, double, bool = true);
+    OctantMoat(double, bool = true);
     void setNearestNeighbors();
     void exploreComponent(int32_t, int32_t);
     uint32_t getComponentSize();
@@ -74,7 +74,6 @@ private:
     static uint64_t blockSize;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
-    static gint mainComponentMaxElement;
 
     // The index of the outer vector determines which component number the inner
     // vector corresponds with.
@@ -91,7 +90,6 @@ private:
     // boundary or merged with another component, it can be forgotten.
     vector<bool> hasComponentPropagated;
     vector<vector<uint32_t>> leftComponentLookUp;
-
 
 public:
     static void setStatics(double, bool = true);

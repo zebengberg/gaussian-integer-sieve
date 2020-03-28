@@ -6,14 +6,34 @@ using namespace std;
 
 
 // Public methods in OctantMoat class.
-OctantMoat::OctantMoat(uint64_t normBound, double jumpSize, bool verbose)
-    : normBound(normBound)
-    , jumpSize(jumpSize)
+OctantMoat::OctantMoat(double jumpSize, bool verbose)
+    : jumpSize(jumpSize)
     , verbose(verbose)
 {
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
     this->jumpSize += tolerance;
+
+    // setting normBound according to existing tables in Tsuchimura paper
+    if (jumpSize < 2.1) {  // jumpsize <= 2
+        normBound = 3000;
+    } else if (jumpSize < 3) {  // jumpsize = sqrt(8)
+        normBound = 10000;
+    } else if (jumpSize < 4) {  // jumpsize = sqrt(10)
+        normBound = 1100000;
+    } else if (jumpSize < 4.2) {  // jumpsize = 4
+        normBound = 20000000;
+    } else if (jumpSize < 4.4) {  // jumpsize = sqrt(18)
+        normBound = 116000000;
+    } else if (jumpSize < 5) {  // jumpsize = sqrt(20)
+        normBound = 17900000000;
+    } else {
+        cerr << "Jump size is too large for this method!" << endl;
+        cerr << "Instead call the segmented moat" << endl;
+        exit(1);
+    }
+
+
     OctantSieve o(normBound, verbose);
     o.run();
     sieveArray = o.getSieveArray();
@@ -27,7 +47,7 @@ void OctantMoat::setNearestNeighbors() {
             // u and v shouldn't both be 0
             // apart from the prime 1 + i, u and v should have same parity
             // recall that c++ calculates (-3) % 2 as -1
-            if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
+            if (u * u + v * v <= jumpSize * jumpSize && (u || v) && abs(u) % 2 == abs(v) % 2) {
                 nearestNeighbors.emplace_back(u, v);
             }
         }
@@ -40,7 +60,6 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
     // reset current component
     currentComponent.clear();
     vector<gint> toExplore;
-
 
     // The gint starting_g must either be zero or a prime.
     if (starting_g.a || starting_g.b) {  // prime

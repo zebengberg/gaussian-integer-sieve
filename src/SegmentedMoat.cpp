@@ -283,7 +283,7 @@ void SegmentedMoat::exploreRightBoundary() {
                     }
                 }
                 // Made it through componentCounts without finding an available
-                // index. Creating a new one/
+                // index. Creating a new one.
                 if (index == componentSizes.size()) {
                     componentSizes.push_back(0);
                     hasComponentPropagated.push_back(true);
