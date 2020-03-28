@@ -35,6 +35,7 @@ private:
     // Static variables.
     static bool verbose;
     static double jumpSize;
+    static int32_t realPart;
     static int32_t dx, dy;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
@@ -48,6 +49,7 @@ private:
 public:
     // Call this static setter method before any instances of this class are created.
     static void setStatics(int32_t, double, bool = true);
+    static void findVerticalMoat();
 
     BlockMoat(int32_t, int32_t);
     void callSieve();
@@ -56,10 +58,6 @@ public:
     void exploreUpperWall();
     pair<int32_t, int32_t> getNextBlock();
 };
-
-// Function to handle instances of BlockMoat.
-// TODO: Should this instead be a static method of BlockMoat?
-void verticalMoat(int32_t, double, bool = true);
 
 
 

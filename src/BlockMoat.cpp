@@ -1,3 +1,26 @@
+// ALGORITHM:
+// Left wall portion.
+// Explore all components emanating from a gint within jumpSize of left wall
+// of the current block. Use the sieve array to mark any gint that has been
+// visited along the way. If we punch through the right-hand side of the block,
+// immediately stop and replace current block with one to the right. If this
+// punching through happens repeatedly, consider starting with a larger
+// real part.
+//
+// Upper wall portion.
+// Using the same component search as above, start search gints emanating from
+// within jumpSize of the upper wall of the current block. We will never punch
+// through the left wall because these primes have already been visited. If we
+// punch through the bottom wall, immediately stop and debug. If the block
+// we are searching within is much more tall than wide, this should not occur.
+// Track the y-coordinates of all gints encountered within jumpSize of the right
+// wall. The minimum of these y-coordinates will be the starting y-value of the
+// next block to be explored.
+
+// Return true if punch through right wall.
+
+
+
 #include <iostream>
 #include "../include/Moat.hpp"
 #include "../include/OctantDonutSieve.hpp"
@@ -5,6 +28,7 @@
 // Need to first declare static member variables here in source.
 bool BlockMoat::verbose;
 double BlockMoat::jumpSize;
+int32_t BlockMoat::realPart;
 int32_t BlockMoat::dx;
 int32_t BlockMoat::dy;
 uint64_t BlockMoat::sievingPrimesNormBound;
@@ -12,10 +36,11 @@ vector<gint> BlockMoat::sievingPrimes;
 vector<gint> BlockMoat::nearestNeighbors;
 
 // Call this static setter method before any instances of this class are created.
-void BlockMoat::setStatics(int32_t realPart, double js, bool vb) {
+void BlockMoat::setStatics(int32_t rp, double js, bool vb) {
     if (vb) {
         cerr << "Setting static variables..." << endl;
     }
+    realPart = rp;
     verbose = vb;
     jumpSize = js;
     dx = 1000;
@@ -137,26 +162,6 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
 }
 
 
-// ALGORITHM:
-// Left wall portion.
-// Explore all components emanating from a gint within jumpSize of left wall
-// of the current block. Use the sieve array to mark any gint that has been
-// visited along the way. If we punch through the right-hand side of the block,
-// immediately stop and replace current block with one to the right. If this
-// punching through happens repeatedly, consider starting with a larger
-// real part.
-//
-// Upper wall portion.
-// Using the same component search as above, start search gints emanating from
-// within jumpSize of the upper wall of the current block. We will never punch
-// through the left wall because these primes have already been visited. If we
-// punch through the bottom wall, immediately stop and debug. If the block
-// we are searching within is much more tall than wide, this should not occur.
-// Track the y-coordinates of all gints encountered within jumpSize of the right
-// wall. The minimum of these y-coordinates will be the starting y-value of the
-// next block to be explored.
-
-// Return true if punch through right wall.
 bool BlockMoat::exploreLeftWall() {
     for (int32_t a = 0; a < jumpSize; a++) {
         for (int32_t b = 0; b < dy; b++) {
@@ -196,17 +201,14 @@ pair<int32_t, int32_t> BlockMoat::getNextBlock() {
     }
 }
 
-// Function to use BlockMoat.
-// TODO: make this a static method.
-void verticalMoat(int32_t realPart, double jumpSize, bool verbose) {
-    BlockMoat::setStatics(realPart, jumpSize, verbose);
+// Static method to control instances of BlockMoat.
+void BlockMoat::findVerticalMoat() {
     int32_t x = realPart;
     int32_t y = 0;
     int32_t consecutiveStepsRight = 0;
 
     // TODO: Update values of dx and dy depending on the size of the real parts reached
     while (y < x) {
-        // TODO: Check if this object needs to be explicitly destructed
         BlockMoat b(x, y);
         b.callSieve();
         pair<int32_t, int32_t> p = b.getNextBlock();
