@@ -3,7 +3,7 @@
 
 
 int main(int argc, const char* argv[]) {
-    if (argc < 3) {
+    if (argc < 2) {
         cerr << "\n";
         cerr << "Not enough parameters passed. Use -h optional flag for help.\n" << endl;
         return 1;

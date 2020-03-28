@@ -71,7 +71,7 @@ void SegmentedMoat::setStatics(double js, bool vb) {
     } else if (jumpSize < 4.1) {
         blockSize = pow(10, 7);
     } else if (jumpSize < 4.45) {
-        blockSize = pow(10, 8);
+        blockSize = 5 * pow(10, 7);
     } else {
         blockSize = pow(10, 9);
     }
@@ -124,7 +124,7 @@ void SegmentedMoat::setSievingPrimes() {
     if (verbose) {
         cerr << "Precomputing sieving primes." << endl;
     }
-    OctantDonutSieve d(sievingPrimesNormBound);
+    OctantDonutSieve d(sievingPrimesNormBound, false);  // verbose = false
     d.run();
     sievingPrimes = d.getBigPrimes();
 }
@@ -170,8 +170,6 @@ void SegmentedMoat::callSieve() {
     // Checking to make sure there are enough primes within sievingPrimes
     gint last_g = sievingPrimes.back();
     while (last_g.norm() < isqrt(maxNorm)) {
-        cerr << "Not enough pre-computed primes in static variable sievingPrimes." << endl;
-        cerr << "Doubling the norm bound on pre-computed primes and computing more..." << endl;
         sievingPrimesNormBound *= 2;
         setSievingPrimes();
         last_g = sievingPrimes.back();
