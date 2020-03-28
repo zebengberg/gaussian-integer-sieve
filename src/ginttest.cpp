@@ -5,7 +5,7 @@
 #include "../include/BlockSieve.hpp"
 #include "../include/BlockDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
-#include "Moat.hpp"
+#include "../include/Moat.hpp"
 using namespace std;
 
 
@@ -154,27 +154,27 @@ int main() {
     cout << "Exploring the Gaussian moat." << endl;
     // Data taken from the 1998 paper "A stroll through the Gaussian primes".
 
-    OctantMoat m(10000, 2);
+    OctantMoat m(2);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 92);
     assert(m.getComponentMaxElement() == gint(42, 17));
 
-    m = OctantMoat(100000, 3);
+    m = OctantMoat(3);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 380);
     assert(m.getComponentMaxElement() == gint(84, 41));
 
-    m = OctantMoat(1000000, 3.2);
+    m = OctantMoat(3.2);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 31221);  // typo p 330 in stroll paper; p 331 correct
     assert(m.getComponentMaxElement() == gint(976, 311));
 
-    m = OctantMoat(10000000, 4);
+    m = OctantMoat(4);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 347638);
     assert(m.getComponentMaxElement() == gint(3297, 2780));
 
-    m = OctantMoat(10000000, 4.3);
+    m = OctantMoat(4.3);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 2386129);
     assert(m.getComponentMaxElement() == gint(8174, 6981));

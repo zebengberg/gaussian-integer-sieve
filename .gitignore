@@ -10,7 +10,7 @@ CMakeLists.txt
 gintsieve
 ginttest
 gintmoat
-opt/
+obj/
 *.so
 
 # cython generated stuff

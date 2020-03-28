@@ -24,67 +24,73 @@ EVERYTHING = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 		     include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp \
 		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp
 
-MOAT = src/Moat.cpp include/Moat.hpp
+MOAT = src/OctantMoat.cpp src/SegmentedMoat.cpp src/BlockMoat.cpp include/Moat.hpp
 
 # All object files from sources in EVERYTHING
-OBJECTS = opt/BaseSieve.o opt/OctantSieve.o opt/OctantDonutSieve.o \
-          opt/BlockSieve.o opt/BlockDonutSieve.o opt/SectorSieve.o \
-          opt/Moat.o
+OBJECTS = obj/BaseSieve.o obj/OctantSieve.o obj/OctantDonutSieve.o \
+          obj/BlockSieve.o obj/BlockDonutSieve.o obj/SectorSieve.o \
+          obj/OctantMoat.o obj/SegmentedMoat.o obj/BlockMoat.o
 
 
 # Telling make to compile every object.
 .PHONY: all
-all: $(OBJECTS) opt $(TARGETS)
+all: $(OBJECTS) obj $(TARGETS)
 
-# Make opt/ directory if it doesn't exist.
-$(shell mkdir -p opt/)
+# Make obj/ directory if it doesn't exist.
+$(shell mkdir -p obj/)
 
 # Doing all the compiling
-opt/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
+obj/BaseSieve.o: src/BaseSieve.cpp include/BaseSieve.hpp
 	$(CC) $(CFLAGS) src/BaseSieve.cpp -o $@
 
-opt/OctantSieve.o: $(CORE)
+obj/OctantSieve.o: $(CORE)
 	$(CC) $(CFLAGS) src/OctantSieve.cpp -o $@
 
-opt/OctantDonutSieve.o: $(EXTENDED)
+obj/OctantDonutSieve.o: $(EXTENDED)
 	$(CC) $(CFLAGS) src/OctantDonutSieve.cpp -o $@
 
-opt/BlockSieve.o: $(CORE) src/BlockSieve.cpp include/BlockSieve.hpp
+obj/BlockSieve.o: $(CORE) src/BlockSieve.cpp include/BlockSieve.hpp
 	$(CC) $(CFLAGS) src/BlockSieve.cpp -o $@
 
-opt/BlockDonutSieve.o: $(EXTENDED) src/BlockDonutSieve.cpp include/BlockDonutSieve.hpp
+obj/BlockDonutSieve.o: $(EXTENDED) src/BlockDonutSieve.cpp include/BlockDonutSieve.hpp
 	$(CC) $(CFLAGS) src/BlockDonutSieve.cpp -o $@
 
-opt/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
+obj/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
 	$(CC) $(CFLAGS) src/SectorSieve.cpp -o $@
 
-opt/Moat.o: $(CORE) src/Moat.cpp
-	$(CC) $(CFLAGS) src/Moat.cpp -o $@
+obj/OctantMoat.o: $(CORE) src/OctantMoat.cpp include/Moat.hpp
+	$(CC) $(CFLAGS) src/OctantMoat.cpp -o $@
+
+obj/BlockMoat.o: $(CORE) src/BlockMoat.cpp include/Moat.hpp
+	$(CC) $(CFLAGS) src/BlockMoat.cpp -o $@
+
+obj/SegmentedMoat.o: $(CORE) src/SegmentedMoat.cpp include/Moat.hpp
+	$(CC) $(CFLAGS) src/SegmentedMoat.cpp -o $@
 
 # Building to-be executables into objects
-opt/gintsieve.o: $(EVERYTHING) src/gintsieve.cpp
+obj/gintsieve.o: $(EVERYTHING) src/gintsieve.cpp
 	$(CC) $(CFLAGS) src/gintsieve.cpp -o $@
 
-opt/gintmoat.o: $(CORE) $(MOAT) src/gintmoat.cpp
+obj/gintmoat.o: $(CORE) $(MOAT) src/gintmoat.cpp
 	$(CC) $(CFLAGS) src/gintmoat.cpp -o $@
 
-opt/ginttest.o: $(EVERYTHING) $(MOAT) src/ginttest.cpp
+obj/ginttest.o: $(EVERYTHING) $(MOAT) src/ginttest.cpp
 	$(CC) $(CFLAGS) src/ginttest.cpp -o $@
 
 # Linking objects to executables
-gintsieve: $(OBJECTS) opt/gintsieve.o
+gintsieve: $(OBJECTS) obj/gintsieve.o
 	$(CC) -o $@ $^
 
-ginttest: $(OBJECTS) opt/Moat.o opt/ginttest.o
+ginttest: $(OBJECTS) obj/ginttest.o
 	$(CC) -o $@ $^
 
-gintmoat: $(OBJECTS) opt/gintmoat.o
+gintmoat: $(OBJECTS) obj/gintmoat.o
 	$(CC) -o $@ $^
 
 
 .PHONY: clean
 clean:
-	rm -r opt/ gintsieve ginttest gintmoat
+	rm -r obj/ gintsieve ginttest gintmoat
 
 .PHONY: test
 test:
