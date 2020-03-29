@@ -21,7 +21,7 @@ int main(int argc, const char* argv[]) {
         string arg = argv[i];
 
         // Usage information.
-        if ((arg == "-h") || (arg == "--help")) {
+        if (arg == "-h" || arg == "--help") {
             cerr << "\n";
             cerr << "Usage: " << argv[0] << " jumpSize realPart [option1] [option2] ...\n"
                  << "Calculate the Gaussian prime moat with .\n"
@@ -47,8 +47,8 @@ int main(int argc, const char* argv[]) {
         }
 
         // Getting flags
-        if (arg == "--verbose") { verbose = true; }
-        if ((arg == "-p") || (arg == "--printprimes")) { printPrimes = true; }
+        if (arg == "-v" || arg == "--verbose") { verbose = true; }
+        if (arg == "-p" || arg == "--printprimes") { printPrimes = true; }
         if (arg == "--segmented") { segmented = true; }
         if (arg == "--vertical") { vertical = true; }
 

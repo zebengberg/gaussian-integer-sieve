@@ -29,6 +29,7 @@
 bool BlockMoat::verbose;
 double BlockMoat::jumpSize;
 int32_t BlockMoat::realPart;
+int32_t BlockMoat::blockSize;
 int32_t BlockMoat::dx;
 int32_t BlockMoat::dy;
 uint64_t BlockMoat::sievingPrimesNormBound;
@@ -43,8 +44,10 @@ void BlockMoat::setStatics(int32_t rp, double js, bool vb) {
     realPart = rp;
     verbose = vb;
     jumpSize = js;
+    // arbitrary initial values for dx and dy; these will be updated below.
+    blockSize = pow(10, 7);
     dx = 1000;
-    dy = 10000;
+    dy = blockSize / dx;
     // Bound on the norm of pre-computed primes. The factor 1.2 gives some
     // wiggle room in case there are many moves to the right.
     sievingPrimesNormBound = uint64_t(1.2 * (sqrt(2) * realPart + dx * dy));
@@ -55,7 +58,7 @@ void BlockMoat::setStatics(int32_t rp, double js, bool vb) {
             // u and v shouldn't both be 0
             // apart from the prime 1 + i, u and v should have same parity
             // recall that c++ calculates (-3) % 2 as -1
-            if ((u * u + v * v <= jumpSize * jumpSize) && (u || v) && (abs(u) % 2 == abs(v) % 2)) {
+            if (u * u + v * v <= jumpSize * jumpSize && (u || v) && abs(u) % 2 == abs(v) % 2) {
                 nearestNeighbors.emplace_back(u, v);
             }
         }
@@ -64,7 +67,7 @@ void BlockMoat::setStatics(int32_t rp, double js, bool vb) {
     if (verbose) {
         cerr << "Precomputing sieving primes." << endl;
     }
-    OctantDonutSieve d(sievingPrimesNormBound);
+    OctantDonutSieve d(sievingPrimesNormBound, false);  // not letting this be verbose
     d.run();
     sievingPrimes = d.getBigPrimes();
 }
@@ -81,6 +84,7 @@ BlockMoat::BlockMoat(int32_t x, int32_t y)
     farthestRight = 0;
     if (verbose) {
         cerr << "Working within block having lower left corner at: " << x << " " << y << endl;
+        cerr << "The block has dimensions: " << dx << " by " << dy << endl;
     }
 }
 
@@ -149,7 +153,7 @@ bool BlockMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
 
             // If we are not interacting with the boundary, keep exploring. The
             // check g.a < dx is somewhat redundant.
-            if ((g.a >= 0) && (g.a < dx) && (g.b >= 0) && (g.b < dy) && sieveArray[g.a][g.b]) {
+            if (g.a >= 0 && g.a < dx && g.b >= 0 && g.b < dy && sieveArray[g.a][g.b]) {
                 toExplore.push_back(g);
                 if ((!upperWallFlag) && (g.a > farthestRight)) {
                     farthestRight = g.a;
@@ -190,9 +194,18 @@ void BlockMoat::exploreUpperWall() {
 
 pair<int32_t, int32_t> BlockMoat::getNextBlock() {
     if (exploreLeftWall()) { // punched through right wall
+        // double dx
+        dx *= 2;
+        dx = min(dx, 1000);  // clip at 1000
+        dy = blockSize / dx;
         return {x + dx, y};
     } else {
         exploreUpperWall();
+        // Recalibrate dx and dy passed on farthestRight
+        if (farthestRight < dx / 2) {
+            dx = 2 * farthestRight;
+            dy = blockSize / dx;
+        }
         if (verbose) {
             cerr << "Largest real-part reached starting from left hand wall: " << farthestRight << endl;
             cerr << "Number of visited primes: " << countVisited << "\n" << endl;
@@ -206,8 +219,7 @@ void BlockMoat::findVerticalMoat() {
     int32_t x = realPart;
     int32_t y = 0;
     int32_t consecutiveStepsRight = 0;
-
-    // TODO: Update values of dx and dy depending on the size of the real parts reached
+    
     while (y < x) {
         BlockMoat b(x, y);
         b.callSieve();
@@ -219,6 +231,7 @@ void BlockMoat::findVerticalMoat() {
         }
         if (consecutiveStepsRight > 10) {
             cerr << "Stepped right ten times in a row!" << endl;
+            cerr << "Choose a larger value for realPart" << endl;
             exit(1);
         }
         x = p.first;

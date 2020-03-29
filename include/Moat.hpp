@@ -36,7 +36,7 @@ private:
     static bool verbose;
     static double jumpSize;
     static int32_t realPart;
-    static int32_t dx, dy;
+    static int32_t blockSize, dx, dy;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
 
