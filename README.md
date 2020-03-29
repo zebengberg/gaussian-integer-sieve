@@ -17,16 +17,16 @@
 
 ## Gaussian Integers
 
-The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit** with the property that i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the rational integers, denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
+The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit**, so i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the **rational integers** (the usual integers), denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
 
 This project is an implementation of the *Sieve of Eratosthenes* to generate primes in the Gaussian integers. While the Gaussian integers present some difficulties that mostly nonexistent in the context of the rational integers, nearly all of the basic computational sieve ideas can be extended to Z[i]. In particular, both the wheel sieve and the segmented sieve can be extended to the Gaussian integers.
 
-The goal of this project is to build an efficient implementation of a prime generating sieve in the Gaussian integers in both Python and C++, and to provide a library for deeper exploration. The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as hardware considerations needed in order to improve runtime performance. In this repository, I hope to extend some of the more accessible algorithmic and hardware-optimization ideas from *primesieve*.
+The goal of this project is to build an efficient C++ implementation of a prime generating sieve in the Gaussian integers, and to provide a library for deeper exploration. The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as hardware considerations needed in order to improve runtime performance. In this repository, I hope to extend some of the more accessible algorithms and hardware-optimizations from *primesieve*.
 
 
 ## Install
 
-This entire repository can be cloned or downloaded for use. To build the executable on a macOS, cd into the
+This entire repository can be cloned or downloaded for use. To build the executable on macOS, cd into the
  `gaussian-integer-sieve` directory and run
 ```shell script
 $ make
@@ -34,18 +34,18 @@ $ make
 This requires a C++ compiler supporting both C++11 and the `libc++` library as well as `make`. On macOS, they can be
  installed with `xcode-select --install`.
  
-Contact me if you would like better support for compiling this project on linux. I could readily use the `libstdc++` instead of the default macOS standard library.
+Please contact me if you would like better support for compiling this project on linux. I could readily use the `libstdc++` instead of the default macOS library `libc++`.
 
  The Cython bindings can be built from source with
  ```shell script
 $ python setup.py build_ext --inplace
 ```
-from within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the
- aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a
-  python script.
+from within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a python script.
 
 
 ## Command line usage
+
+All sieving algorithms can be called from the `gintsieve` executable.
 Command line options include:
 ```
 Usage: ./gintsieve x [y z] [option1] [option2] ...
@@ -126,7 +126,7 @@ $ ./gintsieve 100000000 300000000 15 -a -s
 
 ## Python bindings
 
-Once the python module is built, we can import it into python and use it as in the following examples.
+Once the python module `gintsieve` is built, we can import it into python and use it as in the following examples.
 
 
 ```Python
@@ -166,6 +166,8 @@ Once the python module is built, we can import it into python and use it as in t
 >>> p.visualize(full_disk=True)
 ```
 ![Full Plane](/assets/full_plane.png)
+
+See [this Jupyter notebook](insert_link) for more usage examples.
 
 
 ## Algorithm
@@ -251,9 +253,43 @@ In implementing the donut sieve, each 10 x 10 block of Gaussian integers corresp
 
 ## Applications
 
-This library can be used to generated data related to two unsolved problems in number theory.
-- Prime number races in sectors
-- Gaussian moat
+This library can be used to generated data related to several unsolved problems in number theory.
+- [Gaussian prime races in sectors](#gaussian-prime-races-in-sectors)
+- [Angular distribution of Gaussian primes](#angular-distribution-of-gaussian-primes)
+- [The Gaussian moat problem](#the-gaussian-moat-problem)
+
+All three of these applications have implementations within the Cython bindings and can be found inside the `gintsieve` python module. [This Jupyter notebook](insert_link) gives examples.
+
+
+### Gaussian prime races in sectors
+Prime number races have been thoroughly studied beginning with observation of Chebyshev. Odd prime numbers fall into two disjoint camps: primes of the form 4k + 1, and primes of the form 4k + 3. Chebyshev noted that when counting the number of primes in these two camps up to some threshold x, the primes of the form 4k + 3 often seemed to lead the race. This phenomenon has been extensively quantified and generalized in the realm of the rational integers, and is known as *Chebyshev bias*.
+
+In the Gaussian integers, one analog of 4k + 1 and 4k + 3 primes is considering Gaussian primes by sector. In the 1910s, [Hecke proved](http://gdz.sub.uni-goettingen.de/dms/resolveppn/?PPN=GDZPPN002365162) that the angles associated to Gaussian primes are equidistributed. In other words, given two sectors in the complex plane with equal central angles, Hecke proved that both sectors have the same asymptotic number of primes as the radius of those two sectors grows large. Just as Chebyshev raced the primes in the residue classes 4k + 1 and 4k + 3, one can race Gaussian primes in two sectors with equal central angle.
+
+The `SectorSieve` class performs sieving in a specified sector in the complex plane. This can be used to generate data and observe Chebyshev biases in Gaussian prime races.
+
+
+### Angular distribution of Gaussian primes
+Instead of restricting to two-way prime number races, one can consider races with many participants. As a first example of this in the rational primes, odd primes fall into one of the four camps 8k + 1, 8k + 3, 8k + 5, and 8k + 7. As a consequence, one can consider the four-way race between these four disjoint residue classes mod 8. This many-way race can just as easily be considered with Gaussian primes. In particular, a collection of sectors having the same central angle, one can consider the distribution of the counts of Gaussian primes within these sectors as the bound on the sectors' radii grows.
+
+
+### The Gaussian moat problem
+In the Gaussian moat problem, imagine a frog jumping between lily pads situated in the complex plane at exactly the Gaussian primes. The frog, having finite strength, can only take jumps of bounded size. A famous unsolved problems asks if such a frog could jump arbitrarily far from its starting point. If this frog fails to do so, it must have encountered some *Gaussian moat* preventing it from making progress.
+
+This problem, lying at the interface between number theory and percolation theory, has been extensively studied since it was first posed in 1962. In 2004, Tsuchimura computed the state of the result by showing that a frog starting at the origin and taking jumps of distance at most 6 will encounter a Gaussian moat. It is a folklore conjecture that given any bounded jump size, a moat will always be encountered.
+
+Beginning with a bound on the frog's jump, form a graph whose vertices the Gaussian primes. Two vertices are adjacent if the distance between them is less than or equal to the jump bound. Three classes within this library explore the *main connected component* of this graph, that is, the connected component containing the Gaussian prime 1 + i (the prime closest to the origin).
+
+
+- In the class `OctantMoat`, the main connected component is explored using a depth-first search approach. Initially, all primes are generated and held in memory using the `OctantSieve` class. Once the sieve array is larger than the memory capabilities of the computer calling this class, this approach fails.
+- In `SegmentedMoat`, the same component is explored
+- In `BlockMoat`
+
+All of these moat-related classes can be accessed from the `gintmoat` executable.
+
+put in same examples here
+
+
 
 
 
