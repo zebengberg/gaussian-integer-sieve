@@ -17,7 +17,6 @@ obj/
 python/build/
 python/src/gintsieve.cpp
 
-# exploring moat visualizations
-python/moat_tests.ipynb
+# jupyter hidden files
 python/.ipynb_checkpoints/
 python/src/.ipynb_checkpoints/
