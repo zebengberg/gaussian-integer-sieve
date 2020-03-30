@@ -16,7 +16,7 @@ private:
     vector<vector<gint>> allComponents;
 
 public:
-    OctantMoat(double, bool = true);
+    OctantMoat(double, uint64_t = 0, bool = true);
     void setNearestNeighbors();
     void exploreComponent(int32_t, int32_t);
     uint32_t getComponentSize();
