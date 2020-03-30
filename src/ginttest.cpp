@@ -10,8 +10,8 @@ using namespace std;
 
 
 int main() {
-    cout << "\nTesting and timing OctantSieve and OctantDonutSieve\n" << endl;
-    cout << " | norm bound | # of primes including associates | octant sieve time | octant donut sieve time | " << endl;
+    cout << "\n#### Testing and timing OctantSieve and OctantDonutSieve\n" << endl;
+    cout << " | norm bound | # of primes including associates | OctantSieve time | OctantDonutSieve time | " << endl;
     cout << " |------------|----------------------------------|-------------------|-------------------------| " << endl;
 
     for (int j = 20; j <= 30; j++) {
@@ -37,14 +37,14 @@ int main() {
              << " s | " << donutTime
              << " s | " << endl;
 
-        // Sorting generated primes and checking if two lists are equal.
+        // Sorting generated primes and checking if two lists are equal. This takes a long time.
         sort(oP.begin(), oP.end());
         sort(dP.begin(), dP.end());
         assert(oP == dP);
     }
 
-    cout << "\nTesting and timing BlockSieve and BlockDonutSieve with random rectangles\n" << endl;
-    cout << " | block | # of primes | block sieve time | block donut sieve time | " << endl;
+    cout << "\n#### Testing and timing BlockSieve and BlockDonutSieve with random rectangles\n" << endl;
+    cout << " | block | # of primes | BlockSieve time | BlockDonutSieve time | " << endl;
     cout << " |-------|-------------|------------------|------------------------| " << endl;
 
     random_device rd;
@@ -85,7 +85,7 @@ int main() {
         assert(bP == dP);
     }
 
-    cout << "\nTesting and timing SectorSieve with random sectors\n" << endl;
+    cout << "\n#### Testing and timing SectorSieve with random sectors\n" << endl;
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
     uniform_real_distribution<long double> distReal(0.0, M_PI_4);
@@ -127,7 +127,7 @@ int main() {
         assert(sP == dP);
     }
 
-    cout << "\nTiming SectorSieve with random thin sectors\n" << endl;
+    cout << "\n#### Timing SectorSieve with random thin sectors\n" << endl;
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
     for (int j = 30; j <= 40; j++) {
@@ -151,7 +151,7 @@ int main() {
              << " | " << endl;
     }
 
-    cout << "\nTesting OctantMoat and SegmentedMoat\n" << endl;
+    cout << "\n#### Testing OctantMoat and SegmentedMoat\n" << endl;
     cout << " | jumpSize | size of main component | farthest prime encountered | " << endl;
     cout << " | -------- | ---------------------- | -------------------------- | " << endl;
     // Data taken from the 1998 paper "A stroll through the Gaussian primes".
@@ -195,7 +195,7 @@ int main() {
     SegmentedMoat::setStatics(4.3, false);
     uint64_t s = SegmentedMoat::getCountMainComponent();
     assert(s == 2386129);
-    cout << " | 4.3 | " << s << " | | " << endl;
+    cout << " | 4.3 | " << s << " | not computed | " << endl;
 
     return 0;
 }
