@@ -116,7 +116,6 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
             }
         }
     }
-    cerr << endl;
 }
 
 uint32_t OctantMoat::getComponentSize() {

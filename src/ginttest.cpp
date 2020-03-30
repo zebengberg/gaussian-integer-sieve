@@ -10,7 +10,7 @@ using namespace std;
 
 
 int main() {
-    cout << "\nTesting and Timing Octant Sieve and Octant Donut Sieve\n" << endl;
+    cout << "\nTesting and timing OctantSieve and OctantDonutSieve\n" << endl;
     cout << " | norm bound | # of primes including associates | octant sieve time | octant donut sieve time | " << endl;
     cout << " |------------|----------------------------------|-------------------|-------------------------| " << endl;
 
@@ -43,7 +43,7 @@ int main() {
         assert(oP == dP);
     }
 
-    cout << "\nTesting and Timing Block Sieve and Block Donut Sieve\n" << endl;
+    cout << "\nTesting and timing BlockSieve and BlockDonutSieve with random rectangles\n" << endl;
     cout << " | block | # of primes | block sieve time | block donut sieve time | " << endl;
     cout << " |-------|-------------|------------------|------------------------| " << endl;
 
@@ -85,7 +85,7 @@ int main() {
         assert(bP == dP);
     }
 
-    cout << "\nTesting and Timing Sector Sieve\n" << endl;
+    cout << "\nTesting and timing SectorSieve with random sectors\n" << endl;
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
     uniform_real_distribution<long double> distReal(0.0, M_PI_4);
@@ -127,7 +127,7 @@ int main() {
         assert(sP == dP);
     }
 
-    cout << "\nTiming Thin Sectors\n" << endl;
+    cout << "\nTiming SectorSieve with random thin sectors\n" << endl;
     cout << " | alpha | beta | beta - alpha | norm bound | # of primes | time | " << endl;
     cout << " |-------|------|--------------|------------|-------------|------| " << endl;
     for (int j = 30; j <= 40; j++) {
@@ -151,33 +151,51 @@ int main() {
              << " | " << endl;
     }
 
-    cout << "Exploring the Gaussian moat." << endl;
+    cout << "\nTesting OctantMoat and SegmentedMoat\n" << endl;
+    cout << " | jumpSize | size of main component | farthest prime encountered | " << endl;
+    cout << " | -------- | ---------------------- | -------------------------- | " << endl;
     // Data taken from the 1998 paper "A stroll through the Gaussian primes".
 
-    OctantMoat m(2);
+    OctantMoat m(2, 0, false);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 92);
     assert(m.getComponentMaxElement() == gint(42, 17));
+    cout << " | 2 | " << m.getComponentSize()
+         << " | " << m.getComponentMaxElement().a
+         << " " << m.getComponentMaxElement().b
+         << " | " << endl;
 
-    m = OctantMoat(3);
+    m = OctantMoat(3, 0, false);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 380);
     assert(m.getComponentMaxElement() == gint(84, 41));
+    cout << " | 3 | " << m.getComponentSize()
+         << " | " << m.getComponentMaxElement().a
+         << " " << m.getComponentMaxElement().b
+         << " | " << endl;
 
-    m = OctantMoat(3.2);
+    m = OctantMoat(3.5, 0, false);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 31221);  // typo p 330 in "Stroll through" paper; p 331 correct
     assert(m.getComponentMaxElement() == gint(976, 311));
+    cout << " | 3.5 | " << m.getComponentSize()
+         << " | " << m.getComponentMaxElement().a
+         << " " << m.getComponentMaxElement().b
+         << " | " << endl;
 
-    m = OctantMoat(4);
+    m = OctantMoat(4, 0, false);
     m.exploreComponent(0, 0);
     assert(m.getComponentSize() == 347638);
     assert(m.getComponentMaxElement() == gint(3297, 2780));
+    cout << " | 4 | " << m.getComponentSize()
+         << " | " << m.getComponentMaxElement().a
+         << " " << m.getComponentMaxElement().b
+         << " | " << endl;
 
     SegmentedMoat::setStatics(4.3, false);
     uint64_t s = SegmentedMoat::getCountMainComponent();
     assert(s == 2386129);
-    cerr << "\n\nThe main connected component has size: " << s << endl;
+    cout << " | 4.3 | " << s << " | | " << endl;
 
     return 0;
 }
