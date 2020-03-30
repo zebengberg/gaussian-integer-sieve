@@ -39,12 +39,12 @@ int main(int argc, const char* argv[]) {
             cerr << "\n";
             cerr << "Usage: " << argv[0] << " x [y dx dy alpha beta] [option1] [option2] ...\n"
                  << "Generate Gaussian primes with norm up to x using sieving methods.\n"
-                 << "    x                   The norm-bound of the generated primes\n"
-                 << "    y                   Coordinates (x, y) of SW-corner of array in block sieve.\n"
-                 << "    dx                  Horizontal side length in block sieve.\n"
-                 << "    dy                  Vertical side length in block sieve.\n"
-                 << "    alpha               Start angle in sector sieve.\n"
-                 << "    beta                Final angle in sector sieve.\n\n"
+                 << "    x                   Norm-bound of the generated primes\n"
+                 << "    y                   Coordinates (x, y) of SW-corner of array in block sieve mode.\n"
+                 << "    dx                  Horizontal side length in block sieve mode.\n"
+                 << "    dy                  Vertical side length in block sieve mode.\n"
+                 << "    alpha               Start angle in sector sieve mode.\n"
+                 << "    beta                Terminal angle in sector sieve mode.\n\n"
                  << "Options:\n"
                  << "    -h, --help          Print this help message.\n"
                  << "    -v, --verbose       Display sieving progress.\n"
@@ -61,7 +61,7 @@ int main(int argc, const char* argv[]) {
                  << "                        defined by x <= real < x + dx and y <= imag < y + dy.\n"
                  << "    -d, --donut         If a donut version of the sieve array exists, use it. In the\n"
                  << "                        donut sieve, the sieve array consists of Gaussian integers\n"
-                 << "                        coprime to 2 and 5. This optional can be used with --octant\n"
+                 << "                        coprime to 2 and 5. This option can be used with --octant\n"
                  << "                        and --block, and is often significantly faster.\n"
                  << endl;
             return 1;

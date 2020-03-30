@@ -34,7 +34,7 @@ cdef extern from '../../include/cython_bindings.hpp':
     # Using this class to transfer moat data to numpy
     cdef cppclass OctantMoat:
         OctantMoat() except +
-        OctantMoat(uint64_t, double) except +
+        OctantMoat(double) except +
         void exploreComponent(int32_t, int32_t)
         void exploreAllComponents()
         pair[intptr, uint64_t] getCurrentComponent()

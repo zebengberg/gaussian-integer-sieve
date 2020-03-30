@@ -227,10 +227,10 @@ class SectorRaceWrapper:
         plt.show()
 
 
-cpdef moat_explore_starting_origin(x, jump_size):
+cpdef moat_explore_starting_origin(jump_size):
     """Calculate connected component of moat graph starting at origin."""
     # Taking what is needed from cpp class
-    moat = new OctantMoat(x, jump_size)
+    moat = new OctantMoat(jump_size)
     moat.exploreComponent(0, 0)
 
     ptr_pair = moat.getCurrentComponent()
@@ -245,10 +245,10 @@ cpdef moat_explore_starting_origin(x, jump_size):
     plt.show()
 
 
-cpdef moat_components_in_octant(x, jump_size):
+cpdef moat_components_in_octant(jump_size):
     """Calculate all moat graph connected components in the first octant."""
     # Taking what is needed from cpp class
-    moat = new OctantMoat(x, jump_size)
+    moat = new OctantMoat(jump_size)
     moat.exploreAllComponents()
     ptr_pairs = moat.getAllComponents()
 
