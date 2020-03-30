@@ -219,7 +219,7 @@ void BlockMoat::findVerticalMoat() {
     int32_t x = realPart;
     int32_t y = 0;
     int32_t consecutiveStepsRight = 0;
-    
+
     while (y < x) {
         BlockMoat b(x, y);
         b.callSieve();

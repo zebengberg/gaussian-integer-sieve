@@ -6,33 +6,38 @@ using namespace std;
 
 
 // Public methods in OctantMoat class.
-OctantMoat::OctantMoat(double jumpSize, bool verbose)
-    : jumpSize(jumpSize)
-    , verbose(verbose)
+OctantMoat::OctantMoat(double js, uint64_t nb, bool vb)
+    : jumpSize(js)
+    , normBound(nb)
+    , verbose(vb)
 {
     // using tolerance with jumpSize
     double tolerance = pow(10, -3);
     this->jumpSize += tolerance;
 
-    // setting normBound according to existing tables in Tsuchimura paper
-    if (jumpSize < 2.1) {  // jumpsize <= 2
-        normBound = 3000;
-    } else if (jumpSize < 3) {  // jumpsize = sqrt(8)
-        normBound = 10000;
-    } else if (jumpSize < 4) {  // jumpsize = sqrt(10)
-        normBound = 1100000;
-    } else if (jumpSize < 4.2) {  // jumpsize = 4
-        normBound = 20000000;
-    } else if (jumpSize < 4.4) {  // jumpsize = sqrt(18)
-        normBound = 116000000;
-    } else if (jumpSize < 5) {  // jumpsize = sqrt(20)
-        normBound = 17900000000;
-    } else {
+    if (jumpSize > 5){
         cerr << "Jump size is too large for this method!" << endl;
         cerr << "Instead call the segmented moat" << endl;
         exit(1);
     }
 
+    // if normBound not passed into constructor, setting it according to
+    // existing tables in Tsuchimura paper
+    if (normBound == 0) {
+        if (jumpSize < 2.1) {  // jumpsize <= 2
+            normBound = 3000;
+        } else if (jumpSize < 3) {  // jumpsize = sqrt(8)
+            normBound = 10000;
+        } else if (jumpSize < 4) {  // jumpsize = sqrt(10)
+            normBound = 1100000;
+        } else if (jumpSize < 4.2) {  // jumpsize = 4
+            normBound = 20000000;
+        } else if (jumpSize < 4.4) {  // jumpsize = sqrt(18)
+            normBound = 116000000;
+        } else { // jumpsize = sqrt(20)
+            normBound = 17900000000;
+        }
+    }
 
     OctantSieve o(normBound, verbose);
     o.run();

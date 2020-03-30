@@ -166,7 +166,7 @@ int main() {
 
     m = OctantMoat(3.2);
     m.exploreComponent(0, 0);
-    assert(m.getComponentSize() == 31221);  // typo p 330 in stroll paper; p 331 correct
+    assert(m.getComponentSize() == 31221);  // typo p 330 in "Stroll through" paper; p 331 correct
     assert(m.getComponentMaxElement() == gint(976, 311));
 
     m = OctantMoat(4);
@@ -174,10 +174,10 @@ int main() {
     assert(m.getComponentSize() == 347638);
     assert(m.getComponentMaxElement() == gint(3297, 2780));
 
-    m = OctantMoat(4.3);
-    m.exploreComponent(0, 0);
-    assert(m.getComponentSize() == 2386129);
-    assert(m.getComponentMaxElement() == gint(8174, 6981));
+    SegmentedMoat::setStatics(4.3, false);
+    uint64_t s = SegmentedMoat::getCountMainComponent();
+    assert(s == 2386129);
+    cerr << "\n\nThe main connected component has size: " << s << endl;
 
     return 0;
 }

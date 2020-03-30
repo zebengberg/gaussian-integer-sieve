@@ -121,7 +121,9 @@ int main(int argc, const char* argv[]) {
     if (verbose) { cerr << '\n' << endl; }
     // Very boilerplate, but sieve objects are distinct.
     if (sieveType == "octantDonut") {
-        cerr << "\nCalling the Octant Donut Sieve.\n" << endl;
+        if (verbose) {
+            cerr << "\nCalling the Octant Donut Sieve.\n" << endl;
+        }
         OctantDonutSieve s(x, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
@@ -139,7 +141,9 @@ int main(int argc, const char* argv[]) {
             s.printBigPrimes();
         }
     } else if (sieveType == "octant") {
-        cerr << "\nCalling the Octant Sieve.\n" << endl;
+        if (verbose) {
+            cerr << "\nCalling the Octant Sieve.\n" << endl;
+        }
         OctantSieve s(x, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
@@ -163,7 +167,9 @@ int main(int argc, const char* argv[]) {
                  << "Use -h optional flag for help.\n" << endl;
             return 1;
         }
-        cerr << "\nCalling the Sector Sieve.\n" << endl;
+        if (verbose) {
+            cerr << "\nCalling the Sector Sieve.\n" << endl;
+        }
         SectorSieve s(x, alpha, beta, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
@@ -186,7 +192,9 @@ int main(int argc, const char* argv[]) {
                  << "Use -h optional flag for help.\n" << endl;
             return 1;
         }
-        cerr << "\nCalling the Block Donut Sieve.\n" << endl;
+        if (verbose) {
+            cerr << "\nCalling the Block Donut Sieve.\n" << endl;
+        }
         BlockDonutSieve s(x, y, dx, dy);
         s.run();
         if (printArray) { s.printSieveArray(); }
@@ -210,8 +218,10 @@ int main(int argc, const char* argv[]) {
                  << "Use -h optional flag for help.\n" << endl;
             return 1;
         }
-        cerr << "\nCalling the Block Sieve.\n" << endl;
-        BlockSieve s(x, y, dx, dy);
+        if (verbose) {
+            cerr << "\nCalling the Block Sieve.\n" << endl;
+        }
+        BlockSieve s(x, y, dx, dy, verbose);
         s.run();
         if (printArray) { s.printSieveArray(); }
         if (count) {

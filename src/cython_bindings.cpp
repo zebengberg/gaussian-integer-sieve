@@ -213,16 +213,16 @@ int32_t * SectorRace::getNormData() {
 
 
 // Wrapper functions to access moat class.
-pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> getComponentAtOrigin(uint64_t x, double jumpSize) {
-    OctantMoat m(x, jumpSize);
+pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> getComponentAtOrigin(double jumpSize) {
+    OctantMoat m(jumpSize);
     m.exploreComponent(0, 0);
     vector<gint> explored = m.getCurrentComponent();
     vector<gint> unexplored = m.getUnexplored();
     return pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> {gintVectorToArray(explored), gintVectorToArray(unexplored)};
 }
 
-vector<pair<int32_t *, uint64_t>> getAllComponentsInOctant(uint64_t x, double jumpSize) {
-    OctantMoat m(x, jumpSize);
+vector<pair<int32_t *, uint64_t>> getAllComponentsInOctant(double jumpSize) {
+    OctantMoat m(jumpSize);
     m.exploreComponent(0, 0);
     vector<vector<gint>> allComponents = m.getAllComponents();
     vector<pair<int32_t *, uint64_t>> toReturn;
