@@ -10,8 +10,9 @@
 - [Command line usage](#command-line-usage)
 - [Python bindings](#python-bindings)
 - [Algorithm](#algorithm)
-- [C++ Implementation](#c++-implementation)
+- [C++ Implementation](#c-implementation)
 - [Applications](#applications)
+- [Tests](#tests)
 - [License](#license)
 
 
@@ -246,12 +247,6 @@ In this project, segmentation can be achieved by calling methods in the `BlockSi
 
 The aforementioned algorithm is implemented in a C++ library. `BaseSieve` is an abstract base class with some basic sieving methods. Classes derived from this include `OctantSieve`, `OctantDonutSieve`, `SectorSieve`, `BlockSieve`, and `BlockDonutSieve`. Each derived class has its own method for initiating and accessing the sieve array. See the [usage examples](#command-line-usage) for various text representations of these sieve arrays.
 
-
-Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy. These tests can be performed by running the following.
-```shell script
-$./ginttest
-```
-
 In classes `OctantSieve`, `SectorSieve`, and `BlockSieve`, the 2-dimensional sieve array A is stored with a `vector<vector<bool>>` container. This C++ object is memory-efficient: each boolean is stored as a single bit in memory (this in itself gives a 224-fold savings over python 3.7 which requires 28 bytes of memory to store a boolean value).
 
 In implementing the donut sieve in the classes `OctantDonutSieve` and `BlockDonutSieve`, each 10 x 10 block of Gaussian integers corresponds to a full *donut roll*. The [donut sieve](#donut-sieve) requires holding 32 residue classes for every 10 x 10 block of Gaussian integers. Said differently, every 10 x 10 block of Gaussian integers requires 32 bits of information to store its current state in the sieve process. Conveniently, a C++ `int` typically also requires 32 bits of memory space. In this way, in donut-based classes , our sieve array is a `vector<vector<int>>` container in C++.
@@ -353,6 +348,12 @@ Many other graph theoretic statistics could be gathered using a similar implemen
 
 This project could readily be adapted to explore such phenomena.
 
+## Tests
+
+Results of this repository can be verified with [http://oeis.org/A091100](http://oeis.org/A091100) to check for accuracy. These tests can be performed by running the executable `ginttest`. I ran these tests on my 2013 MacBook; results are pasted below.
+```shell script
+$./ginttest
+```
 
 ## License
 
