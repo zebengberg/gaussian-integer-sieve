@@ -18,29 +18,29 @@
 
 ## Gaussian Integers
 
-The **Gaussian integers** are complex numbers of the form a + bi for integers a and b. Here i is the **imaginary unit**, so i * i = -1. The set of Gaussian integers, denoted by Z[i], forms a mathematical structure that enjoys many of the same properties as those of the **rational integers** (the usual integers), denoted by Z. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. With these tools in hand, sieving ideas can be used to compute primes in this extension of our usual integer system.
+The **Gaussian integers** are complex numbers of the form a + bi where a and b are integers and i is the **imaginary unit**, that is, i * i = -1. While the Gaussian integers may appear more complicated than the **rational integers** (the usual integers we know and love), they possess nearly all of the same essential properties. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. Equipped with these tools, sieve methods can be used to compute primes in this extension of our usual integer system.
 
-This project is an implementation of the *Sieve of Eratosthenes* to generate primes in the Gaussian integers. While the Gaussian integers present some difficulties that mostly nonexistent in the context of the rational integers, nearly all of the basic computational sieve ideas can be extended to Z[i]. In particular, both the wheel sieve and the segmented sieve can be extended to the Gaussian integers.
+The goal of this project is to build an efficient C++ implementation of a prime generating sieve in the Gaussian integers and to provide a library for deeper exploration. A natural starting point is the *Sieve of Eratosthenes*, which generates primes in the rational integers. The 2-dimensional nature of the Gaussian integers requires overcoming additional hurdles which are not present in the naive Sieve of Eratosthenes. Despite this, nearly all of the basic computational sieve ideas can be extended to Gaussian integers. In particular, I extend both the wheel sieve and the segmented sieve.
 
-The goal of this project is to build an efficient C++ implementation of a prime generating sieve in the Gaussian integers, and to provide a library for deeper exploration. The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as hardware considerations needed in order to improve runtime performance. In this repository, I draw inspiration from *primesieve* and hope to extend some of its algorithms and hardware-optimizations to the realm of the Gaussian integers.
+The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as the hardware considerations needed to improve runtime performance. In this repository, I draw inspiration from *primesieve* and hope to extend some of its algorithms and architectures to the realm of the Gaussian integers.
 
 
 ## Install
 
-This entire repository can be cloned or downloaded for use. To build the executable on macOS, cd into the
- `gaussian-integer-sieve` directory and run
+This entire repository can be cloned or downloaded for use. To build the executable files on macOS, `cd` into the
+ `gaussian-integer-sieve` directory and run the following.
 ```shell script
 $ make
 ```
-This requires a C++ compiler supporting both C++11 and the `libc++` library as well as `make`. On macOS, these can be installed by running `xcode-select --install`.
+This requires a C++ compiler supporting both the C++11 standard and the `libc++` library as well as `make`. On macOS, these can be installed by running `xcode-select --install`.
  
-Please contact me if you would like better support for compiling this project on linux. Linux systems generally use `libstdc++` instead of the default macOS library `libc++`.
+Please contact me if you would like assistance compiling this project on linux. Linux systems generally use `libstdc++` instead of the default macOS library `libc++`.
 
- The [Python bindings](#python-bindings) can be built from source with
+ The [Python bindings](#python-bindings) can be built by running
  ```shell script
 $ python setup.py build_ext --inplace
 ```
-from within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a python script.
+ within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a python script.
 
 
 ## Command line usage
@@ -50,12 +50,12 @@ Command line options include:
 ```
 Usage: ./gintsieve x [y dx dy alpha beta] [option1] [option2] ...
 Generate Gaussian primes with norm up to x using sieving methods.
-    x                   The norm-bound of the generated primes
-    y                   Coordinates (x, y) of SW-corner of array in block sieve.
-    dx                  Horizontal side length in block sieve.
-    dy                  Vertical side length in block sieve.
-    alpha               Start angle in sector sieve.
-    beta                Final angle in sector sieve.
+    x                   Norm-bound of the generated primes
+    y                   Coordinates (x, y) of SW-corner of array in block sieve mode.
+    dx                  Horizontal side length in block sieve mode.
+    dy                  Vertical side length in block sieve mode.
+    alpha               Start angle in sector sieve mode.
+    beta                Terminal angle in sector sieve mode.
 
 Options:
     -h, --help          Print this help message.
@@ -74,10 +74,10 @@ Optional sieve types:
                         defined by x <= real < x + dx and y <= imag < y + dy.
     -d, --donut         If a donut version of the sieve array exists, use it. In the
                         donut sieve, the sieve array consists of Gaussian integers
-                        coprime to 2 and 5. This optional can be used with --octant
+                        coprime to 2 and 5. This option can be used with --octant
                         and --block, and is often significantly faster.
 ```
-For example, to get the real and imaginary parts of the Gaussian primes with norm up to 60 sorted by norm, run:
+For example, to print the real and imaginary parts of the Gaussian primes up to norm 60 sorted by norm, run:
 ```shell script
 $ ./gintsieve 60
 1 1
@@ -99,7 +99,7 @@ $ ./gintsieve 60
 2 7
 Total number of primes printed: 17
 ```
-Many of the sieving algorithms can be visualized by using the `-a` option which prints the sieve array after sieving is complete. For example, below is a hexidecimal encoding of the donut sieve array for primes in the first octant with norm up to 12000.
+Many of the sieving algorithms can be visualized by calling the `-a` option which prints the *sieve array* after sieving is complete. For example, below is a hexidecimal encoding of the donut sieve array for primes in the first octant up to norm 12000.
  ```shell script
 $ ./gintsieve 12000 -a -d
                                                                d34cdbff ffffffec                   
@@ -111,24 +111,29 @@ $ ./gintsieve 12000 -a -d
          f3ceffef ac979b9b be4c61d3 94f6cea5 64332c6d 660ea2b6 1196506d 40fdb31f 2a1e034f f5c0ac56 
 5fffffee bb73ba7f c9767527 1739d9f0 c3a99523 bf5e23a4 199f8080 f06afb52 554124ac 4f237261 48e00f02 
 ```
-To see the primality of a 15 x 15 block of Gaussian integers far out the in complex plane, we run:
+To see the primality of an 80 x 20 block of Gaussian integers far out the in complex plane, we run:
 ```shell script
-$ ./gintsieve 100000000 300000000 15 15 -a -b
----------------
----------------
--------------*-
---------------*
----*-------*---
----------------
----------------
----------------
----------*-----
-------*--------
----------------
----------------
----*---------*-
----------------
--*-------------
+$ ./gintsieve 100000000 300000000 80 20 -a -b
+--------------------------------------------*-*-------------------*-------*-----
+---------------*---------------------------------------------------*-------*----
+--------------------------------*-----------------------------------------------
+---------------------*-------------------------------------*-----*---*-*--------
+------------------------------------*---------------*---------------------------
+-----------------------------*---------------------------------------------*----
+--------------------------------*-----------------------------------------------
+-------------*-----------*-------------------------------*----------------------
+--------------*-----------*-----------------------------*---*-------------------
+---*-------*-----------*-------*-----------------*------------------------------
+--------------------------------------------------------------------------------
+-------------------------*-*----------------------------------------------------
+------------------------------*-*-----*-----------------------------------------
+---------*-----------------------------------*---*-------------------*----------
+------*---------*-----*-------------------------*---------------------------*---
+---------------*-----*---*---------------*-------------------------------------*
+--------------------------------------------------------------------------------
+---*---------*-----------------------------------------*-------*----------------
+----------------------------------------------------------------*-----*---*-----
+-*-----------------------------*-*---*-*---------------------------*------------
 ```
 
 ## Python bindings
