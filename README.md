@@ -48,25 +48,34 @@ from within the `gaussian-integer-sieve/python` directory. Building this module 
 All sieving algorithms can be called from the `gintsieve` executable.
 Command line options include:
 ```
-Usage: ./gintsieve x [y z] [option1] [option2] ...
+Usage: ./gintsieve x [y dx dy alpha beta] [option1] [option2] ...
 Generate Gaussian primes with norm up to x using sieving methods.
     x                   The norm-bound of the generated primes
-    y                   Coordinates (x, y) of SW-corner of block in segmented sieve.
-    z                   Side length block in segmented sieve.
+    y                   Coordinates (x, y) of SW-corner of array in block sieve.
+    dx                  Horizontal side length in block sieve.
+    dy                  Vertical side length in block sieve.
+    alpha               Start angle in sector sieve.
+    beta                Final angle in sector sieve.
 
 Options:
     -h, --help          Print this help message.
     -v, --verbose       Display sieving progress.
     -p, --printprimes   Print the real and imag part of primes found by the sieve.
-    -w, --write         Write primes to csv file in working directory.
+    -w, --write         Write primes to csv file in current directory.
     -a, --printarray    Print a text representation of the sieve array.
     -c, --count         Count the number of generated primes and exit program.
-    -q, --quadrant      Sieve array consists of Gaussian integers in the first quadrant.
-    -o, --octant        Sieve array consists of Gaussian integers in the first octant.
-    -d, --donut         Sieve array consists of Gaussian integers in first octant
-                        coprime to 2 and 5.
-    -s, --segmented     Sieve array consists of Gaussian integers of form a + bi with
-                        x <= a < x + z and y <= b < y + z.
+
+Optional sieve types:
+    -o, --octant        Sieve array indexed by Gaussian integers in the first octant.
+                        This is the default sieve method called.
+    -s, --sector        Sieve array indexed by Gaussian integers in the sector
+                        with start angle alpha and final angle beta.
+    -b, --block         Sieve array indexed by Gaussian integers in the rectangle
+                        defined by x <= real < x + dx and y <= imag < y + dy.
+    -d, --donut         If a donut version of the sieve array exists, use it. In the
+                        donut sieve, the sieve array consists of Gaussian integers
+                        coprime to 2 and 5. This optional can be used with --octant
+                        and --block, and is often significantly faster.
 ```
 For example, to get the real and imaginary parts of the Gaussian primes with norm up to 60 sorted by norm, run:
 ```shell script
@@ -264,7 +273,7 @@ All three of these applications have implementations within the Cython bindings 
 ### Gaussian prime races in sectors
 Prime number races have been thoroughly studied beginning with observation of Chebyshev. Odd prime numbers fall into two disjoint camps: primes of the form 4k + 1, and primes of the form 4k + 3. Chebyshev noted that when counting the number of primes in these two camps up to some threshold x, the primes of the form 4k + 3 often seemed to lead the race. This phenomenon has been extensively quantified and generalized in the realm of the rational integers, and is known as *Chebyshev bias*.
 
-In the Gaussian integers, one analog of 4k + 1 and 4k + 3 primes is considering Gaussian primes by sector. In the 1910s, [Hecke proved](http://gdz.sub.uni-goettingen.de/dms/resolveppn/?PPN=GDZPPN002365162) that the angles associated to Gaussian primes are equidistributed. In other words, given two sectors in the complex plane with equal central angles, Hecke proved that both sectors have the same asymptotic number of primes as the radius of those two sectors grows large. Just as Chebyshev raced the primes in the residue classes 4k + 1 and 4k + 3, one can race Gaussian primes in two sectors with equal central angle.
+In the Gaussian integers, one analog of 4k + 1 and 4k + 3 primes is considering Gaussian primes by sector. A [classical result](http://gdz.sub.uni-goettingen.de/dms/resolveppn/?PPN=GDZPPN002365162) of Hecke is that the angles determined by Gaussian primes are equidistributed. In other words, given two sectors in the complex plane with equal central angles, Hecke proved that both sectors have the same asymptotic number of primes as the radius of those two sectors grows large. Just as Chebyshev raced the primes in the residue classes 4k + 1 and 4k + 3, one can hold a *fair race* among Gaussian primes in two sectors with equal central angle.
 
 The `SectorSieve` class performs sieving in a specified sector in the complex plane. This can be used to generate data and observe Chebyshev biases in Gaussian prime races.
 
@@ -282,15 +291,69 @@ Beginning with a bound on the frog's jump, form a graph whose vertices the Gauss
 
 
 - In the class `OctantMoat`, the main connected component is explored using a depth-first search approach. Initially, all primes are generated and held in memory using the `OctantSieve` class. Once the sieve array is larger than the memory capabilities of the computer calling this class, this approach fails.
-- In `SegmentedMoat`, the same component is explored
-- In `BlockMoat`
+- In `SegmentedMoat`, the same component is explored using a segmented sieving approach. Instances of `BlockSieve` are called and explored; boundary data is passed from one instance to the next. This approach is to similar to the algorithm in Tsuchimura's paper *Computational Results for Gaussian Moat Problem*. Only the total component size is returned by this algorithm.
+- In `BlockMoat`, we consider a vertical strip in the complex plane running between the real-axis and the diagonal line defining the top of the first octant. As in `SegmentedMoat`, instances of `BlockMoat` are called and boundary data is shared. This algorithm searches for a sequence of adjacent Gaussian primes spanning the vertical strip. If no such sequence is found, then a moat is present, and as a consequence, the main component is finite. A similar approach was taken in the paper *A stroll Through the Gaussian Primes* by Gethner, Wagon, and Wick.
 
-All of these moat-related classes can be accessed from the `gintmoat` executable.
+All of these moat-exploring classes can be accessed from the `gintmoat` executable. Command line options include
+```
+Usage: ./gintmoat jumpSize [realPart] [option1] [option2] ...
+Explore the connected component at the origin in the Gaussian moat problem.
+    jumpSize            The jump bound giving adjacency relation among primes.
+    realPart            The real-part of the vertical strip to explore if in
+                        vertical mode.
 
-put in same examples here
+Exploration modes:
+    --origin            Explore the connected component starting at the origin until
+                        an impassable moat is encountered. Default exploration mode.
+    --segmented         Use a segmented approach to explore the connected component.
+                        Algorithm is similar to that in Tsuchimura paper. This approach
+                        only counts the size of the component.
+    --vertical          Search for a Gaussian moat along a thin vertical strip starting
+                        at real-part x. Used to show a component is finite.
+
+Options:
+    -h, --help          Print this help message.
+    -v, --verbose       Display progress.
+    -p, --printprimes   Print the real and imag part of primes in the connected component
+                        if in origin mode.
+```
+
+For example, to print all primes that can be reach with jumps up to distance 1.5, we run:
+```shell script
+$ ./gintmoat 1.5 -p
+
+1 1
+2 1
+3 0
+3 2
+4 1
+5 2
+6 1
+7 0
+7 2
+8 3
+9 4
+8 5
+10 3
+11 4
+The main connected component has size: 14
+The farthest out prime in component has coordinates: 11 4
+```
+To get the size of the component with jumps at most distance 4.5, we could run the following (and wait nearly an hour).
+```shell script
+$ ./gintmoat 4.5 --segmented
 
 
+The main connected component has size: 273791623
+```
 
+Many other graph theoretic statistics could be gathered using a similar implementation. Examples of interesting data to consider include:
+- The distribution of the vertex degrees in the main component
+- Number and location of bridges
+- Size of other connected components (away from the origin)
+- "Lakes" and other regions void of primes
+
+This project could readily be adapted to explore such phenomena.
 
 
 ## License
