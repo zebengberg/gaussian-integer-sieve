@@ -3,7 +3,6 @@
 #include "../include/cython_bindings.hpp"
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
-#include "../include/BlockSieve.hpp"
 #include "../include/Moat.hpp"
 #include <iostream>
 #include <cmath>
@@ -223,7 +222,6 @@ pair<int32_t *, uint64_t> moatMainComponent(double jumpSize) {
     return gintVectorToArray(component);
 }
 
-
 vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double jumpSize, uint64_t x) {
     OctantMoat m(jumpSize, x);
     m.exploreAllComponents();
@@ -236,14 +234,12 @@ vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double jumpSize, uint64_t
     return toReturn;
 }
 
-
 vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
-        uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
-    BlockSieve b(x, y, dx, dy);
-    // get the sieve array and explore it; look at exploreallcomponentsmethod -- combine into single
-    // probably want a blocksieve class? and rename existing blocksieve class vertical sieve
+        int32_t x, int32_t y, int32_t dx, int32_t dy) {
+    BlockMoat m(jumpSize, x, y, dx, dy);
+    m.run();  // from parent BlockSieve
+    m.exploreAllComponents();
 
-    m.exploreComponent(0, 0);
     vector<vector<gint>> allComponents = m.getAllComponents();
     vector<pair<int32_t *, uint64_t>> toReturn;
     toReturn.reserve(allComponents.size());  // pre-allocating size
@@ -252,3 +248,64 @@ vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
     }
     return toReturn;
 }
+
+
+// Constructor
+BlockMoat::BlockMoat(double jumpSize, int32_t x, int32_t y, int32_t dx, int32_t dy)
+// Calling BlockSieve's constructor
+        : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
+        , jumpSize(jumpSize)
+        , x(x)
+        , y(y)
+        , dx(dx)
+        , dy(dy)
+{
+    // Setting nearest neighbors.
+    for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
+        for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
+            // u and v shouldn't both be 0
+            // apart from the prime 1 + i, u and v should have same parity
+            // recall that c++ calculates (-3) % 2 as -1
+            if (u * u + v * v <= jumpSize * jumpSize && (u || v) && abs(u) % 2 == abs(v) % 2) {
+                nearestNeighbors.emplace_back(u, v);
+            }
+        }
+    }
+}
+
+void BlockMoat::exploreComponent(gint g0) {
+    // Because of parity constraint in nearestNeighbors, this method will
+    // never visit the ramifying prime 1 + i.
+    vector<gint> toExplore;
+    toExplore.emplace_back(g0);
+
+    do {
+        gint p = toExplore.back();
+        toExplore.pop_back();
+        sieveArray[p.a][p.b] = false;  // indicating a visit
+        for (const gint &q : nearestNeighbors) {
+            gint g = p + q;
+
+            // Pushing neighbors onto the vector toExplore
+            if (g.a >= 0 && g.a < dx && g.b >= 0 && g.b < dy && sieveArray[g.a][g.b]) {
+                currentComponent.push_back(g);
+                toExplore.push_back(g);
+            }
+        }
+    }
+    while (!toExplore.empty());
+}
+
+void BlockMoat::exploreAllComponents() {
+    for (uint32_t a = 0; a < dx; a++) {
+        for (uint32_t b = 0; b < dy; b++) {
+            if (sieveArray[a][b]) {
+                gint g(a, b);
+                exploreComponent(g);
+                allComponents.push_back(currentComponent);
+            }
+        }
+    }
+}
+
+vector<vector<gint>> BlockMoat::getAllComponents() { return allComponents; }

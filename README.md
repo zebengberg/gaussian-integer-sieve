@@ -243,7 +243,7 @@ for segment in sieve_array:
 ```
 
 
-In this project, segmentation can be achieved by calling instances of the `BlockSieve` class. In `BlockMoat` and `SegmentedMoat`, we take this approach to explore Gaussian primes.
+In this project, segmentation can be achieved by calling instances of the `BlockSieve` class. In `VerticalMoat` and `SegmentedMoat`, we take this approach to explore Gaussian primes.
 
 
 
@@ -290,7 +290,7 @@ Beginning with a bound on the frog's jump, form a graph whose vertices are Gauss
 
 - In the class `OctantMoat`, the main connected component is explored using a *depth-first search* approach. Initially, all primes are generated and held in memory using the `OctantSieve` class. Once the sieve array is larger than the memory capabilities of the computer calling this class, this approach fails.
 - In `SegmentedMoat`, the same component is explored using a segmented sieving approach. Instances of `BlockSieve` are called and explored; boundary data is passed from one instance to the next. This approach is to similar to the algorithm in Tsuchimura's paper *Computational Results for Gaussian Moat Problem*.
-- In `BlockMoat`, we consider a vertical strip in the complex plane running between the real-axis and the diagonal line y = x. As in `SegmentedMoat`, instances of `BlockMoat` are called and boundary data is shared. This algorithm searches for a sequence of adjacent Gaussian primes spanning the vertical strip. If no such sequence is found, then a moat is present, and as a consequence, the main component is finite. A similar approach was taken in the paper *A Stroll Through the Gaussian Primes* by Gethner, Wagon, and Wick.
+- In `VerticalMoat`, we consider a vertical strip in the complex plane running between the real-axis and the diagonal line y = x. As in `SegmentedMoat`, instances of `BlockSieve` are called and boundary data is shared. This algorithm searches for a sequence of adjacent Gaussian primes spanning the vertical strip. If no such sequence is found, then a moat is present, and as a consequence, the main component is finite. A similar approach was taken in the paper *A Stroll Through the Gaussian Primes* by Gethner, Wagon, and Wick.
 
 All of these moat-exploring classes can be accessed from the `gintmoat` executable. Command line options include:
 ```

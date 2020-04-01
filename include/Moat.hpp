@@ -24,13 +24,12 @@ public:
     void exploreAllComponents();
     vector<gint> getCurrentComponent();
     void printCurrentComponent();
-    vector<gint> getUnexplored();
     vector<vector<gint>> getAllComponents();
 };
 
 
 // Derived from BlockSieve
-class BlockMoat : public BlockSieve {
+class VerticalMoat : public BlockSieve {
 private:
     // Static variables.
     static bool verbose;
@@ -51,7 +50,7 @@ public:
     static void setStatics(int32_t, double, bool = true);
     static void findVerticalMoat();
 
-    BlockMoat(int32_t, int32_t);
+    VerticalMoat(int32_t, int32_t);
     void callSieve();
     bool exploreAtGint(int32_t, int32_t, bool = false);
     bool exploreLeftWall();

@@ -44,28 +44,29 @@ cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
 # TODO: consider removing above functions, test everything, cnp vs np and cdef, cpdef, etc. be explicit
 
 cpdef count_gprimes(uint64_t x):
-    """Count primes up to norm x."""
+    """Count Gaussian primes in first octant up to norm x."""
     return gPrimesToNormCount(x)
 
-cpdef count_gprimes_sector(uint64_t x, double alpha, double beta):
-    """Count primes up to norm x."""
+cpdef count_gprimes_in_sector(uint64_t x, double alpha, double beta):
+    """Count primes in specified sector up to norm x."""
     return gPrimesInSectorCount(x, alpha, beta)
 
-cpdef count_gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
-    """Count primes up to norm x."""
+cpdef count_gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+    """Count primes in the block [x, x + dx) x [y, y + dy)."""
     return gPrimesInBlockCount(x, y, dx, dy)
 
 cpdef gprimes(uint64_t x):
+    """Get primes"""
     p = gPrimesToNormAsArray(x)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x)
 
-cpdef gprimes_sector(uint64_t x, double alpha, double beta):
+cpdef gprimes_in_sector(uint64_t x, double alpha, double beta):
     p = gPrimesInSectorAsArray(x, alpha, beta)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, alpha, beta)
 
-cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+cpdef gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     p = gPrimesInBlockAsArray(x, y, dx, dy)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, y, dx, dy)
@@ -83,7 +84,7 @@ cpdef angular_dist(uint64_t x, uint32_t n_sectors):
 
 # Read https://docs.scipy.org/doc/numpy/user/basics.subclassing.html for subclassing np.ndarray
 class Gints(np.ndarray):
-    """Class to wrap sieved arrays."""
+    """Class to wrap np arrays returned by sieve calls."""
 
     def __new__(cls, gints_np_array, x, x1=-1, x2=-1, x3=-1):
         obj = np.asarray(gints_np_array).view(cls)
@@ -105,7 +106,7 @@ class Gints(np.ndarray):
         pass
 
     def to_complex(self):
-        """Convert 2d array into a 1d array of complex numbers."""
+        """Convert 2d np array into a 1d np array of complex numbers."""
         return self[0, :] + 1j * self[1, :]
 
     def plot(self, full_disk=False, save=False):
@@ -227,35 +228,35 @@ class SectorRaceWrapper:
         plt.show()
 
 
-cpdef moat_explore_starting_origin(jump_size):
-    """Calculate connected component of moat graph starting at origin."""
+# Several functions for exploring the Gaussian moat graph
+
+cpdef moat_main_component(jump_size):
+    """Calculate the main connected component of the Gaussian moat graph in the first octant starting at origin."""
     # Taking what is needed from cpp class
     moat = new OctantMoat(jump_size)
     moat.exploreComponent(0, 0)
 
     ptr_pair = moat.getCurrentComponent()
-    explored = ptr_to_np_array(ptr_pair)
-
-    ptr_pair = moat.getUnexplored()
-    unexplored = ptr_to_np_array(ptr_pair)
-
-    plt.subplots(figsize=(11, 8))  # ratio should be sqrt(2) : 1
-    plt.plot(explored[0], explored[1], 'ro', markersize=200 / (x ** .5))
-    plt.plot(unexplored[0], unexplored[1], 'bo', markersize=200 / (x ** .5))
-    plt.show()
+    np_primes = ptr_to_np_array(ptr_pair)
+    x = moat.getComponentMaxNorm()
+    return Gints(np_primes, x)
 
 
-cpdef moat_components_in_octant(jump_size):
-    """Calculate all moat graph connected components in the first octant."""
-    # Taking what is needed from cpp class
-    moat = new OctantMoat(jump_size)
-    moat.exploreAllComponents()
-    ptr_pairs = moat.getAllComponents()
-
-    components = [ptr_to_np_array(ptr_pair) for ptr_pair in ptr_pairs]
-    return components
-
-cpdef moat_explore_along_strip(x, jump_size):
-    """Search for a moat along the vertical strip at Re(z) = x."""
-    pass
+#
+#
+# cpdef moat_components_to_norm(jump_size, x):
+#     """Calculate all connected components of the Gaussian moat graph in the first octant up to norm x."""
+#     # Taking what is needed from cpp class
+#     moat = new OctantMoat(jump_size)
+#     moat.exploreAllComponents()
+#     ptr_pairs = moat.getAllComponents()
+#
+#     components = [ptr_to_np_array(ptr_pair) for ptr_pair in ptr_pairs]
+#     return components
+#
+# cpdef moat_components_in_block(jump_size, x, y, dx, dy):
+#     """Calculate all connected components of the Guassian moat graph in the block [x, x + dx) x [y, y + dy)."""
+#     pass
+# # TODO: do this
+#
 

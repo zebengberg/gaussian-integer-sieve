@@ -88,7 +88,7 @@ VerticalMoat::VerticalMoat(int32_t x, int32_t y)
     }
 }
 
-// Cannot call virtual methods of parent from VerticalMoat constructor.
+// Cannot call virtual methods of parent class BlockSieve from within VerticalMoat constructor.
 void VerticalMoat::callSieve() {
     // Checking to make sure there are enough primes within sievingPrimes
     gint last_g = sievingPrimes.back();

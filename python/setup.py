@@ -17,7 +17,8 @@ sources = ['src/gintsieve.pyx',
 extensions = [Extension('gintsieve',
                         sources=sources,
                         include_dirs=[np.get_include()],
-                        extra_compile_args=['-std=c++11', '-stdlib=libc++'],
+                        # last flag below disables depreciated np warning
+                        extra_compile_args=['-std=c++11', '-stdlib=libc++', '-Wno-#warnings'],
                         extra_link_args=['-std=c++11', '-stdlib=libc++'],
                         language='c++')]
 

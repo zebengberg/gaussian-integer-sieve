@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "../include/BaseSieve.hpp"
+#include "../include/BlockSieve.hpp"
 using namespace std;
 
 // Convert a vector of gints to a flattened array, then return pointer and size.
@@ -42,6 +43,23 @@ public:
     int32_t * getNormData();
 };
 
-// Gather moat data.
-pair<int32_t *, uint64_t> getMoatComponentAtOrigin(uint64_t);
 
+// Functions to access various moat data
+pair<int32_t *, uint64_t> moatMainComponent(double);
+vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double, uint64_t);
+vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, int32_t, int32_t, int32_t, int32_t);
+
+
+class BlockMoat : public BlockSieve {
+private:
+    double jumpSize;
+    int32_t x, y, dx, dy;
+    vector<gint> nearestNeighbors, currentComponent;
+    vector<vector<gint>> allComponents;
+
+public:
+    BlockMoat(double, int32_t, int32_t, int32_t, int32_t);
+    void exploreComponent(gint);
+    void exploreAllComponents();
+    vector<vector<gint>> getAllComponents();
+};
