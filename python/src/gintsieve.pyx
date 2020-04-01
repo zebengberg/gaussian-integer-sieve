@@ -8,11 +8,17 @@ from libc.stdint cimport uint32_t, uint64_t, int32_t
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 
-from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
-    gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
-    gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray,\
-    angularDistribution, SectorRace,\
-    moatMainComponent, moatComponentsToNorm, moatComponentsInBlock
+from gintsieve_externs cimport gPrimesToNormCount, \
+                               gPrimesInSectorCount, \
+                               gPrimesInBlockCount, \
+                               gPrimesToNormAsArray, \
+                               gPrimesInSectorAsArray, \
+                               gPrimesInBlockAsArray, \
+                               angularDistribution, \
+                               SectorRace, \
+                               moatMainComponent, \
+                               moatComponentsToNorm, \
+                               moatComponentsInBlock
 
 
 
@@ -25,25 +31,6 @@ cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
     cdef view.array a = <cnp.int32_t[:size]> ptr  # casting to a memory view object
     # De-flattening and chaining methods to get 2d numpy array.
     return np.asarray(a).reshape(size // 2, 2).transpose()
-
-
-
-
-
-# cpdef gprimes(uint64_t x):
-#     """Generate a GintList object of primes up to norm x."""
-#     # Cython casts vector to an array.
-#     return GintList(gPrimesToNorm(x), x)
-#
-# cpdef gprimes_sector(uint64_t x, double alpha, double beta):
-#     """Generate a GintList object of primes up to norm x in given sector."""
-#     return GintList(gPrimesInSector(x, alpha, beta), x, alpha, beta)
-#
-# cpdef gprimes_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
-#     """Generate a GintList object of primes up to norm x in given sector."""
-#     return GintList(gPrimesInBlock(x, y, dx, dy), x, y, dx, dy)
-
-# TODO: consider removing above functions, test everything, cnp vs np and cdef, cpdef, etc. be explicit
 
 cpdef count_gprimes(uint64_t x):
     """Count primes in first octant up to norm x."""
@@ -59,12 +46,16 @@ cpdef count_gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
 
 cpdef gprimes(uint64_t x):
     """Get primes in first octant up to norm x."""
+    if x < 2:
+        raise ValueError('No primes with norm under 2!')
     p = gPrimesToNormAsArray(x)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x)
 
 cpdef gprimes_in_sector(uint64_t x, double alpha, double beta):
     """Get primes in sector between rays at alpha and beta up to norm x."""
+    if x < 2:
+        raise ValueError('No primes with norm under 2!')
     p = gPrimesInSectorAsArray(x, alpha, beta)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, alpha, beta)
@@ -110,10 +101,6 @@ class Gints(np.ndarray):
         """Convert 2d np array into a 1d np array of complex numbers."""
         return self[0, :] + 1j * self[1, :]
 
-    def get_density(self):
-        """Calculate the density of the primes within its specified region."""
-        pass
-
     def __mod__(self, z):
         """Return the remainder upon division."""
         if not isinstance(z, complex):
@@ -125,14 +112,15 @@ class Gints(np.ndarray):
         if a == 0 and b == 0:
             raise ZeroDivisionError('The modulus should not be 0!')
 
+        # Using division algorithm in Z[i]
+        # Find K Conrad paper for nice exposition
         norm = a * a + b * b
-
         real_quot = np.round((a * self[0] + b * self[1]) / norm)
         imag_quot = np.round((a * self[1] - b * self[0]) / norm)
         real_mod = self[0] - a * real_quot + b * imag_quot
         imag_mod = self[1] - a * imag_quot - b * real_quot
 
-        return np.stack((real_mod, imag_mod))
+        return np.stack((real_mod.astype(np.int32), imag_mod.astype(np.int32)))
 
 
     def plot(self, full_disk=False, save=False):
@@ -140,12 +128,15 @@ class Gints(np.ndarray):
 
         reals = self[0]
         imags = self[1]
-        plt.subplots(figsize=(8, 8))
+
 
         if self.sieve == 'block':
             # Plotting block.
-            plt.plot(reals, imags, 'ro', markersize=400 / max(self.dx, self.dy))
+            m = max(self.dx, self.dy)
+            plt.subplots(figsize=(12 * self.dx / m, 12 * self.dy / m))
+            plt.plot(reals, imags, 'ro', markersize=400 / m)
         else:
+            plt.subplots(figsize=(12, 12))
             # Drawing x and y axes.
             plt.axhline(0, color='red')
             plt.axvline(0, color='red')
@@ -158,7 +149,7 @@ class Gints(np.ndarray):
                 plt.plot(-imags, reals, 'bo', markersize=100 / (self.x ** .5))
 
             else:
-                plt.plot(reals, imags, 'bo', markersize=200 / (self.x ** .5))
+                plt.plot(reals, imags, 'bo', markersize=300 / (self.x ** .5))
                 if self.sieve == 'sector':
                     for angle in [self.alpha, self.beta]:
                         plt.plot([0, np.cos(angle) * self.x ** 0.5], [0, np.sin(angle) * self.x ** 0.5], 'g-')
