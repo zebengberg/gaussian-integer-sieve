@@ -6,11 +6,13 @@ from cython cimport view
 import matplotlib.pyplot as plt
 from libc.stdint cimport uint32_t, uint64_t, int32_t
 from libcpp.pair cimport pair
+from libcpp.vector cimport vector
 
 from gintsieve_externs cimport gPrimesToNorm, gPrimesInSector, gPrimesInBlock,\
     gPrimesToNormCount, gPrimesInSectorCount, gPrimesInBlockCount,\
     gPrimesToNormAsArray, gPrimesInSectorAsArray, gPrimesInBlockAsArray,\
-    angularDistribution, SectorRace, OctantMoat
+    angularDistribution, SectorRace,\
+    moatMainComponent, moatComponentsToNorm, moatComponentsInBlock
 
 
 
@@ -44,11 +46,11 @@ cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
 # TODO: consider removing above functions, test everything, cnp vs np and cdef, cpdef, etc. be explicit
 
 cpdef count_gprimes(uint64_t x):
-    """Count Gaussian primes in first octant up to norm x."""
+    """Count primes in first octant up to norm x."""
     return gPrimesToNormCount(x)
 
 cpdef count_gprimes_in_sector(uint64_t x, double alpha, double beta):
-    """Count primes in specified sector up to norm x."""
+    """Count primes in sector between rays at alpha and beta up to norm x."""
     return gPrimesInSectorCount(x, alpha, beta)
 
 cpdef count_gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
@@ -56,17 +58,19 @@ cpdef count_gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     return gPrimesInBlockCount(x, y, dx, dy)
 
 cpdef gprimes(uint64_t x):
-    """Get primes"""
+    """Get primes in first octant up to norm x."""
     p = gPrimesToNormAsArray(x)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x)
 
 cpdef gprimes_in_sector(uint64_t x, double alpha, double beta):
+    """Get primes in sector between rays at alpha and beta up to norm x."""
     p = gPrimesInSectorAsArray(x, alpha, beta)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, alpha, beta)
 
 cpdef gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
+    """Count primes in the block [x, x + dx) x [y, y + dy)."""
     p = gPrimesInBlockAsArray(x, y, dx, dy)
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, y, dx, dy)
@@ -104,6 +108,9 @@ class Gints(np.ndarray):
 
     def __array_finalize__(self, obj):
         pass
+
+    def __repr__(self):
+        
 
     def to_complex(self):
         """Convert 2d np array into a 1d np array of complex numbers."""
@@ -230,33 +237,36 @@ class SectorRaceWrapper:
 
 # Several functions for exploring the Gaussian moat graph
 
-cpdef moat_main_component(jump_size):
+cpdef moat_main_component(double jump_size):
     """Calculate the main connected component of the Gaussian moat graph in the first octant starting at origin."""
-    # Taking what is needed from cpp class
-    moat = new OctantMoat(jump_size)
-    moat.exploreComponent(0, 0)
-
-    ptr_pair = moat.getCurrentComponent()
-    np_primes = ptr_to_np_array(ptr_pair)
-    x = moat.getComponentMaxNorm()
+    p = moatMainComponent(jump_size)
+    np_primes = ptr_to_np_array(p)
+    # In cython_bindings.cpp, appending the largest element to the end of the array
+    # Here, getting its value so we can pass it to the Gints class
+    x = np_primes[-1][0] ** 2 + np_primes[-1][1] ** 2
+    np_primes = np_primes[:-1]  # removing that final element
     return Gints(np_primes, x)
 
 
-#
-#
-# cpdef moat_components_to_norm(jump_size, x):
-#     """Calculate all connected components of the Gaussian moat graph in the first octant up to norm x."""
-#     # Taking what is needed from cpp class
-#     moat = new OctantMoat(jump_size)
-#     moat.exploreAllComponents()
-#     ptr_pairs = moat.getAllComponents()
-#
-#     components = [ptr_to_np_array(ptr_pair) for ptr_pair in ptr_pairs]
-#     return components
-#
-# cpdef moat_components_in_block(jump_size, x, y, dx, dy):
-#     """Calculate all connected components of the Guassian moat graph in the block [x, x + dx) x [y, y + dy)."""
-#     pass
-# # TODO: do this
-#
+cpdef moat_components_to_norm(double jump_size, uint64_t x):
+    """Calculate all connected components of the Gaussian moat graph in the first octant up to norm x."""
+    # Cython compiler gets confused if this isn't explicitly typed
+    cdef vector[pair[intptr, uint64_t]] vector_of_ptrs = moatComponentsToNorm(jump_size, x)
+    components = []
+    for i in range(vector_of_ptrs.size()):
+        p = vector_of_ptrs[i]
+        np_primes = ptr_to_np_array(p)
+        components.append(np_primes)
+    return components
 
+
+cpdef moat_components_in_block(double jump_size, int32_t x, int32_t y, int32_t dx, int32_t dy):
+    """Calculate all connected components of the Guassian moat graph in the block [x, x + dx) x [y, y + dy)."""
+    # Cython compiler gets confused if this isn't explicitly typed
+    cdef vector[pair[intptr, uint64_t]] vector_of_ptrs = moatComponentsInBlock(jump_size, x, y, dx, dy)
+    components = []
+    for i in range(vector_of_ptrs.size()):
+        p = vector_of_ptrs[i]
+        np_primes = ptr_to_np_array(p)
+        components.append(np_primes)
+    return components

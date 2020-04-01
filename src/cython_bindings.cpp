@@ -255,11 +255,10 @@ BlockMoat::BlockMoat(double jumpSize, int32_t x, int32_t y, int32_t dx, int32_t 
 // Calling BlockSieve's constructor
         : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
         , jumpSize(jumpSize)
-        , x(x)
-        , y(y)
         , dx(dx)
         , dy(dy)
 {
+    this->jumpSize += pow(10, -3);  // adding a small tolerance
     // Setting nearest neighbors.
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
@@ -297,8 +296,8 @@ void BlockMoat::exploreComponent(gint g0) {
 }
 
 void BlockMoat::exploreAllComponents() {
-    for (uint32_t a = 0; a < dx; a++) {
-        for (uint32_t b = 0; b < dy; b++) {
+    for (int32_t a = 0; a < dx; a++) {
+        for (int32_t b = 0; b < dy; b++) {
             if (sieveArray[a][b]) {
                 gint g(a, b);
                 exploreComponent(g);

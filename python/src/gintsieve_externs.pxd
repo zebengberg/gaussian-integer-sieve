@@ -32,16 +32,6 @@ cdef extern from '../../include/cython_bindings.hpp':
         intptr getNormData()
 
     # Functions accessing moat data
-
-
-
-cdef extern from '../../include/Moat.hpp':
-    # Using this class to transfer moat data to numpy
-    cdef cppclass OctantMoat:
-        OctantMoat() except +
-        OctantMoat(double) except +
-        void exploreComponent(int32_t, int32_t)
-        void exploreAllComponents()
-        pair[intptr, uint64_t] getCurrentComponent()
-        vector[pair[intptr, uint64_t]] getAllComponents()
-        getComponentMaxNorm()
+    pair[intptr, uint64_t] moatMainComponent(double)
+    vector[pair[intptr, uint64_t]] moatComponentsToNorm(double, uint64_t)
+    vector[pair[intptr, uint64_t]] moatComponentsInBlock(double, int32_t, int32_t, int32_t, int32_t)

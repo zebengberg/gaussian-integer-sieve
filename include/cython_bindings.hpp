@@ -49,11 +49,11 @@ pair<int32_t *, uint64_t> moatMainComponent(double);
 vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double, uint64_t);
 vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, int32_t, int32_t, int32_t, int32_t);
 
-
+// A class to gather components within a block
 class BlockMoat : public BlockSieve {
 private:
     double jumpSize;
-    int32_t x, y, dx, dy;
+    int32_t dx, dy;
     vector<gint> nearestNeighbors, currentComponent;
     vector<vector<gint>> allComponents;
 
