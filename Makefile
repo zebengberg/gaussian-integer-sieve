@@ -24,12 +24,12 @@ EVERYTHING = src/BaseSieve.cpp src/OctantSieve.cpp src/OctantDonutSieve.cpp \
 		     include/BaseSieve.hpp include/OctantSieve.hpp include/OctantDonutSieve.hpp \
 		     include/BlockSieve.hpp include/BlockDonutSieve.hpp include/SectorSieve.hpp
 
-MOAT = src/OctantMoat.cpp src/SegmentedMoat.cpp src/BlockMoat.cpp include/Moat.hpp
+MOAT = src/OctantMoat.cpp src/SegmentedMoat.cpp src/VerticalMoat.cpp include/Moat.hpp
 
 # All object files from sources in EVERYTHING
 OBJECTS = obj/BaseSieve.o obj/OctantSieve.o obj/OctantDonutSieve.o \
           obj/BlockSieve.o obj/BlockDonutSieve.o obj/SectorSieve.o \
-          obj/OctantMoat.o obj/SegmentedMoat.o obj/BlockMoat.o
+          obj/OctantMoat.o obj/SegmentedMoat.o obj/VerticalMoat.o
 
 
 # Telling make to compile every object.
@@ -61,8 +61,8 @@ obj/SectorSieve.o: $(EXTENDED) src/SectorSieve.cpp include/SectorSieve.hpp
 obj/OctantMoat.o: $(CORE) src/OctantMoat.cpp include/Moat.hpp
 	$(CC) $(CFLAGS) src/OctantMoat.cpp -o $@
 
-obj/BlockMoat.o: $(CORE) src/BlockMoat.cpp include/Moat.hpp
-	$(CC) $(CFLAGS) src/BlockMoat.cpp -o $@
+obj/VerticalMoat.o: $(CORE) src/VerticalMoat.cpp include/Moat.hpp
+	$(CC) $(CFLAGS) src/VerticalMoat.cpp -o $@
 
 obj/SegmentedMoat.o: $(CORE) src/SegmentedMoat.cpp include/Moat.hpp
 	$(CC) $(CFLAGS) src/SegmentedMoat.cpp -o $@
