@@ -9,8 +9,8 @@ using namespace std;
 class OctantMoat {
 private:
     double jumpSize;
-    bool verbose;
     uint64_t normBound;
+    bool verbose;
     vector<vector<bool>> sieveArray;
     vector<gint> nearestNeighbors, currentComponent;
     vector<vector<gint>> allComponents;

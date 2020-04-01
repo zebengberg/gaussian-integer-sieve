@@ -12,7 +12,7 @@ sources = ['src/gintsieve.pyx',
            '../src/OctantDonutSieve.cpp',
            '../src/SectorSieve.cpp',
            '../src/BlockSieve.cpp',
-           '../src/BlockDonutSieve.cpp']
+           '../src/OctantMoat.cpp']
 
 extensions = [Extension('gintsieve',
                         sources=sources,

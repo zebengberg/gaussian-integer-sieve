@@ -106,15 +106,34 @@ class Gints(np.ndarray):
             obj.sieve = 'to_norm'
         return obj
 
-    def __array_finalize__(self, obj):
-        pass
-
-    def __repr__(self):
-        
-
     def to_complex(self):
         """Convert 2d np array into a 1d np array of complex numbers."""
         return self[0, :] + 1j * self[1, :]
+
+    def get_density(self):
+        """Calculate the density of the primes within its specified region."""
+        pass
+
+    def __mod__(self, z):
+        """Return the remainder upon division."""
+        if not isinstance(z, complex):
+            raise TypeError('The modulus should be a python complex number such as 3 + 4j.')
+        a = round(z.real)
+        b = round(z.imag)
+        if a != z.real or b != z.imag:
+            raise ValueError('The modulus should have integer coordinates!')
+        if a == 0 and b == 0:
+            raise ZeroDivisionError('The modulus should not be 0!')
+
+        norm = a * a + b * b
+
+        real_quot = np.round((a * self[0] + b * self[1]) / norm)
+        imag_quot = np.round((a * self[1] - b * self[0]) / norm)
+        real_mod = self[0] - a * real_quot + b * imag_quot
+        imag_mod = self[1] - a * imag_quot - b * real_quot
+
+        return np.stack((real_mod, imag_mod))
+
 
     def plot(self, full_disk=False, save=False):
         """Plot Gaussian primes with Matplotlib."""
