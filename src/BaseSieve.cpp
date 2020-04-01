@@ -34,9 +34,9 @@ void SieveBase::sieve() {
 }
 
 void SieveBase::printProgress(gint g) {
-    int barSize = 80;
+    double barSize = 80.0;
     progress += 1.0 / double(g.norm());
-    int barPos = int(double(barSize) * progress / totalProgress);
+    uint32_t barPos = barSize * progress / totalProgress;
     if (barPos > discreteProgress) {
         for (uint32_t i = 0; i < barPos - discreteProgress; i++) {
             cerr << ".";

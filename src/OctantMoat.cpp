@@ -136,19 +136,6 @@ void OctantMoat::printCurrentComponent() {
     }
 }
 
-// The sieve array was modified in explore(), and this method gets primes still marked true.
-vector<gint> OctantMoat::getUnexplored() {
-    vector<gint> unexplored;
-    for (uint32_t u = 0; u < sieveArray.size(); u++) {
-        for (uint32_t v = 0; v < sieveArray[u].size(); v++) {
-            if (sieveArray[u][v]) {
-                unexplored.emplace_back(u, v);
-            }
-        }
-    }
-    return unexplored;
-}
-
 void OctantMoat::exploreAllComponents() {
     for (uint32_t u = 0; u < sieveArray.size(); u++) {
         for (uint32_t v = 0; v < sieveArray[u].size(); v++) {

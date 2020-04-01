@@ -4,7 +4,7 @@
 #include "../include/OctantDonutSieve.hpp"
 #include "../include/SectorSieve.hpp"
 #include "../include/BlockSieve.hpp"
-#include "Moat.hpp"
+#include "../include/Moat.hpp"
 #include <iostream>
 #include <cmath>
 #include <numeric>
@@ -212,17 +212,37 @@ int32_t * SectorRace::getNormData() {
 }
 
 
-// Wrapper functions to access moat class.
-pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> getComponentAtOrigin(double jumpSize) {
+// Wrapper functions to access moat data
+pair<int32_t *, uint64_t> moatMainComponent(double jumpSize) {
     OctantMoat m(jumpSize);
     m.exploreComponent(0, 0);
-    vector<gint> explored = m.getCurrentComponent();
-    vector<gint> unexplored = m.getUnexplored();
-    return pair<pair<int32_t *, uint64_t>, pair<int32_t *, uint64_t>> {gintVectorToArray(explored), gintVectorToArray(unexplored)};
+    vector<gint> component = m.getCurrentComponent();
+    // pushing gint with max norm onto end of vector
+    gint g = m.getComponentMaxElement();
+    component.push_back(g);
+    return gintVectorToArray(component);
 }
 
-vector<pair<int32_t *, uint64_t>> getAllComponentsInOctant(double jumpSize) {
-    OctantMoat m(jumpSize);
+
+vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double jumpSize, uint64_t x) {
+    OctantMoat m(jumpSize, x);
+    m.exploreAllComponents();
+    vector<vector<gint>> allComponents = m.getAllComponents();
+    vector<pair<int32_t *, uint64_t>> toReturn;
+    toReturn.reserve(allComponents.size());  // pre-allocating size
+    for (const vector<gint>& v : allComponents) {
+        toReturn.push_back(gintVectorToArray(v));
+    }
+    return toReturn;
+}
+
+
+vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
+        uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
+    BlockSieve b(x, y, dx, dy);
+    // get the sieve array and explore it; look at exploreallcomponentsmethod -- combine into single
+    // probably want a blocksieve class? and rename existing blocksieve class vertical sieve
+
     m.exploreComponent(0, 0);
     vector<vector<gint>> allComponents = m.getAllComponents();
     vector<pair<int32_t *, uint64_t>> toReturn;

@@ -76,8 +76,8 @@ int main(int argc, const char* argv[]) {
         if (verbose) {
             cerr << "Searching for moat in vertical strip..." << endl;
         }
-        BlockMoat::setStatics(realPart, jumpSize, verbose);
-        BlockMoat::findVerticalMoat();
+        VerticalMoat::setStatics(realPart, jumpSize, verbose);
+        VerticalMoat::findVerticalMoat();
 
     } else if (segmented) {
         if (verbose) {
