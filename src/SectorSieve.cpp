@@ -75,7 +75,7 @@ void SectorSieve::setSieveArray() {
         } else {
             b = isqrt(x - a * a) - heightShifts[a] + 1;
         }
-        vector<bool> column(b, true);  // Create a vector of size b with all values true.
+        vector<bool> column(uint32_t(b), true);  // Create a vector of size b with all values true.
         sieveArray.push_back(column);
     }
     if (alpha == 0) {
@@ -105,7 +105,7 @@ void SectorSieve::crossOffMultiples(gint g) {
         int32_t v = g.b * c + g.a * d;  // v = bc + ad
         for (; d <= dUpper; d++) {
             try {  // round-off error may make this go out of bounds
-                sieveArray.at(u).at(uint32_t(v - heightShifts[u])) = false; // get back into sieve array
+                sieveArray.at(uint32_t(u)).at(uint32_t(v - heightShifts[u])) = false; // get back into sieve array
             } catch (const out_of_range& e) {
                 cerr << "Out of range error!" << endl;
                 cerr << "a, b = " << g.a << ", " << g.b << endl;

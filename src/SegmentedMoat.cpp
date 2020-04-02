@@ -130,7 +130,7 @@ void SegmentedMoat::setSievingPrimes() {
 }
 
 
-SegmentedMoat::SegmentedMoat(int32_t x, int32_t dx, int32_t dy)
+SegmentedMoat::SegmentedMoat(uint32_t x, uint32_t dx, uint32_t dy)
 // Calling BlockSieve's constructor
         : BlockSieve(x, 0, dx, dy, false) // not letting this be verbose
         , x(x)

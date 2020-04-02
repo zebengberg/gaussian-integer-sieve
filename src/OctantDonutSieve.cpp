@@ -100,15 +100,15 @@ void OctantDonutSieve::crossOffMultiples(gint g) {
             // apply units and conjugate until u + iv is in sieveArray index
             if (u > 0) {
                 if (u >= v) {  // u + vi already in first octant
-                    setFalse(u, v);
+                    setFalse(uint32_t(u), uint32_t(v));
                 } else {  // u + vi in second octant
-                    setFalse(v, u);
+                    setFalse(uint32_t(v), uint32_t(u));
                 }
             } else {  // u + vi in second quadrant
                 if (v >= -u) {  // u + vi in third octant
-                    setFalse(v, -u);
+                    setFalse(uint32_t(v), uint32_t(-u));
                 } else {  // u + vi in fourth octant
-                    setFalse(-u, v);
+                    setFalse(uint32_t(-u), uint32_t(v));
                 }
             }
             jump = gapDonut[c % 10][d % 10];
@@ -118,9 +118,9 @@ void OctantDonutSieve::crossOffMultiples(gint g) {
         }
     }
     if (g.a > g.b) {
-        setTrue(g.a, g.b); // crossed this off; need to re-mark it as prime
+        setTrue(uint32_t(g.a), uint32_t(g.b)); // crossed this off; need to re-mark it as prime
     } else {
-        setTrue(g.b, g.a);
+        setTrue(uint32_t(g.b), uint32_t(g.a));
     }
     if (verbose) {
         printProgress(g);
@@ -207,7 +207,7 @@ uint64_t OctantDonutSieve::getCountBigPrimes() {
 // Using this method to print out some of the member variables used in constructor.
 // This prints out necessary data for the donut.
 void OctantDonutSieve::printDonutArrays() {
-    BlockSieve s(0, 0, 15, false);  // going a little bit beyond 9 so we can get gaps
+    BlockSieve s(0, 0, 15, 15, false);  // going a little bit beyond 9 so we can get gaps
     s.setSieveArray();
     s.crossOffMultiples(gint(1, 1));
     s.crossOffMultiples(gint(2, 1));

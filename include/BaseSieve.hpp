@@ -28,7 +28,7 @@ struct gint {
         return (g1.a == g2.a) && (g1.b == g2.b);
     }
     friend gint operator + (gint g1, gint g2) {
-        return gint(g1.a + g2.a, g1.b + g2.b);
+        return {g1.a + g2.a, g1.b + g2.b};
     }
 };
 

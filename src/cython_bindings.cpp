@@ -27,64 +27,6 @@ pair<int32_t *, uint64_t> gintVectorToArray(vector<gint> v) {
     return pair<int32_t *, uint64_t> {a, 2 * size};
 }
 
-//// Getting Gaussian primes upto a given norm. Python will hold these as a list
-//// of tuples. Each tuples holds the real and imaginary parts of each prime.
-//vector<pair<int32_t, int32_t>> gPrimesToNorm(uint64_t x) {
-//    if (x >= pow(2, 30)) {
-//        cerr << "Large norm bound makes copying C++ containers to python\n"
-//             << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
-//        exit(1);
-//    }
-//    // Trigger verbose mode if passed argument is large.
-//    bool verbose = x >= (uint64_t)pow(10, 7);
-//    OctantDonutSieve s(x, verbose);
-//    s.run();
-//    vector<gint> gintP = s.getBigPrimes();
-//    vector<pair<int32_t, int32_t>> pairP;
-//    pairP.resize(gintP.size());
-//    transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-//    cerr << "Copying sieve array to python list of tuples...." << endl;
-//    return pairP;
-//}
-//
-////  Getting Gaussian primes in sector upto a given norm.
-//vector<pair<int32_t, int32_t>> gPrimesInSector(uint64_t x, double alpha, double beta) {
-//    if (x >= pow(2, 30)) {
-//        cerr << "Large norm bound makes copying C++ containers to python\n"
-//             << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
-//        exit(1);
-//    }
-//    // Trigger verbose mode if passed argument is large.
-//    bool verbose = x >= (uint64_t)pow(10, 7);
-//    SectorSieve s(x, alpha, beta, verbose);
-//    s.run();
-//    vector<gint> gintP = s.getBigPrimes();
-//    vector<pair<int32_t, int32_t>> pairP;
-//    pairP.resize(gintP.size());
-//    transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-//    cerr << "Copying sieve array to python list of tuples...." << endl;
-//    return pairP;
-//}
-//
-//// Gaussian integers in block defined by intervals [x, x + dx) and [y, y + dy).
-//vector<pair<int32_t, int32_t>> gPrimesInBlock(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
-//    if (dx * dy >= pow(2, 30)) {
-//        cerr << "Large norm bound makes copying C++ containers to python\n"
-//             << "containers too slow. Call gPrimesAsArray() instead.\n" << endl;
-//        exit(1);
-//    }
-//    // Trigger verbose mode if passed argument is large.
-//    bool verbose = dx * dy >= (uint64_t)pow(10, 7);
-//    BlockSieve s(x, y, dx, dy, verbose);
-//    s.run();
-//    vector<gint> gintP = s.getBigPrimes();
-//    vector<pair<int32_t, int32_t>> pairP;
-//    pairP.resize(gintP.size());
-//    transform(gintP.begin(), gintP.end(), pairP.begin(), [](gint g) { return g.asPair(); });  // lambda
-//    cerr << "Copying sieve array to python list of tuples...." << endl;
-//    return pairP;
-//}
-
 // Counting Gaussian primes and associates upto a given norm.
 uint64_t gPrimesToNormCount(uint64_t x) {
     if (x < 2) {
@@ -272,7 +214,7 @@ vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
 
 
 // Constructor
-BlockMoat::BlockMoat(double js, int32_t x, int32_t y, int32_t dx, int32_t dy)
+BlockMoat::BlockMoat(double js, uint32_t x, uint32_t y, uint32_t dx, uint32_t dy)
 // Calling BlockSieve's constructor
         : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
         , jumpSize(js)

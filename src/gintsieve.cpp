@@ -80,7 +80,7 @@ int main(int argc, const char* argv[]) {
 
         // Getting the input if it is a decimal type number.
         if ((arg.front() == '0') || (arg.front() == '.')) {
-            if (!(alpha == -1.0)) {
+            if (alpha != -1.0) {
                 beta = stod(arg);
             } else {
                 alpha = stod(arg);

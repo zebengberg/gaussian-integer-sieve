@@ -219,7 +219,7 @@ This project extends the idea of a wheel sieve to the Gaussian integers. Instead
 - We deal with the primes 1 + 2i and 2 + i together (by the Chinese Remainder Theorem, this is equivalent to working in Z[i]/5Z[i]). Every Gaussian integer satisfying z = 0 (mod 1 + 2i) **or** z = 0 (mod 2 + i) should be omitted from the sieve array. By the inclusion-exclusion principle and the CRT, there are exactly 9 solutions to these equations in Z[i]/5Z[i]. The Gaussian integer 5 has norm 25, and so 9 out of every 25 Gaussian integers will be removed from the sieve array. This provides a savings of 9/25 = 36%.
 - Combining both of these local conditions, our donut allows us to only consider 32 of the 100 residue classes in Z[i]/10Z[i].
 
-In the wheel sieve, adding more primes to the wheel-base will allow more savings within the sieve array at the expense of increasing the combinatorial complexity of the sieving process itself. We stopped with a donut of size 10 for hardware-related reasons (see [implementation](c-implementation)), however, the following additional primes could be consider.
+In the wheel sieve, adding more primes to the wheel-base will allow more savings within the sieve array at the expense of increasing the combinatorial complexity of the sieving process itself. We stopped with a donut of size 10 for hardware-related reasons (see [implementation](#c-implementation)), however, the following additional primes could be consider.
 - The inert prime 3 in the donut would give a savings of 1/9 = 11% in sieve array size.
 - The primes 3 + 2i and 3 + 2i, those dividing 13, would give a savings of 25/169 = 15% in sieve array size.
 

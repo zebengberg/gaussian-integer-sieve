@@ -16,7 +16,7 @@ private:
     vector<vector<gint>> allComponents;
 
 public:
-    OctantMoat(double, uint64_t = 0, bool = true);
+    explicit OctantMoat(double, uint64_t = 0, bool = true);
     void setNearestNeighbors();
     void exploreComponent(int32_t, int32_t);
     uint32_t getComponentSize();
@@ -34,13 +34,13 @@ private:
     // Static variables.
     static bool verbose;
     static double jumpSize;
-    static int32_t realPart;
-    static int32_t blockSize, dx, dy;
+    static uint32_t realPart;
+    static uint32_t blockSize, dx, dy;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
 
     // Instance variables.
-    int32_t x, y;
+    uint32_t x, y;
     int32_t upperWallYPunch;
     uint64_t countVisited;
     int32_t farthestRight;
@@ -50,7 +50,7 @@ public:
     static void setStatics(int32_t, double, bool = true);
     static void findVerticalMoat();
 
-    VerticalMoat(int32_t, int32_t);
+    VerticalMoat(uint32_t, uint32_t);
     void callSieve();
     bool exploreAtGint(int32_t, int32_t, bool = false);
     bool exploreLeftWall();
@@ -81,7 +81,7 @@ private:
     static vector<uint64_t> componentSizes;
 
     // Instance variables.
-    int32_t x, dx, dy;
+    uint32_t x, dx, dy;
     vector<vector<gint>> rightBoundary;
     // Holds status of components. If component has not propagated to right
     // boundary or merged with another component, it can be forgotten.
@@ -93,7 +93,7 @@ public:
     static void setSievingPrimes();
     static uint64_t getCountMainComponent();
 
-    SegmentedMoat(int32_t, int32_t, int32_t);
+    SegmentedMoat(uint32_t, uint32_t, uint32_t);
     void callSieve();
     void exploreComponent(uint32_t, bool = true);
     void exploreLeftBoundary();

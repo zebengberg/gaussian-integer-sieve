@@ -53,12 +53,12 @@ vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, int32_t, int32_t
 class BlockMoat : public BlockSieve {
 private:
     double jumpSize;
-    int32_t dx, dy;
+    uint32_t dx, dy;
     vector<gint> nearestNeighbors, currentComponent, edges;
     vector<vector<gint>> allComponents;
 
 public:
-    BlockMoat(double, int32_t, int32_t, int32_t, int32_t);
+    BlockMoat(double, uint32_t, uint32_t, uint32_t, uint32_t);
     void exploreComponent(gint);
     void exploreAllComponents();
     vector<vector<gint>> getAllComponents();

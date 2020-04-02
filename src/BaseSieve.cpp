@@ -103,7 +103,7 @@ void SieveBase::setSmallPrimesFromFile() {
         cerr << "Reading small primes from file." << endl;
     }
 
-    int64_t a, b;
+    int32_t a, b;
     f >> a >> b;  // token-based parsing
     gint g(a, b);
     // Need primes up to square root of the maxNorm
@@ -252,9 +252,9 @@ uint32_t isqrt(uint64_t n) {
 
 // Positive remainder.
 uint32_t mod(int64_t k, uint32_t m) {
-    int32_t r = k % m;
+    int64_t r = k % m;
     if (r < 0) {
         r += m;
     }
-    return r;
+    return uint32_t(r);
 }
