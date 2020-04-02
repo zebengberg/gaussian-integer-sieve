@@ -284,10 +284,14 @@ BlockMoat::BlockMoat(double jumpSize, int32_t x, int32_t y, int32_t dx, int32_t 
 }
 
 void BlockMoat::exploreComponent(gint g0) {
+    // reset current component
+    currentComponent.clear();
+    currentComponent.push_back(g0);
+
     // Because of parity constraint in nearestNeighbors, this method will
     // never visit the ramifying prime 1 + i.
     vector<gint> toExplore;
-    toExplore.emplace_back(g0);
+    toExplore.push_back(g0);
 
     do {
         gint p = toExplore.back();
