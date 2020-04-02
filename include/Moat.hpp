@@ -43,11 +43,11 @@ private:
     uint32_t x, y;
     int32_t upperWallYPunch;
     uint64_t countVisited;
-    int32_t farthestRight;
+    uint32_t farthestRight;
 
 public:
     // Call this static setter method before any instances of this class are created.
-    static void setStatics(int32_t, double, bool = true);
+    static void setStatics(uint32_t, double, bool = true);
     static void findVerticalMoat();
 
     VerticalMoat(uint32_t, uint32_t);

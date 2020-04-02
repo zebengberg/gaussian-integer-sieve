@@ -47,7 +47,7 @@ public:
 // Functions to access various moat data
 pair<int32_t *, uint64_t> moatMainComponent(double);
 vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double, uint64_t);
-vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, int32_t, int32_t, int32_t, int32_t);
+vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, uint32_t, uint32_t, uint32_t, uint32_t);
 
 // A class to gather components within a block
 class BlockMoat : public BlockSieve {

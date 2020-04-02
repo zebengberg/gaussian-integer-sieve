@@ -37,7 +37,7 @@ vector<gint> VerticalMoat::sievingPrimes;
 vector<gint> VerticalMoat::nearestNeighbors;
 
 // Call this static setter method before any instances of this class are created.
-void VerticalMoat::setStatics(int32_t rp, double js, bool vb) {
+void VerticalMoat::setStatics(uint32_t rp, double js, bool vb) {
     if (vb) {
         cerr << "Setting static variables..." << endl;
     }
@@ -216,9 +216,9 @@ pair<int32_t, int32_t> VerticalMoat::getNextBlock() {
 
 // Static method to control instances of VerticalMoat.
 void VerticalMoat::findVerticalMoat() {
-    int32_t x = realPart;
-    int32_t y = 0;
-    int32_t consecutiveStepsRight = 0;
+    uint32_t x = realPart;
+    uint32_t y = 0;
+    uint32_t consecutiveStepsRight = 0;
 
     while (y < x) {
         VerticalMoat b(x, y);

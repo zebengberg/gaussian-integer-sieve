@@ -194,7 +194,7 @@ vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double jumpSize, uint64_t
 }
 
 vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
-        int32_t x, int32_t y, int32_t dx, int32_t dy) {
+        uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
     BlockMoat m(jumpSize, x, y, dx, dy);
     m.run();  // from parent BlockSieve
     m.exploreAllComponents();
