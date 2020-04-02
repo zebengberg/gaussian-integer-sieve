@@ -124,7 +124,9 @@ uint64_t gPrimesInBlockCount(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
 pair<int32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
     vector<gint> gintP;
     if (x >= 5) {
-        OctantDonutSieve s(x);
+        // Show display if passed argument is large.
+        bool verbose = x >= (uint64_t)pow(10, 9);
+        OctantDonutSieve s(x, verbose);
         s.run();
         gintP = s.getBigPrimes();
     } else if (x >= 2) {
@@ -135,7 +137,9 @@ pair<int32_t *, uint64_t> gPrimesToNormAsArray(uint64_t x) {
 
 // Getting Gaussian primes in sector upto given norm. Return pointer to an array.
 pair<int32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t x, double alpha, double beta) {
-    SectorSieve s(x, alpha, beta);
+    // Show display if passed argument is large.
+    bool verbose = x >= (uint64_t)pow(10, 9);
+    SectorSieve s(x, alpha, beta, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     return gintVectorToArray(gintP);
@@ -143,7 +147,9 @@ pair<int32_t *, uint64_t> gPrimesInSectorAsArray(uint64_t x, double alpha, doubl
 
 // Getting Gaussian primes in block. Return pointer to an array.
 pair<int32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy) {
-    BlockSieve s(x, y, dx, dy);
+    // Show display if passed argument is large.
+    bool verbose = dx * dy >= (uint64_t)pow(10, 9);
+    BlockSieve s(x, y, dx, dy, verbose);
     s.run();
     vector<gint> gintP = s.getBigPrimes();
     return gintVectorToArray(gintP);
