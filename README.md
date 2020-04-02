@@ -138,48 +138,50 @@ $ ./gintsieve 100000000 300000000 80 20 -a -b
 
 ## Python bindings
 
-Once the python module `gintsieve` is [built](#install), we can import it into python and use it as in the following examples.
+Once the python module `gintsieve` is [built](#install), we can import it into python file or notebook and use it as in the following examples.
 
 
-```Python
+```python
 >>>  from gintsieve import *
 
-# Generate a list of tuples representing Gaussian primes with norm up to 50 sorted by norm.
->>> gprimes(40)
-[(1, 1), (2, 1), (1, 2), (3, 0), (3, 2), (2, 3), (4, 1), (1, 4), (5, 2), (2, 5), (6, 1), (1, 6)]
+# Generate a numpy array containing coordinates of Gaussian primes up to norm 50 sorted by norm.
+>>> gprimes(50)
+Gints([[1, 2, 1, 3, 3, 2, 4, 1, 5, 2, 6, 1, 5, 4, 7],
+       [1, 1, 2, 0, 2, 3, 1, 4, 2, 5, 1, 6, 4, 5, 0]], dtype=int32)
 
-# Instead of returning a list, we can count the Gaussian primes.
->>> gprimes_count(3141592653)
-# Calling the QuadrantSieve to generate smallPrimes...
-# Building sieve array...
-# Sieve array approximate memory use: 49MB.
-# Starting to sieve...
-# Done sieving. Total time for sieving: 15.499 seconds.
-# Counting primes after sieve...
-# Done with count.
-# Total number of primes, including associates: 603726004
+# Instead of returning an array, we can count the Gaussian primes.
+>>> count_gprimes(3141592653)
+Calling the OctantSieve to generate smallPrimes...
+Building donut sieve array...
+Sieve array approximate memory use: 49MB.
+Sieve array total number of entries: 394936384
+Starting to sieve...
+....................................................
+Done sieving. Total time for sieving: 12.538 seconds.
+Counting primes after sieve...
+Total number of primes, including associates: 603726004
+
 603726004
 
-# The function gprimes actually returns an object that can be plotted. Below we get a
-# block of Gaussian primes generated with a segmented sieve.
->>> p = gprimes(123456, 67890, 100)
->>> p.visualize()
+# Plotting Gaussian primes in a rectangular block.
+>>> p = gprimes_in_block(123456, 67890, 100, 100)
+>>> p.plot()
 ```
 ![Segmented Block](/assets/block.png)
-```Python
-# Plot the Gaussian primes in the first quadrant with norm up to 10000. Use the save flag to write the image to disk.
->>> p = gprimes(10000)
->>> p.visualize(save=True)
+```python
+# Plot the Gaussian primes in the first octant with norm up to 10000.
+>>> p = gprimes_in_sector(10000, 0, 3.14159 / 8)
+>>> p.plot()
 ```
-![First Quadrant](/assets/first_quadrant.png)
+![First Octant](/assets/first_octant.png)
 ```python
 # Plot the Gaussian primes as well as their associates with norm up to 1000.
 >>> p = gprimes(1000)
->>> p.visualize(full_disk=True)
+>>> p.plot(full_disk=True)
 ```
 ![Full Plane](/assets/full_plane.png)
 
-See [this Jupyter notebook](python/examples.ipynb) for more usage examples.
+See [this Jupyter notebook](python/examples.ipynb) for many more usage examples.
 
 
 ## Algorithm
