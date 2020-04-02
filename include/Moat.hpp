@@ -35,7 +35,7 @@ private:
     static bool verbose;
     static double jumpSize;
     static uint32_t realPart;
-    static uint32_t blockSize, dx, dy;
+    static int32_t blockSize, dx, dy;
     static uint64_t sievingPrimesNormBound;
     static vector<gint> sievingPrimes, nearestNeighbors;
 
@@ -55,7 +55,7 @@ public:
     bool exploreAtGint(int32_t, int32_t, bool = false);
     bool exploreLeftWall();
     void exploreUpperWall();
-    pair<int32_t, int32_t> getNextBlock();
+    pair<uint32_t, uint32_t> getNextBlock();
 };
 
 

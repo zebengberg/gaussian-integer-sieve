@@ -29,9 +29,9 @@
 bool VerticalMoat::verbose;
 double VerticalMoat::jumpSize;
 uint32_t VerticalMoat::realPart;
-uint32_t VerticalMoat::blockSize;
-uint32_t VerticalMoat::dx;
-uint32_t VerticalMoat::dy;
+int32_t VerticalMoat::blockSize;
+int32_t VerticalMoat::dx;
+int32_t VerticalMoat::dy;
 uint64_t VerticalMoat::sievingPrimesNormBound;
 vector<gint> VerticalMoat::sievingPrimes;
 vector<gint> VerticalMoat::nearestNeighbors;
@@ -75,7 +75,7 @@ void VerticalMoat::setStatics(uint32_t rp, double js, bool vb) {
 // Constructor
 VerticalMoat::VerticalMoat(uint32_t x, uint32_t y)
 // Calling BlockSieve's constructor
-        : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
+        : BlockSieve(x, y, uint32_t(dx), uint32_t(dy), false) // not letting this be verbose
         , x(x)
         , y(y)
 {
@@ -156,7 +156,7 @@ bool VerticalMoat::exploreAtGint(int32_t a, int32_t b, bool upperWallFlag) {
             if (g.a >= 0 && g.a < dx && g.b >= 0 && g.b < dy && sieveArray[g.a][g.b]) {
                 toExplore.push_back(g);
                 if ((!upperWallFlag) && (g.a > farthestRight)) {
-                    farthestRight = g.a;
+                    farthestRight = uint32_t(g.a);
                 }
             }
         }
@@ -192,11 +192,11 @@ void VerticalMoat::exploreUpperWall() {
     }
 }
 
-pair<int32_t, int32_t> VerticalMoat::getNextBlock() {
+pair<uint32_t, uint32_t> VerticalMoat::getNextBlock() {
     if (exploreLeftWall()) { // punched through right wall
         // double dx
         dx *= 2;
-        dx = min(dx, 1000u);  // clip at 1000
+        dx = min(dx, 1000);  // clip at 1000
         dy = blockSize / dx;
         return {x + dx, y};
     } else {
@@ -223,7 +223,7 @@ void VerticalMoat::findVerticalMoat() {
     while (y < x) {
         VerticalMoat b(x, y);
         b.callSieve();
-        pair<int32_t, int32_t> p = b.getNextBlock();
+        pair<uint32_t, uint32_t> p = b.getNextBlock();
         if (p.first != x) {
             consecutiveStepsRight++;
         } else {
