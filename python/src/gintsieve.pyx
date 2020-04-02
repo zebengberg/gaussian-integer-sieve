@@ -66,12 +66,19 @@ cpdef gprimes_in_block(uint32_t x, uint32_t y, uint32_t dx, uint32_t dy):
     np_primes = ptr_to_np_array(p)
     return Gints(np_primes, x, y, dx, dy)
 
-cpdef angular_dist(uint64_t x, uint32_t n_sectors):
-    """Make histogram of number of Gaussian primes up to norm x in equispaced sectors."""
-    data = np.array(angularDistribution(x, n_sectors))
+cpdef angular_dist(uint64_t x, uint32_t n, ignore_outliers=True):
+    """Make histogram of number of Gaussian primes up to norm x in n equal-spaced sectors and return counts."""
+    data = np.array(angularDistribution(x, n))
     min = np.percentile(data, 1)
     max = np.percentile(data, 99)
-    plt.hist(data, bins=30, range=(min, max))
+    plt.subplots(figsize=(12, 8))
+    plt.title('Histogram of number of Gaussian primes up to norm $x$ in $n$ equal-spaced sectors', fontsize=15)
+    plt.xlabel('Number of Gaussian primes per sector', fontsize=15)
+    plt.ylabel('Number of sectors', fontsize=15)
+    if ignore_outliers:
+        plt.hist(data, bins=50, range=(min, max))
+    else:
+        plt.hist(data, bins=50)
     plt.show()
     return data
 
@@ -162,20 +169,31 @@ class Gints(np.ndarray):
 
 
 class SectorRaceWrapper:
-    """Wrapper class to hold data on Gaussian prime races."""
+    """Wrapper class to hold data from Gaussian prime races.
+
+    Args:
+        x (int): Sieve both sectors to find Gaussian primes with norm up to x.
+        alpha (float): Initial angle for first sector.
+        beta (float): Terminal angle for first sector.
+        gamma (float): Initial angle for second sector.
+        delta (float): Terminal angle for second sector.
+        n_bins (int, optional): Number of histogram bins. Defaults to 1000.
+    """
 
     def __init__(self, x, alpha, beta, gamma, delta, n_bins=1000):
-        if (beta - alpha) - (delta - gamma) > 0.0000001:
-            raise ValueError('Unfair race; try again with two equal-sized intervals.')
+        if alpha > beta or gamma > delta:
+            raise ValueError('The four angle measures must be increasing.')
+        if abs(abs(beta - alpha) - abs(delta - gamma)) > 0.0000001:
+            raise ValueError('Unfair race; try again with two equal-sized sectors.')
         for angle in [alpha, beta, gamma, delta]:
             if angle < 0 or angle > np.pi / 4:
                 raise ValueError('Stay inside the first octant.')
 
+        self.x = x
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
         self.delta = delta
-        self.x = x
 
         self.n_bins = n_bins
         self.bin_width = self.x // self.n_bins
@@ -201,22 +219,27 @@ class SectorRaceWrapper:
 
     def plot_race(self, normalize=True):
         """Plot norms against the difference pi(sector1) - pi(sector2)."""
-        plt.subplots(figsize=(8, 8))
+        plt.subplots(figsize=(12, 8))
         plt.plot(self.norms, self.norm_data, 'b-')
         if normalize:
             plt.plot(self.norms, self.normalize, 'r-')
             plt.plot(self.norms, -self.normalize, 'r-')
 
-        plt.title('Gaussian prime race in sectors')
-        plt.xlabel('$x$')
-        plt.ylabel('$\pi(x; {}, {}) - \pi(x; {}, {})$'.format(self.alpha, self.beta, self.gamma, self.delta))
+        plt.title('Gaussian prime race in sectors', fontsize=15)
+        plt.xlabel('$x$', fontsize=15)
+        plt.ylabel('$\pi(x; {:.2f}, {:.2f}) - \pi(x; {:.2f}, {:.2f})$'.format(self.alpha, self.beta, self.gamma, self.delta),
+                   fontsize=15)
         plt.axhline(0, color='red')
         plt.show()
 
     def plot_shanks(self, bins='auto'):
         """Plot Shanks-style histogram of race progress."""
+        plt.subplots(figsize=(12, 8))
+        plt.title('Shanks histogram of Gaussian prime race in sectors', fontsize=15)
+        plt.xlabel(r'$\frac{\pi_1(x) - \pi_2(x)}{\sqrt{x} / \log x}$', fontsize=25)
+        plt.ylabel('Proportion of occurrences', fontsize=15)
         shanks = self.norm_data / self.normalize
-        plt.hist(shanks, bins=bins)
+        plt.hist(shanks, bins=bins, density=True)
         plt.show()
 
     def density(self):
@@ -232,9 +255,9 @@ class SectorRaceWrapper:
     def plot_sectors(self, save=False):
         """Plot sectors in complex plane."""
 
-        plt.subplots(figsize=(8, 8))
-        plt.plot(self.sector1[0], self.sector1[1], 'ro', markersize=200 / (self.x ** .5))
-        plt.plot(self.sector2[0], self.sector2[1], 'bo', markersize=200 / (self.x ** .5))
+        plt.subplots(figsize=(12, 8))
+        plt.plot(self.sector1[0], self.sector1[1], 'ro', markersize=100 / (self.x ** .5))
+        plt.plot(self.sector2[0], self.sector2[1], 'bo', markersize=100 / (self.x ** .5))
 
         for angle in [self.alpha, self.beta, self.gamma, self.delta]:
             plt.plot([0, np.cos(angle) * self.x ** 0.5], [0, np.sin(angle) * self.x ** 0.5], 'g-')
