@@ -266,14 +266,14 @@ vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
 
 
 // Constructor
-BlockMoat::BlockMoat(double jumpSize, int32_t x, int32_t y, int32_t dx, int32_t dy)
+BlockMoat::BlockMoat(double js, int32_t x, int32_t y, int32_t dx, int32_t dy)
 // Calling BlockSieve's constructor
         : BlockSieve(x, y, dx, dy, false) // not letting this be verbose
-        , jumpSize(jumpSize)
+        , jumpSize(js)
         , dx(dx)
         , dy(dy)
 {
-    this->jumpSize += pow(10, -3);  // adding a small tolerance
+    jumpSize += pow(10, -3);  // adding a small tolerance
     // Setting nearest neighbors.
     for (int32_t u = -int32_t(jumpSize); u < jumpSize; u++) {
         for (int32_t v = -int32_t(jumpSize); v < jumpSize; v++) {
