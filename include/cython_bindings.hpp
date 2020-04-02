@@ -54,7 +54,7 @@ class BlockMoat : public BlockSieve {
 private:
     double jumpSize;
     int32_t dx, dy;
-    vector<gint> nearestNeighbors, currentComponent;
+    vector<gint> nearestNeighbors, currentComponent, edges;
     vector<vector<gint>> allComponents;
 
 public:
@@ -62,4 +62,5 @@ public:
     void exploreComponent(gint);
     void exploreAllComponents();
     vector<vector<gint>> getAllComponents();
+    vector<gint> getEdges();
 };

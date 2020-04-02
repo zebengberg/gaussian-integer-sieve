@@ -252,6 +252,10 @@ vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double jumpSize,
     m.exploreAllComponents();
 
     vector<vector<gint>> allComponents = m.getAllComponents();
+    vector<gint> edges = m.getEdges();
+    // putting edges in allComponents while we pass data to python
+    allComponents.push_back(edges);
+
     vector<pair<int32_t *, uint64_t>> toReturn;
     toReturn.reserve(allComponents.size());  // pre-allocating size
     for (const vector<gint>& v : allComponents) {
@@ -304,6 +308,8 @@ void BlockMoat::exploreComponent(gint g0) {
             if (g.a >= 0 && g.a < dx && g.b >= 0 && g.b < dy && sieveArray[g.a][g.b]) {
                 currentComponent.push_back(g);
                 toExplore.push_back(g);
+                edges.push_back(p);
+                edges.push_back(g);
             }
         }
     }
@@ -323,3 +329,5 @@ void BlockMoat::exploreAllComponents() {
 }
 
 vector<vector<gint>> BlockMoat::getAllComponents() { return allComponents; }
+
+vector<gint> BlockMoat::getEdges() { return edges; }

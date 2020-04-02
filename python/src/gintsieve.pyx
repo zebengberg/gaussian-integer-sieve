@@ -299,7 +299,7 @@ cpdef moat_components_to_norm(double jump_size, uint64_t x):
     return components
 
 
-cpdef moat_components_in_block(double jump_size, int32_t x, int32_t y, int32_t dx, int32_t dy):
+cpdef moat_components_in_block(double jump_size, int32_t x, int32_t y, int32_t dx, int32_t dy, ignore_edges=True):
     """Calculate all connected components of the Guassian moat graph in the block [x, x + dx) x [y, y + dy)."""
     # Cython compiler gets confused if this isn't explicitly typed
     cdef vector[pair[intptr, uint64_t]] vector_of_ptrs = moatComponentsInBlock(jump_size, x, y, dx, dy)
@@ -308,4 +308,16 @@ cpdef moat_components_in_block(double jump_size, int32_t x, int32_t y, int32_t d
         p = vector_of_ptrs[i]
         np_primes = ptr_to_np_array(p)
         components.append(np_primes)
-    return components
+
+    # Crudely passed edge data as last component; now crudely dealing with it
+    edges = components.pop()
+    if ignore_edges:
+        return components
+
+    edges = edges.transpose()
+    segments = []
+    for i in range(edges.shape[0] // 2):
+        segment = np.stack((edges[2 * i], edges[2 * i + 1]))
+        segments.append(segment)
+
+    return components, segments
