@@ -18,11 +18,15 @@
 
 ## Gaussian Integers
 
-The **Gaussian integers** are complex numbers of the form a + bi where a and b are integers and i is the **imaginary unit**, that is, i * i = -1. While the Gaussian integers may appear more complicated than the **rational integers** (the usual integers we know and love), they possess nearly all of the same essential properties. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. Equipped with these tools, sieve methods can be used to compute primes in this extension of our usual integer system.
+The **Gaussian integers** are complex numbers of the form a + bi where a and b are integers and i is the **imaginary unit**. While the Gaussian integers are a two dimensional extension of the **rational integers** (the usual integers we know and love), they possess nearly all of the same essential properties. Gaussian integers can be factored and the notion of primality is well-defined. The **norm** of a Gaussian integer gives a measure of its size; the analogy in the rational integers is absolute value. Equipped with these tools, sieve methods can be used to compute primes in this extension of our usual integer system.
 
 The goal of this project is to build an efficient C++ implementation of a prime generating sieve in the Gaussian integers and to provide a library for deeper exploration. A natural starting point is the *Sieve of Eratosthenes*, which generates primes in the rational integers. The 2-dimensional nature of the Gaussian integers requires overcoming additional hurdles which are not present in the naive Sieve of Eratosthenes. Despite this, nearly all of the basic computational sieve ideas can be extended to Gaussian integers. In particular, I extend both the wheel sieve and the segmented sieve.
 
 The [*primesieve*](https://github.com/kimwalisch/primesieve) project implements the current state of the art prime generator for rational integers. *primesieve* includes both algorithmic optimizations as well as the hardware considerations needed to improve runtime performance. In this repository, I draw inspiration from *primesieve* and hope to extend some of its algorithms and architectures to the realm of the Gaussian integers.
+
+The motivation behind this project is to develop an API to allow for easy access to the Gaussian integers, an abstract mathematical structure lacking native support in most programming languages. The Gaussian integers provide a rich source of mathematical phenomena which have been well studied in domain of the rational integers. While the essence of mathematics is theorem proving, mathematical examples play an extremely valuable role: they inspire further questions, they guide conjecture, and they inform insight. This project bridges the gap between theory and example in the context of Gaussian primes.
+
+To the best of my knowledge, a highly efficient and accessible sieve has never been implemented in the Gaussian integers. Moreover, tools to access applications, such as Gaussian prime races and the Gaussian moat problem, are not available. This project hopes to provide such resources.
 
 
 ## Install
