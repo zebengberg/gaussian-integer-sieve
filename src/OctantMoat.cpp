@@ -71,11 +71,18 @@ void OctantMoat::exploreComponent(int32_t a, int32_t b) {
         toExplore.push_back(starting_g);
         currentComponent.push_back(starting_g);
         sieveArray[starting_g.a][starting_g.b] = false;
+        if (starting_g.a == 1 && starting_g.b == 1) {
+            // special instructions for 1 + i exploration
+            currentComponent.emplace_back(2, 1);
+            sieveArray[2][1] = false;
+            toExplore.emplace_back(2, 1);
+        }
     } else {  // zero
         if (verbose) {
             cerr << "\nExploring the connected component starting at the origin.\n" << endl;
         }
         if (jumpSize > sqrt(2)) {
+            // Putting in the small-norm primes that can be reached from the origin
             currentComponent.emplace_back(1, 1);
             currentComponent.emplace_back(2, 1);
             sieveArray[1][1] = false;
