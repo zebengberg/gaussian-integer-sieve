@@ -22,8 +22,9 @@ from gintsieve_externs cimport gPrimesToNormCount, \
 
 
 
-
+# Work around for bug; see https://github.com/cython/cython/issues/534
 ctypedef int32_t * intptr
+
 cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
     """Unpack a C++ pair holding a pointer and size into a 2D numpy array of unsigned longs."""
     cdef intptr ptr = p.first
@@ -82,9 +83,6 @@ cpdef angular_dist(uint64_t x, uint32_t n, ignore_outliers=True):
     plt.show()
     return data
 
-
-
-# Read https://docs.scipy.org/doc/numpy/user/basics.subclassing.html for subclassing np.ndarray
 class Gints(np.ndarray):
     """Class to wrap np arrays returned by sieve calls."""
 
@@ -136,7 +134,6 @@ class Gints(np.ndarray):
         reals = self[0]
         imags = self[1]
 
-
         if self.sieve == 'block':
             # Scaling axes
             m = max(self.dx, self.dy)
@@ -144,6 +141,7 @@ class Gints(np.ndarray):
 
             # Plotting block.
             plt.plot(reals, imags, 'ro', markersize=400 / m)
+
         else:
             # Scaling axes
             mx = int(np.max(self[0]))
@@ -171,8 +169,6 @@ class Gints(np.ndarray):
             plt.savefig('sieve_visual.png')
 
         plt.show()
-
-
 
 class SectorRaceWrapper:
     """Wrapper class to hold data from Gaussian prime races.
@@ -273,9 +269,7 @@ class SectorRaceWrapper:
 
         plt.show()
 
-
 # Several functions for exploring the Gaussian moat graph
-
 cpdef moat_main_component(double jump_size):
     """Calculate the main connected component of the Gaussian moat graph in the first octant starting at origin."""
     p = moatMainComponent(jump_size)
@@ -285,7 +279,6 @@ cpdef moat_main_component(double jump_size):
     x = np_primes[0][-1] ** 2 + np_primes[1][-1] ** 2
     np_primes = np_primes[:, :-1]  # removing that final element with some slicing
     return Gints(np_primes, x)
-
 
 cpdef moat_components_to_norm(double jump_size, uint64_t x):
     """Calculate all connected components of the Gaussian moat graph in the first octant up to norm x."""
@@ -297,7 +290,6 @@ cpdef moat_components_to_norm(double jump_size, uint64_t x):
         np_primes = ptr_to_np_array(p)
         components.append(np_primes)
     return components
-
 
 cpdef moat_components_in_block(double jump_size, int32_t x, int32_t y, int32_t dx, int32_t dy, ignore_edges=True):
     """Calculate all connected components of the Guassian moat graph in the block [x, x + dx) x [y, y + dy)."""

@@ -13,7 +13,7 @@ gintmoat
 obj/
 *.so
 
-# cython generated stuff
+# cython generated stuff; should have been deleted by setup.py
 python/build/
 python/src/gintsieve.cpp
 

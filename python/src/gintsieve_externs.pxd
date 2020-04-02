@@ -8,11 +8,6 @@ ctypedef int32_t * intptr
 
 
 cdef extern from '../../include/cython_bindings.hpp':
-    # TODO: possibly delete these three if don't want to offer native python support
-    # vector[pair[int32_t, int32_t]] gPrimesToNorm(uint64_t)
-    # vector[pair[int32_t, int32_t]] gPrimesInSector(uint64_t, double, double)
-    # vector[pair[int32_t, int32_t]] gPrimesInBlock(uint32_t, uint32_t, uint32_t, uint32_t)
-
     uint64_t gPrimesToNormCount(uint64_t)
     uint64_t gPrimesInSectorCount(uint64_t, double, double)
     uint64_t gPrimesInBlockCount(uint32_t, uint32_t, uint32_t, uint32_t)
