@@ -138,12 +138,18 @@ class Gints(np.ndarray):
 
 
         if self.sieve == 'block':
-            # Plotting block.
+            # Scaling axes
             m = max(self.dx, self.dy)
             plt.subplots(figsize=(12 * self.dx / m, 12 * self.dy / m))
+
+            # Plotting block.
             plt.plot(reals, imags, 'ro', markersize=400 / m)
         else:
-            plt.subplots(figsize=(12, 12))
+            # Scaling axes
+            mx = int(np.max(self[0]))
+            my = int(np.max(self[1]))
+            m = max(mx, my)
+            plt.subplots(figsize=(12 * mx / m, 12 * my / m))
             # Drawing x and y axes.
             plt.axhline(0, color='red')
             plt.axvline(0, color='red')
@@ -276,8 +282,8 @@ cpdef moat_main_component(double jump_size):
     np_primes = ptr_to_np_array(p)
     # In cython_bindings.cpp, appending the largest element to the end of the array
     # Here, getting its value so we can pass it to the Gints class
-    x = np_primes[-1][0] ** 2 + np_primes[-1][1] ** 2
-    np_primes = np_primes[:-1]  # removing that final element
+    x = np_primes[0][-1] ** 2 + np_primes[1][-1] ** 2
+    np_primes = np_primes[:, :-1]  # removing that final element with some slicing
     return Gints(np_primes, x)
 
 
