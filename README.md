@@ -31,20 +31,32 @@ To the best of my knowledge, a highly efficient and accessible sieve has never b
 
 ## Install
 
-This entire repository can be cloned or downloaded for use. To build the executable files on macOS, `cd` into the
+This entire repository can be cloned or downloaded for use. To build the executable files in a Mac or Linux environment, `cd` into the
  `gaussian-integer-sieve` directory and run the following.
 ```shell script
 $ make
 ```
-This requires a C++ compiler supporting both the C++11 standard and the `libc++` library as well as `make`. On macOS, these can be installed by running `xcode-select --install`.
- 
-Please contact me if you would like assistance compiling this project on linux. Linux systems generally use `libstdc++` instead of the default macOS library `libc++`.
+The compilation of the source files requires the `clang` compiler and the `libc++` library.
+
+### Mac
+On macOS, these dependencies can be installed by running
+```shell script
+$ xcode-select --install
+```
+
+### Linux
+On an Ubuntu-style system, these dependencies can be installed with
+```shell script
+$ sudo apt-get install clang libc++-dev libc++abi-dev
+```
+
+### Building the Python bindings
 
  The [Python bindings](#python-bindings) can be built by running
  ```shell script
-$ python setup.py build_ext --inplace
+$ python3 setup.py build_ext --inplace
 ```
- within the `gaussian-integer-sieve/python` directory. Building this module requires Python 3.x, Cython, and the aforementioned C++ compiler. After the module is compiled, it can be imported into a python console or used in a python script.
+ within the `gaussian-integer-sieve/python` directory. Building this module requires the aforementioned C++ build tools, Python 3.x, Cython, and various standard python modules (`matplotlib` and `numpy`). After the module is compiled, it can be imported into a python console or used in a python script.
 
 
 ## Command line usage
