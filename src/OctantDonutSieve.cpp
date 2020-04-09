@@ -70,7 +70,8 @@ void OctantDonutSieve::setSieveArray() {
         // Calculating the intersection of circle a^2 + b^2 <= x and the line a = b.
         uint32_t intersection = isqrt(x / 200);
         uint32_t b = a <= intersection ? a + 1: isqrt(x / 100 - a * a) + 1;
-        vector<uint32_t> column(b, (uint32_t)pow(2, 32) - 1);
+        uint32_t allOnes = pow(2, 32) - 1;  // all ones in binary representation
+        vector<uint32_t> column(b, allOnes);
         sieveArray.push_back(column);
     }
     setFalse(1, 0);  // 1 is not prime
