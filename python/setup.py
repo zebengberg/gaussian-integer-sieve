@@ -16,8 +16,7 @@ sources = ['src/gintsieve.pyx',
 
 # Calling clang instead of gcc; needed for linux environments
 os.environ['CC'] = 'clang'
-os.environ['CXX'] = 'clang'
-
+os.environ['CXX'] = 'clang++'
 
 extensions = [Extension('gintsieve',
                         sources=sources,
@@ -27,22 +26,26 @@ extensions = [Extension('gintsieve',
                         extra_link_args=['-std=c++11', '-stdlib=libc++'],
                         language='c++')]
 
+print('\nInstalling...')
 setup(
     name='gintsieve',
     version='1.0',
     url='https://github.com/zebengberg/gaussian-integer-sieve',
     author='Zeb Engberg',
+    author_email='zebengberg@gmail.com',
     license='MIT',
+    install_requires = ['numpy', 'matplotlib', 'setuptools'],
     ext_modules=cythonize(extensions))
 
+
+
+print('\nCleaning up after build...')
 # Rename the shared object file from gintsieve.xxxxxx.so to gintsieve.so
 for file in os.listdir('.'):
     if file.endswith('.so'):
         os.rename(file, 'gintsieve.so')
         break
 
-
-print('Cleaning up after build...')
 # Cleaning up build directory after the cythonize build
 shutil.rmtree('build/')
 # Removing the cython generated .cpp
