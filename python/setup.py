@@ -14,6 +14,11 @@ sources = ['src/gintsieve.pyx',
            '../src/BlockSieve.cpp',
            '../src/OctantMoat.cpp']
 
+# Calling clang instead of gcc; needed for linux environments
+os.environ['CC'] = 'clang'
+os.environ['CXX'] = 'clang'
+
+
 extensions = [Extension('gintsieve',
                         sources=sources,
                         include_dirs=[np.get_include()],
@@ -44,7 +49,7 @@ shutil.rmtree('build/')
 os.remove('src/gintsieve.cpp')
 
 
-print('Testing the module just built...')
+print('\nTesting the module just built...')
 import gintsieve
 try:
     # Values taken from http://oeis.org/A091100
