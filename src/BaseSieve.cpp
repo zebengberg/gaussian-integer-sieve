@@ -147,7 +147,7 @@ void SieveTemplate<uint32_t>::printSieveArrayInfo() {
     uint64_t totalSize = sizeof(sieveArray);
     uint64_t nEntries = 0;
     for (const auto& column : sieveArray) {
-        totalSize += sizeof(column) + column.capacity() * sizeof(unsigned int);
+        totalSize += sizeof(column) + column.capacity() * sizeof(uint32_t);
         nEntries += column.size() * 32;
     }
     totalSize /= pow(10, 6);  // convert to MB

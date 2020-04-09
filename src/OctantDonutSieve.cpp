@@ -7,7 +7,7 @@ using namespace std;
 
 
 OctantDonutSieve::OctantDonutSieve(uint64_t x, bool verbose)
-    : SieveTemplate<unsigned int>(x, verbose)  // calling SieveTemplate constructor to set maxNorm
+    : SieveTemplate<uint32_t>(x, verbose)  // calling SieveTemplate constructor to set maxNorm
     , x(x)
 
     // For a fixed c, d will iterate by d += 2 or d += 4, similar to the classic
@@ -135,7 +135,7 @@ void OctantDonutSieve::setFalse(uint32_t u, uint32_t v) {
 
 void OctantDonutSieve::setTrue(uint32_t u, uint32_t v) {
     // Set the correct bit in the sieveArray to false corresponding to the gint u + vi
-    unsigned char bit = bitDonut[u % 10][v % 10];
+    uint32_t bit = bitDonut[u % 10][v % 10];
     sieveArray[u / 10][v / 10] |= (1u << bit);  // setting the bit to 0; 1u is unsigned int
 }
 
@@ -151,7 +151,7 @@ void OctantDonutSieve::setBigPrimes() {
         uint32_t intersection = isqrt(x / 20);
         uint32_t bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
         for (uint32_t b = 0; b <= bBound; b++) {
-            for (unsigned char bit = 0; bit < 32; bit++) {
+            for (uint32_t bit = 0; bit < 32; bit++) {
                 if ((sieveArray[a][b] >> bit) & 1u) {
                     gint g(10 * a + realPartDecompress[bit], 10 * b + imagPartDecompress[bit]);
                     // check for boundary blocks and to avoid imag multiple of degree 2
@@ -179,7 +179,7 @@ uint64_t OctantDonutSieve::getCountBigPrimes() {
         uint32_t intersection = isqrt(x / 20);
         uint32_t bBound = a <= intersection ? a : isqrt(x / 100 - a * a);
         for (uint32_t b = 0; b <= bBound; b++) {
-            for (unsigned char bit = 0; bit < 32; bit++) {
+            for (uint32_t bit = 0; bit < 32; bit++) {
                 if ((sieveArray[a][b] >> bit) & 1u) {
                     // Coordinates of actual gint.
                     uint64_t aa = 10 * a + realPartDecompress[bit];
@@ -216,11 +216,11 @@ void OctantDonutSieve::printDonutArrays() {
     // Printing the gapDonut. This array contains information about the horizontal space of the donut
     // and is used to iterate d when calling crossOffMultiples().
     cout << "gapDonut:" << endl;
-    for (unsigned int c = 0; c < 10; c++) {
+    for (uint32_t c = 0; c < 10; c++) {
         string line("{");
-        for (unsigned int d = 0; d < 10; d++) {
+        for (uint32_t d = 0; d < 10; d++) {
             if (s.getSieveArrayValue(c, d)) {
-                unsigned int e = 0;
+                uint32_t e = 0;
                 do { e++; } while(!s.getSieveArrayValue(c, d + e));
                 line += to_string(e);
                 line += ", ";
@@ -237,8 +237,8 @@ void OctantDonutSieve::printDonutArrays() {
     // Printing the dStart array. For a given c, this array gives the starting value of d.
     cout << "\n\ndStart:" << endl;
     string arr = "{";
-    for (unsigned int c = 0; c < 10; c++) {
-        unsigned int d = 0;
+    for (uint32_t c = 0; c < 10; c++) {
+        uint32_t d = 0;
         while (!s.getSieveArrayValue(c, d)) { d++; }
         arr += to_string(d);
         arr += ", ";
@@ -250,10 +250,10 @@ void OctantDonutSieve::printDonutArrays() {
 
     // Printing the bitDonut array. Used to compress a residue mod 10Z[i] into a bit position.
     cout << "\n\nbitDonut:" << endl;
-    int bit = 0;
-    for (unsigned int c = 0; c < 10; c++) {
+    int32_t bit = 0;
+    for (uint32_t c = 0; c < 10; c++) {
         string line = "{";
-        for (unsigned int d = 0; d < 10; d++) {
+        for (uint32_t d = 0; d < 10; d++) {
             if (s.getSieveArrayValue(c, d)) {
                 line += to_string(bit);
                 line += ", ";
@@ -269,8 +269,8 @@ void OctantDonutSieve::printDonutArrays() {
     }
 
     // Printing the decompression array, which is used in setBigPrimes().
-    unsigned int c = 0;
-    unsigned int d = 0;
+    uint32_t c = 0;
+    uint32_t d = 0;
     string real = "{";
     string imag = "{";
     for (bit = 0; bit < 32; bit++) {
