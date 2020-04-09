@@ -253,7 +253,7 @@ void BlockMoat::exploreComponent(gint g0) {
             gint g = p + q;
 
             // Pushing neighbors onto the vector toExplore
-            if (g.a >= 0 && g.a < dx && g.b >= 0 && g.b < dy && sieveArray[g.a][g.b]) {
+            if (g.a >= 0 && g.a < int32_t(dx) && g.b >= 0 && g.b < int32_t(dy) && sieveArray[g.a][g.b]) {
                 currentComponent.push_back(g);
                 toExplore.push_back(g);
                 edges.push_back(p);
@@ -265,8 +265,8 @@ void BlockMoat::exploreComponent(gint g0) {
 }
 
 void BlockMoat::exploreAllComponents() {
-    for (int32_t a = 0; a < dx; a++) {
-        for (int32_t b = 0; b < dy; b++) {
+    for (uint32_t a = 0; a < dx; a++) {
+        for (uint32_t b = 0; b < dy; b++) {
             if (sieveArray[a][b]) {
                 gint g(a, b);
                 exploreComponent(g);
