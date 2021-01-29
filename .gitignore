@@ -1,10 +1,6 @@
-# editor build stuff
-cmake-build-debug/
-CMakeLists.txt
-
-# other annoying stuff
+python/.ipynb_checkpoints/
 .DS_Store
-.idea/
+.pytest_cache
 
 # binaries and object files
 gintsieve
@@ -16,6 +12,3 @@ obj/
 # cython generated stuff; should have been deleted by setup.py
 python/build/
 python/src/gintsieve.cpp
-
-# jupyter hidden files
-python/.ipynb_checkpoints/

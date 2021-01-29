@@ -3,258 +3,310 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-#include "../include/BaseSieve.hpp"
+#include "BaseSieve.hpp"
 
 // Will call this constructor from derived classes.
 SieveBase::SieveBase(uint64_t maxNorm, bool verbose)
     // initializer list
-    : maxNorm(maxNorm)
-    , verbose(verbose)
+    : maxNorm(maxNorm), verbose(verbose)
 {
-    progress = 0.0;
-    // Using PNT to make approximate progress bar.
-    totalProgress = log(log(maxNorm)) - log(2.0);
-    discreteProgress = 0;
+  progress = 0.0;
+  // Using PNT to make approximate progress bar.
+  totalProgress = log(log(maxNorm)) - log(2.0);
+  discreteProgress = 0;
 }
 
-void SieveBase::sieve() {
-    if (verbose) {
-        cerr << "Starting to sieve..." << endl;
-    }
-    auto startTime = chrono::high_resolution_clock::now();
-    for (gint g : smallPrimes) {
-        crossOffMultiples(g);
-    }
-    auto endTime = chrono::high_resolution_clock::now();
-    auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
-    double printTime = double(totalTime.count()) / 1000.0;
-    if (verbose) {
-        cerr << "\nDone sieving. Total time for sieving: " << printTime << " seconds." << endl;
-    }
+void SieveBase::sieve()
+{
+  if (verbose)
+  {
+    cerr << "Starting to sieve..." << endl;
+  }
+  auto startTime = chrono::high_resolution_clock::now();
+  for (gint g : smallPrimes)
+  {
+    crossOffMultiples(g);
+  }
+  auto endTime = chrono::high_resolution_clock::now();
+  auto totalTime = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
+  double printTime = double(totalTime.count()) / 1000.0;
+  if (verbose)
+  {
+    cerr << "\nDone sieving. Total time for sieving: " << printTime << " seconds." << endl;
+  }
 }
 
-void SieveBase::printProgress(gint g) {
-    double barSize = 80.0;
-    progress += 1.0 / double(g.norm());
-    uint32_t barPos = barSize * progress / totalProgress;
-    if (barPos > discreteProgress) {
-        for (uint32_t i = 0; i < barPos - discreteProgress; i++) {
-            cerr << ".";
-        }
-        discreteProgress = barPos;
+void SieveBase::printProgress(gint g)
+{
+  double barSize = 80.0;
+  progress += 1.0 / double(g.norm());
+  uint32_t barPos = barSize * progress / totalProgress;
+  if (barPos > discreteProgress)
+  {
+    for (uint32_t i = 0; i < barPos - discreteProgress; i++)
+    {
+      cerr << ".";
     }
+    discreteProgress = barPos;
+  }
 }
 
-void SieveBase::run() {
-    setSmallPrimes();
-    setSieveArray();
-    sieve();
+void SieveBase::run()
+{
+  setSmallPrimes();
+  setSieveArray();
+  sieve();
 }
 
-vector<gint> SieveBase::getBigPrimes(bool sort) {
-    setBigPrimes();
-    if (sort) {
-        sortBigPrimes();
-    }
-    return bigPrimes;
+vector<gint> SieveBase::getBigPrimes(bool sort)
+{
+  setBigPrimes();
+  if (sort)
+  {
+    sortBigPrimes();
+  }
+  return bigPrimes;
 }
 
-void SieveBase::sortBigPrimes() {
-    if (verbose) {
-        cerr << "Sorting primes by norm..." << endl;
-    }
-    sort(bigPrimes.begin(), bigPrimes.end());
-    if (verbose) {
-        cerr << "Done sorting." << endl;
-    }
+void SieveBase::sortBigPrimes()
+{
+  if (verbose)
+  {
+    cerr << "Sorting primes by norm..." << endl;
+  }
+  sort(bigPrimes.begin(), bigPrimes.end());
+  if (verbose)
+  {
+    cerr << "Done sorting." << endl;
+  }
 }
 
-void SieveBase::printBigPrimes() {
-    for (gint g : bigPrimes) {
-        cout << g.a << " " << g.b << endl;
-    }
-    cerr << "Total number of primes printed: " << bigPrimes.size() << endl;
+void SieveBase::printBigPrimes()
+{
+  for (gint g : bigPrimes)
+  {
+    cout << g.a << " " << g.b << endl;
+  }
+  cerr << "Total number of primes printed: " << bigPrimes.size() << endl;
 }
 
-void SieveBase::writeBigPrimesToFile() {
-    ofstream f;
-    f.open("cpp_primes.csv");
-    for (gint g : bigPrimes) {
-        f << g.a << ' ' << g.b << endl;
-    }
-    f.close();
+void SieveBase::writeBigPrimesToFile()
+{
+  ofstream f;
+  f.open("cpp_primes.csv");
+  for (gint g : bigPrimes)
+  {
+    f << g.a << ' ' << g.b << endl;
+  }
+  f.close();
 }
 
 // Getting all primes from file small_primes.txt with norm up to maxNorm variable.
 // Old method; keeping as a reference.
-void SieveBase::setSmallPrimesFromFile() {
-    // If maxNorm is too small, then we are not actually taking any primes.
-    if (maxNorm < 2) {
-        cerr << "No primes read and no sieving needed.";
-        exit(1);
-    }
-    // small_primes.txt contains a list of Gaussian primes sorted by norm.
-    ifstream f;
-    f.open("PUT IN PATH TO FILE");
-    if (!f) {
-        cerr << "Unable to open file.";
-        exit(1);
-    } else {
-        cerr << "Reading small primes from file." << endl;
-    }
+void SieveBase::setSmallPrimesFromFile()
+{
+  // If maxNorm is too small, then we are not actually taking any primes.
+  if (maxNorm < 2)
+  {
+    cerr << "No primes read and no sieving needed.";
+    exit(1);
+  }
+  // small_primes.txt contains a list of Gaussian primes sorted by norm.
+  ifstream f;
+  f.open("PUT IN PATH TO FILE");
+  if (!f)
+  {
+    cerr << "Unable to open file.";
+    exit(1);
+  }
+  else
+  {
+    cerr << "Reading small primes from file." << endl;
+  }
 
-    int32_t a, b;
-    f >> a >> b;  // token-based parsing
-    gint g(a, b);
-    // Need primes up to square root of the maxNorm
-    while (g.norm() <= isqrt(maxNorm)) {
-        smallPrimes.push_back(g);
-        f >> a >> b;  // reading next pair a, b from file f
-        g = gint(a, b);
-        // If we get to the end of the file, then we don't have enough precomputed primes.
-        if (f.eof()) {
-            cerr << "Not enough primes in PATH TO FILE" << endl;
-            cerr << "Need to override this method with a sieve instance." << endl;
-            f.close();
-            exit(1);
-        }
+  int32_t a, b;
+  f >> a >> b; // token-based parsing
+  gint g(a, b);
+  // Need primes up to square root of the maxNorm
+  while (g.norm() <= isqrt(maxNorm))
+  {
+    smallPrimes.push_back(g);
+    f >> a >> b; // reading next pair a, b from file f
+    g = gint(a, b);
+    // If we get to the end of the file, then we don't have enough precomputed primes.
+    if (f.eof())
+    {
+      cerr << "Not enough primes in PATH TO FILE" << endl;
+      cerr << "Need to override this method with a sieve instance." << endl;
+      f.close();
+      exit(1);
     }
-    f.close();
+  }
+  f.close();
 }
 
-void SieveBase::setSmallPrimesFromReference(const vector<gint>& v) {
-    smallPrimes = v;
+void SieveBase::setSmallPrimesFromReference(const vector<gint> &v)
+{
+  smallPrimes = v;
 }
-
 
 // Specializations of SieveTemplate methods
 
 template <>
-void SieveTemplate<bool>::printSieveArrayInfo() {
-    uint64_t totalSize = sizeof(sieveArray);
-    uint64_t nEntries = 0;
-    for (const auto& column : sieveArray) {
-        totalSize += sizeof(column) + column.capacity() / 8;  // each bool stored as a bit
-        nEntries += column.size();
-    }
-    totalSize /= pow(10, 6);  // convert to MB
-    cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
-    cerr << "Sieve array total number of entries: " << nEntries << endl;
+void SieveTemplate<bool>::printSieveArrayInfo()
+{
+  uint64_t totalSize = sizeof(sieveArray);
+  uint64_t nEntries = 0;
+  for (const auto &column : sieveArray)
+  {
+    totalSize += sizeof(column) + column.capacity() / 8; // each bool stored as a bit
+    nEntries += column.size();
+  }
+  totalSize /= pow(10, 6); // convert to MB
+  cerr << "Sieve array approximate memory use: " << totalSize << "MB." << endl;
+  cerr << "Sieve array total number of entries: " << nEntries << endl;
 }
 
 template <>
-void SieveTemplate<uint32_t>::printSieveArrayInfo() {
-    uint64_t totalSize = sizeof(sieveArray);
-    uint64_t nEntries = 0;
-    for (const auto& column : sieveArray) {
-        totalSize += sizeof(column) + column.capacity() * sizeof(uint32_t);
-        nEntries += column.size() * 32;
-    }
-    totalSize /= pow(10, 6);  // convert to MB
-    cerr << "Sieve array approximate memory use: " << totalSize  << "MB." << endl;
-    cerr << "Sieve array total number of entries: " << nEntries << endl;
+void SieveTemplate<uint32_t>::printSieveArrayInfo()
+{
+  uint64_t totalSize = sizeof(sieveArray);
+  uint64_t nEntries = 0;
+  for (const auto &column : sieveArray)
+  {
+    totalSize += sizeof(column) + column.capacity() * sizeof(uint32_t);
+    nEntries += column.size() * 32;
+  }
+  totalSize /= pow(10, 6); // convert to MB
+  cerr << "Sieve array approximate memory use: " << totalSize << "MB." << endl;
+  cerr << "Sieve array total number of entries: " << nEntries << endl;
 }
 
 template <>
-void SieveTemplate<bool>::printSieveArray() {
-    // Print sieve array with same orientation as that in the complex plane.
-    uint32_t columnMaxSize = 0;
-    for (auto &column : sieveArray) {
-        if (column.size() > columnMaxSize) {
-            columnMaxSize = column.size();
+void SieveTemplate<bool>::printSieveArray()
+{
+  // Print sieve array with same orientation as that in the complex plane.
+  uint32_t columnMaxSize = 0;
+  for (auto &column : sieveArray)
+  {
+    if (column.size() > columnMaxSize)
+    {
+      columnMaxSize = column.size();
+    }
+  }
+  // Some type casting because subtraction confuses it.
+  for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--)
+  {
+    string row;
+    for (auto &column : sieveArray)
+    {
+      if (int32_t(column.size()) > v)
+      {
+        if (column[v])
+        {
+          row += '*'; // found a prime
         }
-    }
-    // Some type casting because subtraction confuses it.
-    for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
-        string row;
-        for (auto &column : sieveArray) {
-            if (int32_t(column.size()) > v) {
-                if (column[v]) {
-                    row += '*';  // found a prime
-                } else {
-                    row += '-';  // found a composite
-                }
-            } else {
-                row += ' ';  // not in sieveArray
-            }
+        else
+        {
+          row += '-'; // found a composite
         }
-        cerr << row << endl;
+      }
+      else
+      {
+        row += ' '; // not in sieveArray
+      }
     }
+    cerr << row << endl;
+  }
 }
 
 template <>
-void SieveTemplate<uint32_t>::printSieveArray() {
-    // Print sieve array with same orientation as that in the complex plane.
-    uint32_t columnMaxSize = 0;
-    for (auto &column : sieveArray) {
-        if (column.size() > columnMaxSize) {
-            columnMaxSize = column.size();
-        }
+void SieveTemplate<uint32_t>::printSieveArray()
+{
+  // Print sieve array with same orientation as that in the complex plane.
+  uint32_t columnMaxSize = 0;
+  for (auto &column : sieveArray)
+  {
+    if (column.size() > columnMaxSize)
+    {
+      columnMaxSize = column.size();
     }
-    // Some type casting because subtraction confuses it.
-    for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--) {
-        string row;
-        for (auto &column : sieveArray) {
-            if (int32_t(column.size()) > v) {
-                // printing entire block padded by 1
-                // could use binary or hex or ints ...
-                // bitset<32> b(sieveArray[u][v]);
-                // row += b.to_string('-', '*');
-                // row += ' ';
-                stringstream stream;
-                stream << setfill('0') << setw(8) << hex << column[v];
-                string result(stream.str());
-                row += result;
-                row += ' ';
-            } else {  // [u][v] index not in sieveArray
-                row += string(9, ' ');
-            }
-        }
-        cerr << row << endl;
+  }
+  // Some type casting because subtraction confuses it.
+  for (auto v = (int32_t)columnMaxSize - 1; v >= 0; v--)
+  {
+    string row;
+    for (auto &column : sieveArray)
+    {
+      if (int32_t(column.size()) > v)
+      {
+        // printing entire block padded by 1
+        // could use binary or hex or ints ...
+        // bitset<32> b(sieveArray[u][v]);
+        // row += b.to_string('-', '*');
+        // row += ' ';
+        stringstream stream;
+        stream << setfill('0') << setw(8) << hex << column[v];
+        string result(stream.str());
+        row += result;
+        row += ' ';
+      }
+      else
+      { // [u][v] index not in sieveArray
+        row += string(9, ' ');
+      }
     }
+    cerr << row << endl;
+  }
 }
 
 template <>
-bool SieveTemplate<bool>::getSieveArrayValue(uint32_t u, uint32_t v) {
-    return sieveArray.at(u).at(v);
+bool SieveTemplate<bool>::getSieveArrayValue(uint32_t u, uint32_t v)
+{
+  return sieveArray.at(u).at(v);
 }
 
 template <>
-uint32_t SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v) {
-    return sieveArray.at(u).at(v);
-}
-
-template<>
-vector<vector<bool>> SieveTemplate<bool>::getSieveArray() {
-    return sieveArray;
+uint32_t SieveTemplate<uint32_t>::getSieveArrayValue(uint32_t u, uint32_t v)
+{
+  return sieveArray.at(u).at(v);
 }
 
 template <>
-vector<vector<uint32_t>> SieveTemplate<uint32_t>::getSieveArray() {
-    return sieveArray;
+vector<vector<bool>> SieveTemplate<bool>::getSieveArray()
+{
+  return sieveArray;
 }
 
-
+template <>
+vector<vector<uint32_t>> SieveTemplate<uint32_t>::getSieveArray()
+{
+  return sieveArray;
+}
 
 // Other useful general purpose functions.
 
 // Integer square root.
-uint32_t isqrt(uint64_t n) {
-    uint64_t x, y;
-    x = n;
-    y = (x + 1) / 2;
-    while (y < x) {
-        x = y;
-        y = (x + n / x) / 2;
-    }
-    return (uint32_t)x;
+uint32_t isqrt(uint64_t n)
+{
+  uint64_t x, y;
+  x = n;
+  y = (x + 1) / 2;
+  while (y < x)
+  {
+    x = y;
+    y = (x + n / x) / 2;
+  }
+  return (uint32_t)x;
 }
 
 // Positive remainder.
-uint32_t mod(int64_t k, uint32_t m) {
-    int64_t r = k % m;
-    if (r < 0) {
-        r += m;
-    }
-    return uint32_t(r);
+uint32_t mod(int64_t k, uint32_t m)
+{
+  int64_t r = k % m;
+  if (r < 0)
+  {
+    r += m;
+  }
+  return uint32_t(r);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "../include/BaseSieve.hpp"
-#include "../include/BlockSieve.hpp"
+#include "BaseSieve.hpp"
+#include "BlockSieve.hpp"
 using namespace std;
 
 // Convert a vector of gints to a flattened array, then return pointer and size.
@@ -30,19 +30,20 @@ pair<int32_t *, uint64_t> gPrimesInBlockAsArray(uint32_t, uint32_t, uint32_t, ui
 vector<uint64_t> angularDistribution(uint64_t, uint32_t);
 
 // Gather sector race data and store within class.
-class SectorRace {
+class SectorRace
+{
 private:
-    uint64_t x, nBins;
-    vector<gint> firstSector, secondSector;
-    vector<int32_t> normData;
-public:
-    SectorRace(uint64_t, uint64_t, long double, long double, long double, long double);
-    void setNormData();
-    pair<int32_t *, uint64_t> getFirstSector();
-    pair<int32_t *, uint64_t> getSecondSector();
-    int32_t * getNormData();
-};
+  uint64_t x, nBins;
+  vector<gint> firstSector, secondSector;
+  vector<int32_t> normData;
 
+public:
+  SectorRace(uint64_t, uint64_t, long double, long double, long double, long double);
+  void setNormData();
+  pair<int32_t *, uint64_t> getFirstSector();
+  pair<int32_t *, uint64_t> getSecondSector();
+  int32_t *getNormData();
+};
 
 // Functions to access various moat data
 pair<int32_t *, uint64_t> moatMainComponent(double);
@@ -50,17 +51,18 @@ vector<pair<int32_t *, uint64_t>> moatComponentsToNorm(double, uint64_t);
 vector<pair<int32_t *, uint64_t>> moatComponentsInBlock(double, uint32_t, uint32_t, uint32_t, uint32_t);
 
 // A class to gather components within a block
-class BlockMoat : public BlockSieve {
+class BlockMoat : public BlockSieve
+{
 private:
-    double jumpSize;
-    uint32_t dx, dy;
-    vector<gint> nearestNeighbors, currentComponent, edges;
-    vector<vector<gint>> allComponents;
+  double jumpSize;
+  uint32_t dx, dy;
+  vector<gint> nearestNeighbors, currentComponent, edges;
+  vector<vector<gint>> allComponents;
 
 public:
-    BlockMoat(double, uint32_t, uint32_t, uint32_t, uint32_t);
-    void exploreComponent(gint);
-    void exploreAllComponents();
-    vector<vector<gint>> getAllComponents();
-    vector<gint> getEdges();
+  BlockMoat(double, uint32_t, uint32_t, uint32_t, uint32_t);
+  void exploreComponent(gint);
+  void exploreAllComponents();
+  vector<vector<gint>> getAllComponents();
+  vector<gint> getEdges();
 };

@@ -8,7 +8,7 @@
 
 # Compiler and flags needed for calling it.
 CC = clang++
-CFLAGS = -std=c++11 -stdlib=libc++
+CFLAGS = -std=c++11 -stdlib=libc++ -I include/
 
 # Main executables.
 TARGETS = gintsieve ginttest gintmoat
