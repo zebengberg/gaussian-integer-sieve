@@ -1,3 +1,5 @@
+# cython: language_level=3
+
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libc.stdint cimport uint32_t, uint64_t, int32_t
