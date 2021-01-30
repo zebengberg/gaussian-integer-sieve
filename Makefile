@@ -88,17 +88,17 @@ gintmoat: $(OBJECTS) obj/gintmoat.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 
-
 clean:
 	rm -r obj/ gintsieve ginttest gintmoat
 
 test:
 	./ginttest
 
+
 pybuild:
 	python setup.py sdist bdist_wheel clean --all
 	# showing wheel contents
-	unzip -l dist/*.whl
+	for f in dist/*.whl; do unzip -l $$f; done
 	# showing tar contents
 	tar -tvf dist/*.tar.gz
 	twine check dist/*

@@ -47,7 +47,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
 
-    python_requires='>=3',
+    python_requires='>=3.7',
     install_requires=['numpy', 'matplotlib', 'setuptools', 'Cython', 'sympy'],
     ext_modules=cythonize(
         extensions,

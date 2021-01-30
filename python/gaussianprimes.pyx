@@ -4,9 +4,8 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libc.stdint cimport uint32_t, uint64_t, int32_t
 import math
-import cython
-import matplotlib.pyplot as plt
 from cython cimport view
+import matplotlib.pyplot as plt
 import numpy as np
 cimport numpy as cnp
 cimport gaussianprimes as gp
@@ -19,13 +18,9 @@ cdef cnp.ndarray ptr_to_np_array(pair[intptr, uint64_t] p):
   # casting to a memory view object
   if size == 0:
     return np.array([]).reshape(2, 0)
-  cdef view.array a = <cnp.int32_t[:size]> ptr
+  cdef view.array a = <cnp.int32_t[:size] > ptr
   # De-flattening and chaining methods to get 2d numpy array.
   return np.asarray(a).reshape(size // 2, 2).transpose()
-
-
-# @cython.ccall is equivalent to cpdef, but allows for return annotation
-# see https://github.com/cython/cython/issues/2529
 
 
 cpdef count(x: int):
@@ -59,7 +54,8 @@ cpdef count_sector(x: int, alpha: float, beta: float):
       NotImplementedError: If alpha and beta are not in the interval [0, p/2)
   """
   if min(alpha, beta) < 0 or max(alpha, beta) > math.pi / 2:
-    raise NotImplementedError('Only implemented for alpha >= 0 and beta < pi/2.')
+    raise NotImplementedError(
+        'Only implemented for alpha >= 0 and beta < pi/2.')
   # SectorSieve automatically assigns alpha to smaller and beta to larger
   return gp.gPrimesInSectorCount(x, alpha, beta)
 
@@ -115,7 +111,8 @@ cpdef gprimes_sector(x: int, alpha: float, beta: float):
       NotImplementedError: If alpha and beta are not in the interval [0, p/2)
   """
   if min(alpha, beta) < 0 or max(alpha, beta) > math.pi / 2:
-    raise NotImplementedError('Only implemented for alpha >= 0 and beta < pi/2.')
+    raise NotImplementedError(
+        'Only implemented for alpha >= 0 and beta < pi/2.')
   # SectorSieve automatically assigns alpha to smaller and beta to larger
   p = gp.gPrimesInSectorAsArray(x, alpha, beta)
   np_primes = ptr_to_np_array(p)
@@ -142,7 +139,7 @@ cpdef gprimes_block(x: int, y: int, dx: int, dy: int):
   return Gints(np_primes, x, y, dx, dy)
 
 
-cpdef angular_dist(x: int, n: int, ignore_outliers: bool = True):
+cpdef angular_dist(x: int, n: int, ignore_outliers: bool=True):
   """Create histogram of Gaussian primes up to norm x in n equal-spaced sectors.
 
   Args:
@@ -160,7 +157,8 @@ cpdef angular_dist(x: int, n: int, ignore_outliers: bool = True):
   m0 = np.percentile(data, 1)
   m1 = np.percentile(data, 99)
   plt.subplots(figsize=(12, 8))
-  plt.title('Histogram of Gaussian primes up to norm $x$ in $n$ equal-spaced sectors', fontsize=15)
+  plt.title(
+      'Histogram of Gaussian primes up to norm $x$ in $n$ equal-spaced sectors', fontsize=15)
   plt.xlabel('Number of Gaussian primes per sector', fontsize=15)
   plt.ylabel('Number of sectors', fontsize=15)
   if ignore_outliers:
@@ -223,7 +221,7 @@ cpdef moat_components_to_norm(jump_size: float, x: int):
   return components
 
 
-cpdef moat_components_in_block(jump_size: float, x: int, y: int, dx: int, dy: int, ignore_edges: bool = True):
+cpdef moat_components_in_block(jump_size: float, x: int, y: int, dx: int, dy: int, ignore_edges: bool=True):
   """Calculate all connected component of the Gaussian moat graph in the block [x, x + dx) x [y, y + dy).
 
   Args:
@@ -272,16 +270,29 @@ class Race:
       gamma (float): Initial angle for second sector.
       delta (float): Terminal angle for second sector.
       n_bins (int): Number of histogram bins. Defaults to 1000.
+
+  Raises:
+      NotImplementedError: If the angles are not in the interval [0, p/4)
+      ValueError: If the four angle measures are not increasing
+      ValueError: If the two sectors have different measures
   """
 
-  def __init__(self, x: int, alpha: float, beta: float, gamma: float, delta: float, n_bins=1000):
+  def __init__(
+      self,
+      x: int,
+      alpha: float,
+      beta: float,
+      gamma: float,
+      delta: float,
+      n_bins: int = 1000
+  ):
     if alpha > beta or gamma > delta:
       raise ValueError('The four angle measures must be increasing.')
     if abs(abs(beta - alpha) - abs(delta - gamma)) > 0.0000001:
       raise ValueError('Unfair race; try again with two equal-sized sectors.')
     for angle in [alpha, beta, gamma, delta]:
       if angle < 0 or angle > np.pi / 4:
-        raise ValueError('Stay inside the first octant.')
+        raise NotImplementedError('Stay inside the first octant.')
 
     self.x = x
     self.alpha = alpha
@@ -312,7 +323,7 @@ class Race:
     # Deleting cpp instance; not sure if this is useful.
     del race
 
-  def plot_race(self, normalize=True):
+  def plot_race(self, normalize: bool = True):
     """Plot norms against the difference pi(sector1) - pi(sector2)."""
     plt.subplots(figsize=(12, 8))
     plt.plot(self.norms, self.norm_data, 'b-')
@@ -347,7 +358,7 @@ class Race:
     d /= np.sum(weights)
     return d
 
-  def plot_sectors(self, save=False):
+  def plot_sectors(self, save: bool = False):
     """Plot sectors in complex plane."""
 
     plt.subplots(figsize=(12, 8))
@@ -366,11 +377,17 @@ class Race:
     plt.show()
 
 
-
 class Gints(np.ndarray):
-  """Class to wrap np arrays returned by sieve calls."""
+  """Class to wrap np.arrays returned by sieve calls."""
 
-  def __new__(cls, gints_np_array, x, x1=-1, x2=-1, x3=-1):
+  def __new__(
+      cls,
+      gints_np_array: np.array,
+      x: int,
+      x1: int = -1,
+      x2: int = -1,
+      x3: int = -1
+  ):
     obj = np.asarray(gints_np_array).view(cls)
     obj.x = x
     if x3 != -1:
@@ -387,15 +404,19 @@ class Gints(np.ndarray):
     return obj
 
   def to_complex(self):
-    """Convert to a 1d np.array of complex numbers."""
-    return np.asarray(self[0, :] + 1j * self[1, :])
+    """Return 1-dimensional np.array of complex numbers."""
+    return np.asarray(self[0] + 1j * self[1])
 
   def norms(self):
-    """Convert to 1d np.array of norms."""
-    return np.asarray(self[0, :] ** 2 + self[1, :] ** 2)
+    """Return 1-dimensional np.array of norms."""
+    return np.asarray(self[0] ** 2 + self[1] ** 2)
 
-  def __mod__(self, z):
-    """Return the remainder upon division."""
+  def angles(self):
+    """Return 1-dimensional np.array of angles."""
+    return np.asarray(np.arctan2(self[1], self[0]))
+
+  def __mod__(self, z: complex):
+    """Return 2-dimensional np.array of remainder upon division by z."""
     if not isinstance(z, complex):
       raise TypeError(
           'The modulus should be a python complex number such as 3 + 4j.')
@@ -416,8 +437,8 @@ class Gints(np.ndarray):
 
     return np.stack((real_mod.astype(np.int32), imag_mod.astype(np.int32)))
 
-  def plot(self, full_disk=False, save=False):
-    """Plot Gaussian primes with Matplotlib."""
+  def plot(self, full_disk: bool = False, save: bool = False):
+    """Plot Gaussian primes with Matplotlib.pyplot."""
 
     reals = self[0]
     imags = self[1]

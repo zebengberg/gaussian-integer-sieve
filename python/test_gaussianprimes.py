@@ -122,6 +122,18 @@ def test_moat():
   assert m.shape == (2, 2386129)
 
 
+def test_readme_examples():
+  """Test examples in readme."""
+  print(gp.gprimes(50))
+  print(gp.count(3141592653))
+  p = gp.gprimes_block(123456, 67890, 100, 100)
+  p.plot()
+  p = gp.gprimes_sector(10000, 0, 3.14159 / 8)
+  p.plot()
+  p = gp.gprimes(1000)
+  p.plot(full_disk=True)
+
+
 if __name__ == '__main__':
   test_count_gprimes()
   test_count_block()
@@ -129,3 +141,4 @@ if __name__ == '__main__':
   test_gprimes_block()
   test_gprimes_sector()
   test_moat()
+  test_readme_examples()
