@@ -1,14 +1,16 @@
 python/.ipynb_checkpoints/
 .DS_Store
 .pytest_cache
+.vscode
+__pycache__
 
-# binaries and object files
+# binaries and object files from make
 gintsieve
 ginttest
 gintmoat
 obj/
-*.so
 
-# cython generated stuff; should have been deleted by setup.py
-python/build/
-python/src/gintsieve.cpp
+# python dist
+dist/
+python/gaussianprimes.cpp
+gaussianprimes.egg-info

@@ -88,10 +88,23 @@ gintmoat: $(OBJECTS) obj/gintmoat.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 
-.PHONY: clean
+
 clean:
 	rm -r obj/ gintsieve ginttest gintmoat
 
-.PHONY: test
 test:
 	./ginttest
+
+pybuild:
+	python setup.py sdist bdist_wheel clean --all
+	# showing wheel contents
+	unzip -l dist/*.whl
+	# showing tar contents
+	tar -tvf dist/*.tar.gz
+	twine check dist/*
+
+pyinstall:
+	python -m pip install .
+
+pytest:
+	python -m pytest

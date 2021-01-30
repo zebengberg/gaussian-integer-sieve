@@ -22,13 +22,10 @@ SectorSieve::SectorSieve(uint64_t x, long double alpha, long double beta, bool v
     long double temp = alpha;
     this->alpha = beta; // need this to make reassignment stick outside of this block of code
     this->beta = temp;
-    if ((beta > M_PI_2) || (alpha < 0))
-    {
-      cerr << "The interval [alpha, beta) should be a subinterval of [0, pi/2)."
-           << "Choose different values for alpha and beta or use defaults."
-           << endl;
-      throw;
-    }
+  }
+  if ((beta > M_PI_2) || (alpha < 0))
+  {
+    throw invalid_argument("The interval [alpha, beta) should be a subinterval of [0, pi/2).");
   }
 }
 
