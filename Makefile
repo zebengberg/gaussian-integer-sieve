@@ -108,3 +108,7 @@ pyinstall:
 
 pytest:
 	python -m pytest
+
+pypi:
+	twine upload dist/*
+

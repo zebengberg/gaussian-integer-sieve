@@ -39,7 +39,7 @@ extensions = [setuptools.Extension(
 
 setuptools.setup(
     name='gaussianprimes',
-    version='1.0.0',
+    version='1.0.1',
     author='Zeb Engberg',
     author_email='zebengberg@gmail.com',
     url='https://github.com/zebengberg/gaussian-integer-sieve',
